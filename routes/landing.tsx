@@ -64,7 +64,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
 
         {/* Hero Visual Background */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-slate-950 to-transparent z-10"></div>
+        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-slate-950 to-transparent z-0 pointer-events-none"></div>
       </section>
 
       {/* Social Proof / Stats */}
@@ -118,36 +118,38 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
       </section>
 
       {/* Feature Highlights */}
-      <section className="py-16 px-6 space-y-12 bg-slate-900/50">
-         <div className="space-y-2 max-w-sm">
-            <h3 className="text-2xl font-black text-white">Solusi Cerdas & Praktis</h3>
-            <p className="text-xs text-slate-400">Teknologi enterprise yang disederhanakan untuk warung makan & resto.</p>
-         </div>
-
-         <div className="grid gap-6">
-            <div className="p-6 bg-slate-900 rounded-[2rem] border border-slate-800 relative overflow-hidden group hover:border-indigo-500/50 transition-colors">
-               <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-40 transition-opacity">
-                  <TrendingUp className="w-24 h-24 text-indigo-500 rotate-12" />
-               </div>
-               <div className="relative z-10 space-y-3">
-                  <div className="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30">
-                     <TrendingUp className="w-6 h-6 text-indigo-400" />
-                  </div>
-                  <h4 className="text-lg font-black">Profit Simulator</h4>
-                  <p className="text-xs text-slate-400 leading-relaxed">Lihat potensi cuan bersih di GoFood, Grab, & ShopeeFood sebelum Anda posting menu.</p>
-               </div>
+      <section className="py-16 px-6 bg-slate-900/50">
+         <div className="max-w-5xl mx-auto space-y-12">
+            <div className="space-y-2 max-w-sm">
+               <h3 className="text-2xl font-black text-white">Solusi Cerdas & Praktis</h3>
+               <p className="text-xs text-slate-400">Teknologi enterprise yang disederhanakan untuk warung makan & resto.</p>
             </div>
 
-            <div className="p-6 bg-slate-900 rounded-[2rem] border border-slate-800 relative overflow-hidden group hover:border-emerald-500/50 transition-colors">
-               <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-40 transition-opacity">
-                  <ShieldCheck className="w-24 h-24 text-emerald-500 rotate-12" />
-               </div>
-               <div className="relative z-10 space-y-3">
-                  <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30">
-                     <ShieldCheck className="w-6 h-6 text-emerald-400" />
+            <div className="grid gap-6 md:grid-cols-2">
+               <div className="p-6 bg-slate-900 rounded-[2rem] border border-slate-800 relative overflow-hidden group hover:border-indigo-500/50 transition-colors">
+                  <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-40 transition-opacity">
+                     <TrendingUp className="w-24 h-24 text-indigo-500 rotate-12" />
                   </div>
-                  <h4 className="text-lg font-black">Anti-Boncos Shield</h4>
-                  <p className="text-xs text-slate-400 leading-relaxed">Sistem otomatis mendeteksi jika harga jual Anda terlalu rendah untuk menutup biaya komisi.</p>
+                  <div className="relative z-10 space-y-3">
+                     <div className="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30">
+                        <TrendingUp className="w-6 h-6 text-indigo-400" />
+                     </div>
+                     <h4 className="text-lg font-black">Profit Simulator</h4>
+                     <p className="text-xs text-slate-400 leading-relaxed">Lihat potensi cuan bersih di GoFood, Grab, & ShopeeFood sebelum Anda posting menu.</p>
+                  </div>
+               </div>
+
+               <div className="p-6 bg-slate-900 rounded-[2rem] border border-slate-800 relative overflow-hidden group hover:border-emerald-500/50 transition-colors">
+                  <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:opacity-40 transition-opacity">
+                     <ShieldCheck className="w-24 h-24 text-emerald-500 rotate-12" />
+                  </div>
+                  <div className="relative z-10 space-y-3">
+                     <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30">
+                        <ShieldCheck className="w-6 h-6 text-emerald-400" />
+                     </div>
+                     <h4 className="text-lg font-black">Anti-Boncos Shield</h4>
+                     <p className="text-xs text-slate-400 leading-relaxed">Sistem otomatis mendeteksi jika harga jual Anda terlalu rendah untuk menutup biaya komisi.</p>
+                  </div>
                </div>
             </div>
          </div>

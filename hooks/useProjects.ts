@@ -1,7 +1,9 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { Project } from '../types';
 import { cleanAIJSON } from '../lib/utils';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { api } from '../lib/client';
 
 const STORAGE_KEY = 'margins_pro_v12_final';
 
@@ -16,12 +18,20 @@ const DEFAULT_PROJECT_STATE: Project = {
 };
 
 export const useProjects = (activeBusinessId?: string) => {
+  const isDemo = localStorage.getItem('margins_pro_is_demo') === 'true';
+
+  // --- STATE (Optimistic UI) ---
   const [allProjects, setAllProjects] = useState<Project[]>(() => {
+    // If Demo, load from LocalStorage entirely
+    // If Real, try load from LocalStorage as cache, but will be overwritten by API
     const saved = localStorage.getItem(STORAGE_KEY);
-    const parsed = saved ? JSON.parse(saved) : [
-      {
+    const parsed = saved ? JSON.parse(saved) : [];
+
+    // Fallback Only for purely client-side/demo
+    if (parsed.length === 0 && isDemo) {
+      return [{
         id: 'fiera-real-v2',
-        businessId: 'fiera-food-001', 
+        businessId: 'fiera-food-001',
         name: 'Rice Bowl Fiera Food',
         label: 'Real Ops',
         confidence: 'high',
@@ -43,13 +53,66 @@ export const useProjects = (activeBusinessId?: string) => {
         productionConfig: { period: 'weekly', daysActive: 5, targetUnits: 40 },
         pricingStrategy: 'competitor',
         competitorPrice: 10000,
-        targetNet: 2500, 
+        targetNet: 2500,
         lastModified: Date.now()
-      }
-    ];
+      }];
+    }
     return parsed;
   });
-  
+
+  // --- API SYNC ---
+  const { data: remoteProjects } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const res = await api.projects.$get();
+      if (!res.ok) throw new Error("Failed to fetch");
+      // Parse: The API returns JSON with a 'data' flattened. 
+      // We need to ensure it matches Project type.
+      const json = await res.json();
+      // Map API response to match Project type strictly if needed, 
+      // but our RPC client should handle types if Shared correctly.
+      // For now, assume strict mapping.
+      return json as Project[];
+    },
+    enabled: !isDemo // Only fetch if not demo
+  });
+
+  // Sync Remote -> Local
+  useEffect(() => {
+    if (remoteProjects && !isDemo) {
+      setAllProjects(remoteProjects);
+    }
+  }, [remoteProjects, isDemo]);
+
+  // Sync Local -> Storage (Always backup)
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allProjects));
+  }, [allProjects]);
+
+
+  // --- MUTATIONS ---
+  const createMutation = useMutation({
+    mutationFn: async (json: any) => {
+      const res = await api.projects.$post({ json });
+      return await res.json();
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, json }: { id: string, json: any }) => {
+      const res = await api.projects[':id'].$put({ param: { id }, json });
+      return await res.json();
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await api.projects[':id'].$delete({ param: { id } });
+      return await res.json();
+    }
+  });
+
+
   const projects = useMemo(() => {
     if (!activeBusinessId) return allProjects;
     return allProjects.filter(p => p.businessId === activeBusinessId || !p.businessId);
@@ -60,15 +123,11 @@ export const useProjects = (activeBusinessId?: string) => {
 
   useEffect(() => {
     if (projects.length > 0) {
-        if (!activeProjectId || !projects.find(p => p.id === activeProjectId)) {
-            setActiveProjectId(projects[0].id);
-        }
+      if (!activeProjectId || !projects.find(p => p.id === activeProjectId)) {
+        setActiveProjectId(projects[0].id);
+      }
     }
   }, [projects, activeProjectId]);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(allProjects));
-  }, [allProjects]);
 
   const activeProject = useMemo(() => {
     const found = projects.find(p => p.id === activeProjectId);
@@ -78,21 +137,46 @@ export const useProjects = (activeBusinessId?: string) => {
   }, [projects, activeProjectId]);
 
   const updateProject = useCallback((updates: Partial<Project>) => {
-    setAllProjects(prev => prev.map(p => p.id === activeProjectId ? { ...p, ...updates, lastModified: Date.now() } : p));
-  }, [activeProjectId]);
+    setAllProjects(prev => prev.map(p => {
+      if (p.id === activeProjectId) {
+        const updated = { ...p, ...updates, lastModified: Date.now() };
+        // Fire API
+        if (!isDemo) {
+          updateMutation.mutate({
+            id: p.id,
+            json: { name: updated.name, data: updated, isFavorite: updated.isFavorite }
+          });
+        }
+        return updated;
+      }
+      return p;
+    }));
+  }, [activeProjectId, isDemo]);
 
   // NEW: Update any project by ID (Generic)
   const editProject = useCallback((id: string, updates: Partial<Project>) => {
-    setAllProjects(prev => prev.map(p => p.id === id ? { ...p, ...updates, lastModified: Date.now() } : p));
-  }, []);
+    setAllProjects(prev => prev.map(p => {
+      if (p.id === id) {
+        const updated = { ...p, ...updates, lastModified: Date.now() };
+        if (!isDemo) {
+          updateMutation.mutate({
+            id: p.id,
+            json: { name: updated.name, data: updated, isFavorite: updated.isFavorite }
+          });
+        }
+        return updated;
+      }
+      return p;
+    }));
+  }, [isDemo]);
 
   const createNewProject = useCallback(() => {
-    const id = Math.random().toString(36).substr(2, 9);
-    const newP: Project = { 
-      id, 
+    const id = Math.random().toString(36).substring(2, 9);
+    const newP: Project = {
+      id,
       businessId: activeBusinessId,
-      name: 'Menu Baru', 
-      label: 'Draft', 
+      name: 'Menu Baru',
+      label: 'Draft',
       costs: [
         { id: 'c1', name: 'Bahan Utama', amount: 0, allocation: 'unit' },
         { id: 'c2', name: 'Packaging', amount: 0, allocation: 'unit' },
@@ -100,84 +184,112 @@ export const useProjects = (activeBusinessId?: string) => {
         { id: 'c_fixed', name: 'Biaya Tetap Operasional', amount: 0, allocation: 'unit' }
       ],
       productionConfig: { period: 'weekly', daysActive: 5, targetUnits: 40 },
-      pricingStrategy: 'competitor', 
+      pricingStrategy: 'competitor',
       competitorPrice: 12000,
-      targetNet: 3000, 
+      targetNet: 3000,
       lastModified: Date.now(),
       isFavorite: false
     };
+
     setAllProjects(prev => [newP, ...prev]);
     setActiveProjectId(id);
-    return id; 
-  }, [activeBusinessId]);
+
+    if (!isDemo) {
+      createMutation.mutate({
+        name: newP.name,
+        businessId: activeBusinessId,
+        data: newP
+      });
+    }
+
+    return id;
+  }, [activeBusinessId, isDemo]);
 
   const addProject = useCallback((project: Project) => {
     const finalProject = { ...project };
     if (!finalProject.businessId && activeBusinessId) {
-        finalProject.businessId = activeBusinessId;
+      finalProject.businessId = activeBusinessId;
     }
     setAllProjects(prev => [finalProject, ...prev]);
     setActiveProjectId(finalProject.id);
-  }, [activeBusinessId]);
+
+    if (!isDemo) {
+      createMutation.mutate({
+        name: finalProject.name,
+        businessId: finalProject.businessId,
+        data: finalProject
+      });
+    }
+  }, [activeBusinessId, isDemo]);
 
   const deleteProject = useCallback((id: string) => {
     setAllProjects(prev => {
-        // 1. Filter out the deleted project
-        const updatedList = prev.filter(p => p.id !== id);
-        
-        // 2. Smart Redirect: If the deleted project was the active one
-        if (id === activeProjectId) {
-            // Find a replacement from the UPDATED list (same business logic preferrably)
-            const remainingInContext = activeBusinessId 
-                ? updatedList.filter(p => p.businessId === activeBusinessId || !p.businessId)
-                : updatedList;
+      const updatedList = prev.filter(p => p.id !== id);
+      if (id === activeProjectId) {
+        const remainingInContext = activeBusinessId
+          ? updatedList.filter(p => p.businessId === activeBusinessId || !p.businessId)
+          : updatedList;
 
-            if (remainingInContext.length > 0) {
-                // Switch to the first available project immediately
-                setTimeout(() => setActiveProjectId(remainingInContext[0].id), 0);
-            } else {
-                // No projects left, clear selection
-                setTimeout(() => setActiveProjectId(''), 0);
-            }
+        if (remainingInContext.length > 0) {
+          setTimeout(() => setActiveProjectId(remainingInContext[0].id), 0);
+        } else {
+          setTimeout(() => setActiveProjectId(''), 0);
         }
-        
-        return updatedList;
+      }
+      return updatedList;
     });
-  }, [activeProjectId, activeBusinessId]);
+
+    if (!isDemo) {
+      deleteMutation.mutate(id);
+    }
+  }, [activeProjectId, activeBusinessId, isDemo]);
 
   const toggleFavorite = useCallback((id: string) => {
-    setAllProjects(prev => prev.map(p => p.id === id ? { ...p, isFavorite: !p.isFavorite } : p));
-  }, []);
+    setAllProjects(prev => prev.map(p => {
+      if (p.id === id) {
+        const updated = { ...p, isFavorite: !p.isFavorite };
+        if (!isDemo) {
+          updateMutation.mutate({
+            id: p.id,
+            json: { data: updated, isFavorite: updated.isFavorite }
+          });
+        }
+        return updated;
+      }
+      return p;
+    }));
+  }, [isDemo]);
 
   const importProjectWithAI = useCallback(async (jsonString: string) => {
     setIsImporting(true);
     try {
       const rawData = JSON.parse(jsonString);
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }); // Use correct ENV
       const prompt = `
         Fix missing fields for Food Pricing Project. Return strictly valid JSON.
         Input Data: ${JSON.stringify(rawData)}
       `;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-2.0-flash-exp', // Updated model
         contents: prompt,
         config: { responseMimeType: 'application/json' }
       });
 
       const cleanedData = JSON.parse(cleanAIJSON(response.text || '{}'));
-      const newId = Math.random().toString(36).substr(2, 9);
+      const newId = Math.random().toString(36).substring(2, 9);
       const newProject: Project = {
         ...cleanedData,
         id: newId,
         businessId: activeBusinessId,
         name: cleanedData.name ? `[Import] ${cleanedData.name}` : `[Import] Project ${newId}`,
         lastModified: Date.now(),
-        confidence: 'medium', 
+        confidence: 'medium',
       };
 
-      setAllProjects(prev => [newProject, ...prev]);
-      setActiveProjectId(newId);
+      // Reuse addProject to handle logic
+      addProject(newProject);
+
       return newId;
     } catch (e) {
       console.error("AI Import Failed:", e);
@@ -185,7 +297,7 @@ export const useProjects = (activeBusinessId?: string) => {
     } finally {
       setIsImporting(false);
     }
-  }, [activeBusinessId]);
+  }, [activeBusinessId, addProject]);
 
   return {
     allProjects,
@@ -194,7 +306,7 @@ export const useProjects = (activeBusinessId?: string) => {
     setActiveProjectId,
     activeProject,
     updateProject,
-    editProject, // Exported
+    editProject,
     createNewProject,
     addProject,
     deleteProject,
