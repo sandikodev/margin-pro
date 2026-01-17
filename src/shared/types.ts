@@ -138,12 +138,22 @@ export interface Currency {
   rate: number;
 }
 
-export interface User { id: string; email: string; name?: string }
-export interface Business { id: string; name: string }
+export interface User {
+  id: string;
+  email: string;
+  name?: string;
+  role?: 'user' | 'admin';
+  createdAt?: number;
+}
+
+export interface Business extends BusinessProfile {
+  userId: string;
+  updatedAt?: number;
+}
 
 export interface SharedProps {
   user: User | null;
-  business?: Business;
+  business?: Business | BusinessProfile;
   projects: Project[];
   selectedCurrency: Currency;
 }
