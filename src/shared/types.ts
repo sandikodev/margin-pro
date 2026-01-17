@@ -4,15 +4,15 @@ export enum Platform {
   SHOPEE_FOOD = 'ShopeeFood',
   GO_FOOD = 'GoFood',
   GRAB_FOOD = 'GrabFood',
-  
+
   // Local Marketplace (General Commerce)
   TOKOPEDIA = 'Tokopedia',
   SHOPEE_MP = 'Shopee Mrkt',
-  
+
   // Global / Export
   ETSY = 'Etsy Global',
   AMAZON = 'Amazon US',
-  
+
   // Real / Offline
   OFFLINE = 'Direct Selling'
 }
@@ -23,7 +23,7 @@ export interface PlatformConfig {
   withdrawalFee: number;
   color: string;
   officialTermsUrl: string;
-  category: 'food' | 'marketplace' | 'export' | 'offline'; 
+  category: 'food' | 'marketplace' | 'export' | 'offline';
 }
 
 export interface PlatformOverrides {
@@ -38,16 +38,16 @@ export type BulkUnit = 'units' | 'days'; // REFACTORED: 'portions' -> 'units'
 export interface CostItem {
   id: string;
   name: string; // Nama Komponen Biaya (Bahan/Tenaga/Sewa)
-  amount: number; 
-  minAmount?: number; 
-  maxAmount?: number; 
-  isRange?: boolean; 
-  allocation?: CostAllocation; 
+  amount: number;
+  minAmount?: number;
+  maxAmount?: number;
+  isRange?: boolean;
+  allocation?: CostAllocation;
   batchYield?: number; // Kapasitas Output
-  bulkUnit?: BulkUnit; 
-  
+  bulkUnit?: BulkUnit;
+
   // Detail Takaran (Universal Measurement)
-  detailTotalQty?: number; 
+  detailTotalQty?: number;
   detailPerPortion?: number; // Bisa dibaca "Per Unit Usage"
   detailUnit?: string; // e.g., 'gr', 'cm', 'hours', 'license'
 }
@@ -56,7 +56,7 @@ export type PeriodType = 'daily' | 'weekly' | 'monthly';
 
 export interface ProductionConfig {
   period: PeriodType;
-  daysActive: number; 
+  daysActive: number;
   targetUnits: number; // REFACTORED: 'targetPortions' -> 'targetUnits'
 }
 
@@ -64,19 +64,19 @@ export type PricingStrategy = 'markup' | 'competitor';
 
 export interface Project {
   id: string;
-  businessId?: string; 
+  businessId?: string;
   name: string; // Nama Produk / Layanan
   label: string;
-  costs: CostItem[]; 
-  productionConfig?: ProductionConfig; 
-  pricingStrategy?: PricingStrategy; 
-  competitorPrice?: number; 
+  costs: CostItem[];
+  productionConfig?: ProductionConfig;
+  pricingStrategy?: PricingStrategy;
+  competitorPrice?: number;
   targetNet: number;
-  confidence?: 'low' | 'medium' | 'high'; 
+  confidence?: 'low' | 'medium' | 'high';
   lastModified: number;
   author?: string;
-  price?: number; 
-  isFavorite?: boolean; 
+  price?: number;
+  isFavorite?: boolean;
 }
 
 export interface MarketplaceItem extends Project {
@@ -86,12 +86,12 @@ export interface MarketplaceItem extends Project {
 
 export interface Liability {
   id: string;
-  businessId?: string; 
-  name: string; 
-  amount: number; 
-  dueDate: number; 
-  totalTenure?: number; 
-  remainingTenure?: number; 
+  businessId?: string;
+  name: string;
+  amount: number;
+  dueDate: number;
+  totalTenure?: number;
+  remainingTenure?: number;
   isPaidThisMonth: boolean;
 }
 
@@ -99,10 +99,10 @@ export type TransactionCategory = 'SALES' | 'COGS' | 'OPEX' | 'ASSET' | 'OTHER';
 
 export interface CashflowRecord {
   id: string;
-  businessId?: string; 
-  date: number; 
-  revenue: number; 
-  expense: number; 
+  businessId?: string;
+  date: number;
+  revenue: number;
+  expense: number;
   category?: TransactionCategory; // New Field
   note: string;
 }
@@ -113,7 +113,7 @@ export interface ScenarioResult {
   totalDeductions: number;
   roi: number;
   marginPercent: number;
-  isBleeding: boolean; 
+  isBleeding: boolean;
 }
 
 export interface CalculationResult {
@@ -131,9 +131,21 @@ export interface CalculationResult {
   };
 }
 
+export interface Currency {
+  code: string;
+  symbol: string;
+  name: string;
+  rate: number;
+}
+
+export interface User { id: string; email: string; name?: string }
+export interface Business { id: string; name: string }
+
 export interface SharedProps {
-  formatValue: (val: number) => string;
-  selectedCurrency?: any;
+  user: User | null;
+  business?: Business;
+  projects: Project[];
+  selectedCurrency: Currency;
 }
 
 export type LanguageMode = 'umkm' | 'pro';
@@ -148,26 +160,26 @@ export type BusinessType = 'fnb_offline' | 'fnb_online' | 'retail' | 'services' 
 
 export interface BusinessProfile {
   id: string;
-  name: string; 
-  type: BusinessType; 
+  name: string;
+  type: BusinessType;
   description?: string;
-  
+
   ownerName?: string;
   email?: string;
   phone?: string;
-  category?: string; 
+  category?: string;
   gmapsLink?: string;
   linkGofood?: string;
   linkGrab?: string;
   linkShopee?: string;
 
-  initialCapital: number; 
-  currentAssetValue: number; 
-  cashOnHand: number; 
-  
+  initialCapital: number;
+  currentAssetValue: number;
+  cashOnHand: number;
+
   address?: string;
   establishedDate: number;
-  
+
   themeColor?: string;
   avatarUrl?: string; // New Field for Photo Upload
 }

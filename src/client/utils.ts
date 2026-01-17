@@ -1,5 +1,4 @@
 import { Platform, Project, PlatformOverrides, CalculationResult, CostItem, ProductionConfig, ScenarioResult } from '@shared/types';
-import { PLATFORM_DATA } from './lib/constants';
 
 /**
  * ==========================================

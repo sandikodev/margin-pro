@@ -1,5 +1,6 @@
 import { jsPDF } from "jspdf";
-import { Project, Platform, ScenarioResult, CalculationResult } from '@shared/types';
+import { Project, Platform } from '@shared/types';
+// Removed unused imports
 import { calculateTotalHPP, calculateEffectiveCost, calculatePricingStrategies, calculateOperationalBurnRate } from './utils';
 import { PLATFORM_DATA } from './constants';
 
@@ -26,12 +27,12 @@ const cleanVal = (val: number, formatValue: (v: number) => string) => {
 const drawHeader = (doc: jsPDF, pageNum: number, totalPages: number, title: string, activeProject: Project) => {
   doc.setFillColor(COLORS.secondary[0], COLORS.secondary[1], COLORS.secondary[2]);
   doc.rect(0, 0, 210, 45, 'F');
-  
+
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
   doc.text("MARGINS PRO", 15, 18);
-  
+
   doc.setFontSize(7);
   doc.setFont("helvetica", "normal");
   doc.text("HYPER-FORENSIC PRICING AUDIT | ULTRA-DETAIL SYSTEM v7.0", 15, 24);
@@ -43,7 +44,7 @@ const drawHeader = (doc: jsPDF, pageNum: number, totalPages: number, title: stri
     doc.text("POWERED BY PT KONEKSI JARINGAN INDONESIA", 15, 30);
     doc.setTextColor(255, 255, 255);
   }
-  
+
   doc.setFont("helvetica", "normal");
   doc.text(`AUDIT_ID: ${activeProject.id.toUpperCase()}`, 155, 15);
   doc.text(`STAMP: ${new Date().toLocaleString('id-ID')}`, 155, 20);
@@ -88,13 +89,13 @@ export const generateIntelligencePDF = (activeProject: Project, formatValue: (va
     activeProject,
     Object.values(Platform).reduce((acc, p) => ({
       ...acc,
-      [p]: { 
-        commission: PLATFORM_DATA[p].defaultCommission * 100, 
-        fixedFee: PLATFORM_DATA[p].defaultFixedFee, 
-        withdrawal: PLATFORM_DATA[p].withdrawalFee 
+      [p]: {
+        commission: PLATFORM_DATA[p].defaultCommission * 100,
+        fixedFee: PLATFORM_DATA[p].defaultFixedFee,
+        withdrawal: PLATFORM_DATA[p].withdrawalFee
       }
-    }), {} as any),
-    0, 0.11 
+    }), {} as Record<Platform, { commission: number; fixedFee: number; withdrawal: number }>),
+    0, 0.11
   );
 
   // ==========================================
@@ -145,7 +146,7 @@ export const generateIntelligencePDF = (activeProject: Project, formatValue: (va
   doc.setFontSize(9);
   doc.setFont("helvetica", "bold");
   doc.text("FORENSIC DUAL-STRATEGY PRICING MATRIX", 15, matrixY);
-  
+
   matrixY += 5;
   doc.setFillColor(COLORS.secondary[0], COLORS.secondary[1], COLORS.secondary[2]);
   doc.rect(15, matrixY, 180, 10, 'F');
@@ -165,20 +166,20 @@ export const generateIntelligencePDF = (activeProject: Project, formatValue: (va
     doc.setFontSize(7);
     doc.setFont("helvetica", "bold");
     doc.text(res.platform, 18, matrixY);
-    
+
     doc.setFont("helvetica", "normal");
     // Column 2: Price Matrix
     doc.text(`${cleanVal(kiri.price, formatValue)} / ${cleanVal(kanan.price, formatValue)}`, 65, matrixY);
-    
+
     doc.setTextColor(COLORS.danger[0], COLORS.danger[1], COLORS.danger[2]);
     // Column 3: Total Deductions based on Safe Price
     doc.text("-" + cleanVal(kiri.totalDeductions, formatValue), 120, matrixY);
-    
+
     doc.setTextColor(COLORS.accent[0], COLORS.accent[1], COLORS.accent[2]);
     doc.setFont("helvetica", "bold");
     // Column 4: Secured Profit Matrix
     doc.text(`${cleanVal(kiri.netProfit, formatValue)} / ${cleanVal(kanan.netProfit, formatValue)}`, 155, matrixY);
-    
+
     doc.setDrawColor(COLORS.border[0], COLORS.border[1], COLORS.border[2]);
     doc.setLineWidth(0.1);
     doc.line(15, matrixY + 3, 195, matrixY + 3);
@@ -197,7 +198,7 @@ export const generateIntelligencePDF = (activeProject: Project, formatValue: (va
   doc.setFontSize(8.5);
   doc.setFont("helvetica", "bold");
   doc.text("LOGIKA PROTEKSI & AUDIT STRATEGIS (CARA BACA):", 20, matrixY + 10);
-  
+
   doc.setFontSize(7);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(COLORS.secondary[0], COLORS.secondary[1], COLORS.secondary[2]);
@@ -242,7 +243,7 @@ export const generateIntelligencePDF = (activeProject: Project, formatValue: (va
     doc.text(cleanVal(cost.amount, formatValue), 155, yPos);
     doc.setFont("helvetica", "bold");
     doc.text(cleanVal(effective, formatValue), 180, yPos);
-    
+
     doc.setDrawColor(COLORS.border[0], COLORS.border[1], COLORS.border[2]);
     doc.line(15, yPos + 3, 195, yPos + 3);
     yPos += 10;
@@ -346,7 +347,7 @@ export const generateIntelligencePDF = (activeProject: Project, formatValue: (va
   doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
   doc.text("AUDIT KESEHATAN STRUKTUR BISNIS", 15, yFinal);
-  
+
   const referencePrice = marketPrice > 0 ? marketPrice : (platformScenarios[0]?.recommended.price || 1);
   const hppRatio = (totalHPP / referencePrice) * 100;
 
@@ -364,11 +365,11 @@ export const generateIntelligencePDF = (activeProject: Project, formatValue: (va
     doc.setFontSize(8.5);
     doc.setFont("helvetica", "bold");
     doc.text(check.t, 20, yFinal + 9);
-    
+
     const isGood = check.v === "OPTIMAL" || check.v === "SANGAT KUAT" || check.v === "AMAN";
     doc.setTextColor(isGood ? COLORS.accent[0] : COLORS.danger[0], isGood ? COLORS.accent[1] : COLORS.danger[1], isGood ? COLORS.accent[2] : COLORS.danger[2]);
     doc.text(check.v, 160, yFinal + 9);
-    
+
     doc.setTextColor(COLORS.slate[0], COLORS.slate[1], COLORS.slate[2]);
     doc.setFontSize(7.5);
     doc.setFont("helvetica", "normal");
@@ -413,7 +414,7 @@ export const copyProjectToClipboard = async (activeProject: Project): Promise<bo
     const json = JSON.stringify(activeProject, null, 2);
     await navigator.clipboard.writeText(json);
     return true;
-  } catch (err) {
+  } catch {
     return false;
   }
 };

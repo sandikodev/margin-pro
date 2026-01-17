@@ -1,20 +1,17 @@
 import { Hono } from "hono";
-import { serveStatic } from "hono/bun";
-import { logger } from "hono/logger";
 import { cors } from "hono/cors";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { db } from "./db";
-import { users, businesses, projects } from "./db/schema";
+import { users, projects } from "./db/schema";
 import { eq } from "drizzle-orm";
 
 const app = new Hono();
 
-app.use("*", logger());
 app.use("*", cors());
 
 // --- RPC Routes ---
-const api = app.basePath("/api")
+export const api = app.basePath("/api")
     .get("/health", (c) => c.json({ status: "ok", runtime: "bun" }))
 
     // Auth Example (Mock for now, replacing hooks later)
@@ -22,7 +19,7 @@ const api = app.basePath("/api")
         email: z.string().email(),
         password: z.string()
     })), async (c) => {
-        const { email, password } = c.req.valid("json");
+        const { email } = c.req.valid("json");
         // TODO: Verify password hash
         const user = await db.query.users.findFirst({
             where: eq(users.email, email)
@@ -40,12 +37,13 @@ const api = app.basePath("/api")
         const allProjects = await db.select().from(projects);
         return c.json(allProjects.map(p => ({
             ...p,
-            ...p.data as any, // Flatten json data to match Project interface
+            ...(p.data as Record<string, unknown>), // Flatten json data to match Project interface
             lastModified: p.lastModified.getTime() // Convert Date to timestamp number
         })));
     })
     .post("/projects", zValidator("json", z.object({
         name: z.string(),
+        label: z.string().optional(),
         businessId: z.string().optional(),
         data: z.any()
     })), async (c) => {
@@ -56,6 +54,7 @@ const api = app.basePath("/api")
             id,
             businessId: body.businessId || 'default', // Fallback
             name: body.name,
+            label: body.label,
             data: body.data,
             lastModified: new Date(),
             isFavorite: false
@@ -66,6 +65,7 @@ const api = app.basePath("/api")
     })
     .put("/projects/:id", zValidator("json", z.object({
         name: z.string().optional(),
+        label: z.string().optional(),
         data: z.any(),
         isFavorite: z.boolean().optional()
     })), async (c) => {
@@ -74,6 +74,7 @@ const api = app.basePath("/api")
 
         await db.update(projects).set({
             ...(body.name ? { name: body.name } : {}),
+            ...(body.label ? { label: body.label } : {}),
             ...(body.data ? { data: body.data } : {}),
             ...(body.isFavorite !== undefined ? { isFavorite: body.isFavorite } : {}),
             lastModified: new Date()
@@ -121,7 +122,7 @@ app.use("*", async (c, next) => {
             const res = await fetch(viteUrl);
             if (!res.ok) return c.text("Vite dev server not running or page not found", 404);
             html = await res.text();
-        } catch (e) {
+        } catch {
             return c.text("Failed to connect to Vite dev server", 500);
         }
     }

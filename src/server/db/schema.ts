@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import { CostItem, ProductionConfig } from "../../shared/types";
 
 // --- Users ---
 export const users = sqliteTable("users", {
@@ -48,8 +49,8 @@ export const projects = sqliteTable("projects", {
     // Complex Data (Costs, ProductionConfig, PricingStrategy) stored as JSON
     // We use the existing interfaces from types.ts conceptually
     data: text("data", { mode: "json" }).$type<{
-        costs: any[]; // cost items
-        productionConfig?: any;
+        costs: CostItem[];
+        productionConfig: ProductionConfig;
         pricingStrategy?: string;
         competitorPrice?: number;
         targetNet: number;

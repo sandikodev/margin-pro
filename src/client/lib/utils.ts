@@ -1,5 +1,4 @@
 import { Platform, Project, PlatformOverrides, CalculationResult, CostItem, ProductionConfig, ScenarioResult } from '@shared/types';
-import { PLATFORM_DATA } from './constants';
 
 /**
  * ==========================================
@@ -45,8 +44,8 @@ export const calculateOperationalBurnRate = (bulkCosts: CostItem[], prodConfig: 
       return acc + (c.amount / c.batchYield);
     }
     if (c.bulkUnit !== 'days' && c.batchYield) {
-      const dailyPortions = prodConfig.period === 'weekly' 
-        ? (prodConfig.targetUnits / prodConfig.daysActive) 
+      const dailyPortions = prodConfig.period === 'weekly'
+        ? (prodConfig.targetUnits / prodConfig.daysActive)
         : prodConfig.targetUnits;
       return acc + ((c.amount / c.batchYield) * dailyPortions);
     }
@@ -76,9 +75,9 @@ export const smartRoundUp = (amount: number): number => {
 };
 
 const calculateScenario = (
-  sellingPrice: number, 
-  hpp: number, 
-  variableFee: number, 
+  sellingPrice: number,
+  hpp: number,
+  variableFee: number,
   fixedFees: number
 ): ScenarioResult => {
   const totalVarFee = sellingPrice * variableFee;
@@ -107,8 +106,8 @@ export const calculatePricingStrategies = (
 
   const totalProductionCost = calculateTotalHPP(activeProject.costs, activeProject.productionConfig);
   // Base Profit Target (from Manual Markup)
-  const manualTargetProfit = activeProject.targetNet || 0; 
-  
+  const manualTargetProfit = activeProject.targetNet || 0;
+
   // Base Profit Target (from Competitor Price)
   // Logic: Market Price - HPP = The profit we want to secure (protect) on other platforms
   const competitorPrice = activeProject.competitorPrice || 0;
@@ -118,9 +117,9 @@ export const calculatePricingStrategies = (
     const pOverride = overrides[platform];
     const comm = pOverride.commission / 100;
     const fixedFee = pOverride.fixedFee;
-    const withdrawal = pOverride.withdrawal; 
+    const withdrawal = pOverride.withdrawal;
     const promo = promoPercent / 100;
-    
+
     // Total variable deduction % (Commission + Tax on Comm + Promo Subsidy)
     const effectiveVariableFee = comm + (comm * taxRate) + promo;
     const totalFixedFees = fixedFee + withdrawal;
@@ -135,7 +134,7 @@ export const calculatePricingStrategies = (
     // --- SCENARIO 2: MARKET REALITY (If we simply used the input price) ---
     let marketScenario: ScenarioResult | undefined;
     if (competitorPrice > 0) {
-       marketScenario = calculateScenario(competitorPrice, totalProductionCost, effectiveVariableFee, totalFixedFees);
+      marketScenario = calculateScenario(competitorPrice, totalProductionCost, effectiveVariableFee, totalFixedFees);
     }
 
     // --- SCENARIO 3: COMPETITOR STRATEGY PROTECTION (Protect Competitor Profit) ---
@@ -150,7 +149,7 @@ export const calculatePricingStrategies = (
 
     // Breakdown components (Based on Markup Recommended for consistent visual, or switch based on UI)
     // Here we return breakdown for the Markup Scenario as default, UI can recalculate if needed but usually structurally similar ratio
-    const breakdownPrice = markupRecommendedPrice; 
+    const breakdownPrice = markupRecommendedPrice;
     const commAmt = breakdownPrice * comm;
     const taxAmt = commAmt * taxRate;
     const promoAmt = breakdownPrice * promo;
@@ -160,13 +159,13 @@ export const calculatePricingStrategies = (
       recommended: markupScenario,
       market: marketScenario,
       competitorProtection: compProtectionScenario,
-      breakdown: { 
-        commissionAmount: commAmt, 
-        fixedFeeAmount: fixedFee, 
-        withdrawalFeeAmount: withdrawal, 
-        promoAmount: promoAmt, 
-        taxOnServiceFee: taxAmt, 
-        totalProductionCost 
+      breakdown: {
+        commissionAmount: commAmt,
+        fixedFeeAmount: fixedFee,
+        withdrawalFeeAmount: withdrawal,
+        promoAmount: promoAmt,
+        taxOnServiceFee: taxAmt,
+        totalProductionCost
       }
     };
   });
@@ -187,9 +186,9 @@ export const calculateLoanPayment = (principal: number, annualRatePercent: numbe
 };
 
 export const calculateFinancialHealth = (
-  totalRevenue: number, 
-  totalExpense: number, 
-  totalLiabilities: number, 
+  totalRevenue: number,
+  totalExpense: number,
+  totalLiabilities: number,
   monthlyFixedCost: number,
   marginPerPortion: number,
   simDailySalesQty: number,
@@ -208,8 +207,8 @@ export const calculateFinancialHealth = (
   const targetBufferMonths = 3;
   const targetBufferAmount = totalMonthlyBurden * targetBufferMonths;
   const gapToBuffer = targetBufferAmount - currentSavings;
-  const monthsToReachBuffer = (gapToBuffer > 0 && projectedNetFreeCashflow > 0) 
-    ? (gapToBuffer / projectedNetFreeCashflow).toFixed(1) 
+  const monthsToReachBuffer = (gapToBuffer > 0 && projectedNetFreeCashflow > 0)
+    ? (gapToBuffer / projectedNetFreeCashflow).toFixed(1)
     : '∞';
 
   return {
