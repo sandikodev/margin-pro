@@ -1,6 +1,6 @@
 import React from 'react';
 import { BarChart3, Target, CalendarDays, Scale, ShieldCheck, Clock } from 'lucide-react';
-import { Project, ProductionConfig } from '@shared/types';
+import { Project, ProductionConfig, PeriodType } from '@shared/types';
 
 interface OperationalContextProps {
   activeProject: Project;
@@ -41,7 +41,7 @@ export const OperationalContext: React.FC<OperationalContextProps> = ({ activePr
                  {['daily', 'weekly', 'monthly'].map((p) => (
                    <button 
                     key={p}
-                    onClick={() => updateProject({ productionConfig: { ...prodConfig, period: p as any } })}
+                    onClick={() => updateProject({ productionConfig: { ...prodConfig, period: p as PeriodType } })}
                     className={`flex-1 py-2.5 text-[9px] lg:text-[10px] font-black uppercase tracking-wider rounded-lg transition-all active:scale-95 ${prodConfig.period === p ? 'bg-indigo-600 text-white shadow-lg ring-1 ring-white/10' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
                    >
                      {p === 'daily' ? 'Harian' : p === 'weekly' ? 'Mingguan' : 'Bulanan'}

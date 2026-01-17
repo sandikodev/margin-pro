@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Calculator, PlusCircle, Trash2, Loader2, Package, Sparkles, CheckCircle2, ArrowRightLeft, Scale, Layers, Ruler, Utensils, Wrench, Plus, ChevronDown, Info, CalendarClock, PieChart as PieChartIcon, Hammer, Box } from 'lucide-react';
+import { Calculator, PlusCircle, Trash2, Loader2, Package, Sparkles, CheckCircle2, ArrowRightLeft, Scale, Layers, Ruler, Plus, Info, CalendarClock, PieChart as PieChartIcon, Hammer, Box } from 'lucide-react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Project, ProductionConfig, CostItem } from '@shared/types';
@@ -321,13 +321,13 @@ export const CostList: React.FC<CostListProps> = ({
       const data = JSON.parse(cleanAIJSON(response.text || '{}'));
       
       if (data.costs && Array.isArray(data.costs)) {
-        const newCosts = data.costs.map((c: any) => ({
+        const newCosts = data.costs.map((c: { name: string; amount: number; allocation: string; batchYield: number }) => ({
           id: Math.random().toString(36).substr(2, 9),
           name: c.name,
           amount: c.amount,
           allocation: (c.allocation === 'bulk' || c.allocation === 'unit') ? c.allocation : 'unit',
           batchYield: c.batchYield || 1,
-          bulkUnit: 'units'
+          bulkUnit: 'units' as const
         }));
         updateProject({ costs: [...activeProject.costs, ...newCosts] });
       }

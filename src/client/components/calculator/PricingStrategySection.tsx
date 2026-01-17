@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Store, Target, Wallet, ArrowRight, Zap, Info, ShieldCheck } from 'lucide-react';
+import { Store, Target, Wallet, ArrowRight, Zap, ShieldCheck } from 'lucide-react';
 import { Project, ProductionConfig } from '@shared/types';
 
 interface PricingStrategySectionProps {
