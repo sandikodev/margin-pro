@@ -2,7 +2,7 @@
 import React from 'react';
 import { GraduationCap, Lightbulb, Calculator, Target, ShieldCheck, BookOpen, ExternalLink, Globe } from 'lucide-react';
 import { Platform } from '../types';
-import { PLATFORM_DATA } from '../constants';
+import { PLATFORM_DATA } from '../lib/constants';
 
 export const AcademyView: React.FC = () => {
   const getPlatformHighlights = (p: Platform) => {

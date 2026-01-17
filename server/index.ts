@@ -90,12 +90,13 @@ const api = app.basePath("/api")
 // --- SEO & Static File Serving ---
 
 // Middleware to inject SEO tags
-app.get("*", async (c) => {
+app.use("*", async (c, next) => {
     const url = new URL(c.req.url);
 
     // Skip API routes (handled above)
     if (url.pathname.startsWith("/api")) {
-        return c.next();
+        await next();
+        return;
     }
 
     // Define default SEO tags

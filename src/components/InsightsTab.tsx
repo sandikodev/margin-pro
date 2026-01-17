@@ -3,7 +3,7 @@ import React from 'react';
 import { TrendingUp, Flame, Scissors, AlertCircle, ChevronDown, Receipt, Percent, Layers, Tag, ShieldCheck, Banknote, Wallet, ShoppingCart, Info, BarChart2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
 import { CalculationResult, Platform } from '../types';
-import { PLATFORM_DATA } from '../constants';
+import { PLATFORM_DATA } from '../lib/constants';
 
 interface ProfitSimulatorProps {
   results: CalculationResult[];

@@ -1,5 +1,5 @@
 import { Platform, Project, PlatformOverrides, CalculationResult, CostItem, ProductionConfig, ScenarioResult } from './types';
-import { PLATFORM_DATA } from './constants';
+import { PLATFORM_DATA } from './lib/constants';
 
 /**
  * ==========================================
@@ -48,8 +48,8 @@ export const calculateOperationalBurnRate = (bulkCosts: CostItem[], prodConfig: 
     }
     // Jika unit portions: (cost / yield) * dailyPortions
     if (c.bulkUnit !== 'days' && c.batchYield) {
-      const dailyPortions = prodConfig.period === 'weekly' 
-        ? (prodConfig.targetUnits / prodConfig.daysActive) 
+      const dailyPortions = prodConfig.period === 'weekly'
+        ? (prodConfig.targetUnits / prodConfig.daysActive)
         : prodConfig.targetUnits; // Asumsi daily period target = daily
       return acc + ((c.amount / c.batchYield) * dailyPortions);
     }
@@ -75,9 +75,9 @@ export const smartRoundUp = (amount: number): number => {
 };
 
 const calculateScenario = (
-  sellingPrice: number, 
-  hpp: number, 
-  variableFee: number, 
+  sellingPrice: number,
+  hpp: number,
+  variableFee: number,
   fixedFees: number
 ): ScenarioResult => {
   const totalVarFee = sellingPrice * variableFee;
@@ -106,53 +106,53 @@ export const calculatePricingStrategies = (
 
   const totalProductionCost = calculateTotalHPP(activeProject.costs, activeProject.productionConfig);
   // Base Profit Target (Profit Dasar yang ingin diamankan)
-  const targetBaseProfit = activeProject.targetNet || 0; 
+  const targetBaseProfit = activeProject.targetNet || 0;
 
   return Object.values(Platform).map(platform => {
     const pOverride = overrides[platform];
     const comm = pOverride.commission / 100;
     const fixedFee = pOverride.fixedFee;
-    const withdrawal = pOverride.withdrawal; 
+    const withdrawal = pOverride.withdrawal;
     const promo = promoPercent / 100;
-    
+
     // Total variable deduction % (Commission + Tax on Comm + Promo Subsidy)
-    const effectiveVariableFee = comm + (comm * taxRate) + promo; 
+    const effectiveVariableFee = comm + (comm * taxRate) + promo;
     const totalFixedFees = fixedFee + withdrawal;
-    
+
     // --- SCENARIO 1: RECOMMENDED (PROTECTION MODE) ---
     // Formula: Price = (HPP + TargetProfit + FixedFees) / (1 - VariableFee%)
     // Ini menghitung harga jual agar TargetProfit tetap utuh.
     const numerator = totalProductionCost + targetBaseProfit + totalFixedFees;
     const denominator = 1 - effectiveVariableFee;
-    
+
     let rawRecommendedPrice = denominator > 0 ? numerator / denominator : 0;
     const recommendedPrice = smartRoundUp(rawRecommendedPrice);
-    
+
     const recommendedScenario = calculateScenario(recommendedPrice, totalProductionCost, effectiveVariableFee, totalFixedFees);
 
     // --- SCENARIO 2: MARKET / COMPETITOR ---
     // Jika user memasukkan harga kompetitor, hitung profit real-nya.
     let marketScenario: ScenarioResult | undefined;
     if (activeProject.competitorPrice && activeProject.competitorPrice > 0) {
-       marketScenario = calculateScenario(activeProject.competitorPrice, totalProductionCost, effectiveVariableFee, totalFixedFees);
+      marketScenario = calculateScenario(activeProject.competitorPrice, totalProductionCost, effectiveVariableFee, totalFixedFees);
     }
-    
+
     // Breakdown Components
     const commAmt = recommendedPrice * comm;
     const taxAmt = commAmt * taxRate;
     const promoAmt = recommendedPrice * promo;
 
     return {
-      platform, 
+      platform,
       recommended: recommendedScenario,
-      market: marketScenario, 
-      breakdown: { 
-        commissionAmount: commAmt, 
-        fixedFeeAmount: fixedFee, 
-        withdrawalFeeAmount: withdrawal, 
-        promoAmount: promoAmt, 
-        taxOnServiceFee: taxAmt, 
-        totalProductionCost 
+      market: marketScenario,
+      breakdown: {
+        commissionAmount: commAmt,
+        fixedFeeAmount: fixedFee,
+        withdrawalFeeAmount: withdrawal,
+        promoAmount: promoAmt,
+        taxOnServiceFee: taxAmt,
+        totalProductionCost
       }
     };
   });
@@ -170,15 +170,15 @@ export const calculateLoanPayment = (principal: number, annualRatePercent: numbe
   const n = tenureMonths;
 
   if (r === 0) return P / n;
-  
+
   // Rumus Anuitas: P * (r * (1+r)^n) / ((1+r)^n - 1)
   return (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
 };
 
 export const calculateFinancialHealth = (
-  totalRevenue: number, 
-  totalExpense: number, 
-  totalLiabilities: number, 
+  totalRevenue: number,
+  totalExpense: number,
+  totalLiabilities: number,
   monthlyFixedCost: number,
   marginPerPortion: number,
   simDailySalesQty: number,
@@ -200,8 +200,8 @@ export const calculateFinancialHealth = (
   const targetBufferMonths = 3;
   const targetBufferAmount = totalMonthlyBurden * targetBufferMonths;
   const gapToBuffer = targetBufferAmount - currentSavings;
-  const monthsToReachBuffer = (gapToBuffer > 0 && projectedNetFreeCashflow > 0) 
-    ? (gapToBuffer / projectedNetFreeCashflow).toFixed(1) 
+  const monthsToReachBuffer = (gapToBuffer > 0 && projectedNetFreeCashflow > 0)
+    ? (gapToBuffer / projectedNetFreeCashflow).toFixed(1)
     : '∞';
 
   return {

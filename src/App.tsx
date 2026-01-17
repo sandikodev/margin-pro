@@ -18,7 +18,7 @@ import { useProfile } from './hooks/useProfile';
 
 // --- AUTH GUARDS ---
 
-const RequireAuth = ({ children }: { children: JSX.Element }) => {
+const RequireAuth = ({ children }: { children: React.ReactNode }) => {
   const isAuth = localStorage.getItem('margins_pro_auth');
   const location = useLocation();
 
@@ -28,7 +28,7 @@ const RequireAuth = ({ children }: { children: JSX.Element }) => {
   return children;
 };
 
-const RedirectIfAuth = ({ children }: { children: JSX.Element }) => {
+const RedirectIfAuth = ({ children }: { children: React.ReactNode }) => {
   const isAuth = localStorage.getItem('margins_pro_auth');
   const hasOnboarded = localStorage.getItem('margins_pro_onboarded');
   

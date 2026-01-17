@@ -100,6 +100,8 @@ export const useProjects = (activeBusinessId?: string) => {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, json }: { id: string, json: any }) => {
+      // @ts-ignore - Hono RPC type inference issue
+      // @ts-ignore - Hono RPC type inference issue
       const res = await api.projects[':id'].$put({ param: { id }, json });
       return await res.json();
     }

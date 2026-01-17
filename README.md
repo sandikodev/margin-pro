@@ -27,7 +27,7 @@ Project ini dibangun ulang dari *Single Page Application* menjadi **Fullstack Ap
 
 ## ✨ Fitur Unggulan Codebase
 
-1.  **Hybrid Architecture**: Aplikasi berjalan sebagai SPA uper-cepat, namun memiliki backend Hono yang menangani SEO Injection (SSR-lite) dan API logic.
+1.  **Hybrid Architecture**: Aplikasi berjalan sebagai SPA super-cepat, namun memiliki backend Hono yang menangani SEO Injection (SSR-lite) dan API logic.
 2.  **Type-Safe RPC**: Frontend memanggil backend **tanpa fetch manual**. Kita menggunakan `Hono RPC` sehingga tipe data antara Client dan Server terhubung otomatis (Intellisense di VS Code jalan 100%).
 3.  **Local & Cloud Sync**: Data disimpan di `LocalStorage` untuk pengalaman instant (Optimistic UI) dan disinkronkan ke Database Turso di background.
 4.  **Server-Side SEO**: Meta tags di-inject di sisi server sebelum dikirim ke browser, memastikan link preview muncul di WhatsApp/Twitter.

@@ -1,7 +1,6 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, Mail, Phone, Save, Upload, CheckCircle2 } from 'lucide-react';
-import { useProfile } from '../../hooks/useProfile';
+import { useProfile } from '../../../hooks/useProfile';
 
 interface AccountSettingsProps {
   onBack: () => void;
@@ -9,11 +8,13 @@ interface AccountSettingsProps {
 
 export const AccountSettings: React.FC<AccountSettingsProps> = ({ onBack }) => {
   const { activeBusiness, updateBusiness } = useProfile();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [profile, setProfile] = useState({
     ownerName: activeBusiness.ownerName || '',
     email: activeBusiness.email || '',
     phone: activeBusiness.phone || '',
+    avatarUrl: activeBusiness.avatarUrl || ''
   });
 
   const [isSaved, setIsSaved] = useState(false);
@@ -23,6 +24,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ onBack }) => {
       ownerName: activeBusiness.ownerName || '',
       email: activeBusiness.email || '',
       phone: activeBusiness.phone || '',
+      avatarUrl: activeBusiness.avatarUrl || ''
     });
   }, [activeBusiness]);
 
@@ -30,6 +32,23 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ onBack }) => {
     const { name, value } = e.target;
     setProfile(prev => ({ ...prev, [name]: value }));
     setIsSaved(false);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (ev.target?.result) {
+          setProfile(prev => ({ ...prev, avatarUrl: ev.target!.result as string }));
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileUpload = () => {
+    fileInputRef.current?.click();
   };
 
   const handleSave = () => {
@@ -54,14 +73,22 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ onBack }) => {
             
             <div className="flex flex-col md:flex-row gap-10 items-start">
                <div className="flex flex-col items-center gap-4 w-full md:w-auto">
-                  <div className="w-28 h-28 bg-slate-50 rounded-full flex items-center justify-center border-4 border-white shadow-xl relative group cursor-pointer overflow-hidden transition-all hover:scale-105">
-                      <User className="w-12 h-12 text-slate-200 group-hover:text-indigo-200 transition-colors" />
+                  <div 
+                    onClick={triggerFileUpload}
+                    className="w-28 h-28 bg-slate-50 rounded-full flex items-center justify-center border-4 border-white shadow-xl relative group cursor-pointer overflow-hidden transition-all hover:scale-105"
+                  >
+                      {profile.avatarUrl ? (
+                        <img src={profile.avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-12 h-12 text-slate-200 group-hover:text-indigo-200 transition-colors" />
+                      )}
                       <div className="absolute inset-0 bg-slate-900/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                          <Upload className="w-6 h-6 text-white mb-1" />
                          <span className="text-[8px] text-white font-black uppercase">Upload</span>
                       </div>
+                      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
                   </div>
-                  <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest cursor-pointer hover:underline bg-indigo-50 px-3 py-1 rounded-full">Ganti Foto</span>
+                  <span onClick={triggerFileUpload} className="text-[10px] font-black text-indigo-600 uppercase tracking-widest cursor-pointer hover:underline bg-indigo-50 px-3 py-1 rounded-full">Ganti Foto</span>
                </div>
 
                <div className="grid grid-cols-1 gap-6 flex-grow w-full">
