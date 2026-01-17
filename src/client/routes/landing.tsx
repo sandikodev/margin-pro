@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, ShieldCheck, Zap, ArrowRight, CheckCircle2, Star, Play, Activity, HelpCircle, Instagram, Twitter, Linkedin, Mail, Eye } from 'lucide-react';
+import { TrendingUp, ShieldCheck, Zap, ArrowRight, Star, Activity, HelpCircle, Instagram, Twitter, Linkedin, Mail, Eye } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;

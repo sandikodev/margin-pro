@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Store, ChevronRight, Check, Briefcase, ShoppingBag, Utensils, Coffee, ArrowRight, Loader2 } from 'lucide-react';
+import { Store, Check, Briefcase, ShoppingBag, Utensils, Coffee, ArrowRight, Loader2 } from 'lucide-react';
 import { BusinessProfile } from '@shared/types';
 
 interface OnboardingProps {
@@ -82,7 +82,7 @@ export const OnboardingWizard: React.FC<OnboardingProps> = ({ onComplete }) => {
                 {businessTypes.map((type) => (
                    <button 
                       key={type.id}
-                      onClick={() => setData({...data, type: type.id as any})}
+                      onClick={() => setData({...data, type: type.id as BusinessProfile['type']})}
                       className={`p-4 rounded-2xl border-2 text-left flex items-center gap-4 transition-all active:scale-95 ${data.type === type.id ? 'border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600' : 'border-slate-100 bg-white hover:border-indigo-200'}`}
                    >
                       <div className={`p-3 rounded-xl ${data.type === type.id ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500'}`}>

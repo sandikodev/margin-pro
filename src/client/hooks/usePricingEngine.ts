@@ -3,9 +3,11 @@ import { Platform, Project, PlatformOverrides } from '@shared/types';
 import { PLATFORM_DATA } from '../lib/constants';
 import { calculatePricingStrategies } from '../lib/utils';
 
+import { Currency } from '@shared/types';
+
 export const usePricingEngine = (
   activeProject: Project | undefined,
-  selectedCurrency: any,
+  selectedCurrency: Currency,
   exchangeRates: Record<string, number>
 ) => {
   const [promoPercent, setPromoPercent] = useState<number>(0);
@@ -13,7 +15,7 @@ export const usePricingEngine = (
 
   // Initialize overrides based on constants
   const [overrides, setOverrides] = useState<Record<Platform, PlatformOverrides>>(() => {
-    const initial: any = {};
+    const initial: Partial<Record<Platform, PlatformOverrides>> = {};
     Object.values(Platform).forEach(p => {
       initial[p] = {
         commission: PLATFORM_DATA[p].defaultCommission * 100,
@@ -21,7 +23,7 @@ export const usePricingEngine = (
         withdrawal: PLATFORM_DATA[p].withdrawalFee
       };
     });
-    return initial;
+    return initial as Record<Platform, PlatformOverrides>;
   });
 
   // Core Calculation
@@ -33,7 +35,7 @@ export const usePricingEngine = (
   // Derived Data for Charts
   const chartData = useMemo(() => results.map(r => ({
     name: r.platform,
-    profit: r.recommended.netProfit, 
+    profit: r.recommended.netProfit,
     price: r.recommended.price,
     color: PLATFORM_DATA[r.platform].color
   })).sort((a, b) => b.profit - a.profit), [results]);

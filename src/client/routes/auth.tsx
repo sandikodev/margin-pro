@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Eye, EyeOff, ArrowRight, Loader2, ArrowLeft, Mail, Lock, User, Sparkles } from 'lucide-react';
 
 interface AuthPageProps {
@@ -19,30 +19,22 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   initialPassword = '',
   isDemo = false
 }) => {
-  const [mode, setMode] = useState<'login' | 'register'>(initialMode);
+  const [mode, setMode] = useState<'login' | 'register'>(
+    (initialEmail || initialPassword) ? 'login' : initialMode
+  );
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
     name: '',
-    email: initialEmail,
-    password: initialPassword
+    email: initialEmail || '',
+    password: initialPassword || ''
   });
 
   // Ensure form updates if props change (specifically for Demo flow transition)
-  useEffect(() => {
-    if ((initialEmail && formData.email !== initialEmail) || (initialPassword && formData.password !== initialPassword)) {
-      setFormData(prev => ({
-        ...prev,
-        email: initialEmail || prev.email,
-        password: initialPassword || prev.password
-      }));
-      if (initialEmail || initialPassword) {
-        setMode('login'); 
-      }
-    }
-  }, [initialEmail, initialPassword, formData.email, formData.password]);
+  // Ensure form updates if props change (specifically for Demo flow transition)
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

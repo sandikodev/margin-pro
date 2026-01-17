@@ -6,14 +6,11 @@ import { TERMINOLOGY } from '../lib/constants';
 
 interface ProfitSimulatorProps {
   results: CalculationResult[];
-  chartData: any[];
-  feeComparisonData: any[];
   promoPercent: number;
   setPromoPercent: (val: number) => void;
   expandedPlatform: Platform | null;
   setExpandedPlatform: (p: Platform | null) => void;
   formatValue: (val: number) => string;
-  selectedCurrency: any;
   activeProject: Project;
   updateProject: (updates: Partial<Project>) => void;
   overrides: Record<Platform, PlatformOverrides>;

@@ -1,12 +1,12 @@
 
 import React from 'react';
-import { GitCommit, Zap, Bug, Sparkles, Calendar } from 'lucide-react';
+import { GitCommit, Sparkles, Calendar } from 'lucide-react';
 
 interface ChangelogViewProps {
   onBack: () => void;
 }
 
-export const ChangelogView: React.FC<ChangelogViewProps> = ({ onBack }) => {
+export const ChangelogView: React.FC<ChangelogViewProps> = () => {
   const versions = [
     {
       version: 'v2.1.0',

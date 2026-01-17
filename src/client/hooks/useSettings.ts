@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { AppSettings, LanguageMode } from '@shared/types';
+import { AppSettings } from '@shared/types';
 import { TERMINOLOGY } from '../lib/constants';
 
 const SETTINGS_KEY = 'margins_pro_settings_v1';

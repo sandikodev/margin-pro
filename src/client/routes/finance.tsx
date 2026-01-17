@@ -1,5 +1,4 @@
-import React, { useState, useMemo } from 'react';
-import { Banknote, AlertTriangle, Plus, CalendarClock, TrendingUp, ArrowDownRight, ArrowUpRight, Calculator, CheckCircle2, Trash2, Target, Sliders, ShieldAlert, Wallet, Hourglass, ShieldCheck, XCircle } from 'lucide-react';
+import React from 'react';
 import { Liability, CashflowRecord, Project, BusinessProfile } from '@shared/types';
 import { FinanceManager as FinanceComponent } from '../components/features/finance/FinanceManager';
 

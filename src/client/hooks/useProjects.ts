@@ -72,7 +72,7 @@ export const useProjects = (activeBusinessId?: string) => {
       // Map API response to match Project type strictly if needed, 
       // but our RPC client should handle types if Shared correctly.
       // For now, assume strict mapping.
-      return json as Project[];
+      return json as unknown as Project[];
     },
     enabled: !isDemo // Only fetch if not demo
   });
@@ -91,18 +91,35 @@ export const useProjects = (activeBusinessId?: string) => {
 
 
   // --- MUTATIONS ---
+
+  // Helper to split Project into API DTO (Top-Level vs Data-JSON)
+  const toApiPayload = (p: Partial<Project>) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, name, label, businessId, isFavorite, lastModified, author, ...data } = p;
+    // We want to exclude these from `data` JSON column, so we destructure them out.
+    // But they are unused in the variable sense (except name, label etc which are used in return).
+    // The previous code renamed them to _id etc to suppress use?
+    // Let's just use what we need.
+    return {
+      name,
+      label,
+      businessId,
+      isFavorite,
+      data // Remaining fields go into JSON column
+    };
+  };
+
   const createMutation = useMutation({
-    mutationFn: async (json: any) => {
-      const res = await api.projects.$post({ json });
+    mutationFn: async (project: Partial<Project>) => {
+      const res = await api.projects.$post({ json: toApiPayload(project) });
       return await res.json();
     }
   });
 
   const updateMutation = useMutation({
-    mutationFn: async ({ id, json }: { id: string, json: any }) => {
-      // @ts-ignore - Hono RPC type inference issue
-      // @ts-ignore - Hono RPC type inference issue
-      const res = await api.projects[':id'].$put({ param: { id }, json });
+    mutationFn: async ({ id, json }: { id: string, json: Partial<Project> }) => {
+      // @ts-expect-error - Hono RPC type inference complication
+      const res = await api.projects[':id'].$put({ param: { id }, json: toApiPayload(json) });
       return await res.json();
     }
   });
@@ -146,14 +163,14 @@ export const useProjects = (activeBusinessId?: string) => {
         if (!isDemo) {
           updateMutation.mutate({
             id: p.id,
-            json: { name: updated.name, data: updated, isFavorite: updated.isFavorite }
+            json: updated
           });
         }
         return updated;
       }
       return p;
     }));
-  }, [activeProjectId, isDemo]);
+  }, [activeProjectId, isDemo, updateMutation]);
 
   // NEW: Update any project by ID (Generic)
   const editProject = useCallback((id: string, updates: Partial<Project>) => {
@@ -163,14 +180,14 @@ export const useProjects = (activeBusinessId?: string) => {
         if (!isDemo) {
           updateMutation.mutate({
             id: p.id,
-            json: { name: updated.name, data: updated, isFavorite: updated.isFavorite }
+            json: updated
           });
         }
         return updated;
       }
       return p;
     }));
-  }, [isDemo]);
+  }, [isDemo, updateMutation]);
 
   const createNewProject = useCallback(() => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -197,15 +214,11 @@ export const useProjects = (activeBusinessId?: string) => {
     setActiveProjectId(id);
 
     if (!isDemo) {
-      createMutation.mutate({
-        name: newP.name,
-        businessId: activeBusinessId,
-        data: newP
-      });
+      createMutation.mutate(newP);
     }
 
     return id;
-  }, [activeBusinessId, isDemo]);
+  }, [activeBusinessId, isDemo, createMutation]);
 
   const addProject = useCallback((project: Project) => {
     const finalProject = { ...project };
@@ -216,13 +229,9 @@ export const useProjects = (activeBusinessId?: string) => {
     setActiveProjectId(finalProject.id);
 
     if (!isDemo) {
-      createMutation.mutate({
-        name: finalProject.name,
-        businessId: finalProject.businessId,
-        data: finalProject
-      });
+      createMutation.mutate(finalProject);
     }
-  }, [activeBusinessId, isDemo]);
+  }, [activeBusinessId, isDemo, createMutation]);
 
   const deleteProject = useCallback((id: string) => {
     setAllProjects(prev => {
@@ -244,7 +253,7 @@ export const useProjects = (activeBusinessId?: string) => {
     if (!isDemo) {
       deleteMutation.mutate(id);
     }
-  }, [activeProjectId, activeBusinessId, isDemo]);
+  }, [activeProjectId, activeBusinessId, isDemo, deleteMutation]);
 
   const toggleFavorite = useCallback((id: string) => {
     setAllProjects(prev => prev.map(p => {
@@ -253,14 +262,14 @@ export const useProjects = (activeBusinessId?: string) => {
         if (!isDemo) {
           updateMutation.mutate({
             id: p.id,
-            json: { data: updated, isFavorite: updated.isFavorite }
+            json: updated
           });
         }
         return updated;
       }
       return p;
     }));
-  }, [isDemo]);
+  }, [isDemo, updateMutation]);
 
   const importProjectWithAI = useCallback(async (jsonString: string) => {
     setIsImporting(true);

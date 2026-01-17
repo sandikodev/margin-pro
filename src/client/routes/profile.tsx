@@ -5,7 +5,7 @@ import { AppSettings, BusinessProfile } from '@shared/types';
 interface MerchantProfileProps {
   credits: number;
   setCredits: React.Dispatch<React.SetStateAction<number>>;
-  transactionHistory: any[];
+  transactionHistory: unknown[];
   settings: AppSettings;
   toggleLanguage: () => void;
   isEditingProfile: boolean;

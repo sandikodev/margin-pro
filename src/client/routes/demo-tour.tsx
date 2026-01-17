@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { 
-  ArrowRight, CheckCircle2, TrendingUp, ShieldCheck, 
-  Store, User, Play, Sparkles, LogIn 
+  ArrowRight, TrendingUp, ShieldCheck, 
+  Store, LogIn 
 } from 'lucide-react';
-import { DEMO_USER_CREDENTIALS } from '../lib/demo-data';
 
 interface DemoTourProps {
   onStartDemo: () => void;

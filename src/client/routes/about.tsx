@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Github, Globe, Code2, Heart, Building2, Users, Rocket, ExternalLink, Terminal, Coffee, ChevronRight, Briefcase, Mail } from 'lucide-react';
+import { Github, Globe, Code2, Heart, Building2, Rocket, Terminal, Coffee, ChevronRight, Briefcase, Mail } from 'lucide-react';
 
 interface AboutViewProps {
   onBack: () => void;
   onOpenChangelog: () => void;
 }
 
-export const AboutView: React.FC<AboutViewProps> = ({ onBack, onOpenChangelog }) => {
+export const AboutView: React.FC<AboutViewProps> = ({ onOpenChangelog }) => {
   const [clickCount, setClickCount] = useState(0);
   const [showEasterEgg, setShowEasterEgg] = useState(false);
 

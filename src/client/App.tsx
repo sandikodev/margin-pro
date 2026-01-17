@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient } from './lib/query-client';
-import { ToastProvider, useToast } from './components/ui/Toast';
+import { useToast } from './context/ToastContext';
 
 // Routes
 import { LandingPage } from './routes/landing';
@@ -62,13 +60,16 @@ const AuthWrapper = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const location = useLocation();
-  const [initialMode, setInitialMode] = useState<'login' | 'register'>('register');
-  const [isDemo, setIsDemo] = useState(false);
+  const [initialMode, setInitialMode] = useState<'login' | 'register'>(location.state?.mode || 'register');
+  const [isDemo, setIsDemo] = useState(location.state?.isDemo || false);
 
-  useEffect(() => {
-     if (location.state?.mode) setInitialMode(location.state.mode);
-     if (location.state?.isDemo) setIsDemo(true);
-  }, [location]);
+  // Synchronize state if location state changes (derived state pattern)
+  const [prevLocationState, setPrevLocationState] = useState(location.state);
+  if (location.state !== prevLocationState) {
+    setPrevLocationState(location.state);
+    if (location.state?.mode) setInitialMode(location.state.mode);
+    if (location.state?.isDemo) setIsDemo(location.state.isDemo);
+  }
 
   const handleSuccess = (mode: 'login' | 'register', email?: string, password?: string) => {
      // Demo Logic

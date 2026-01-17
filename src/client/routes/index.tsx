@@ -14,7 +14,7 @@ interface DashboardViewProps {
   projects: Project[];
   credits: number;
   setCredits: React.Dispatch<React.SetStateAction<number>>;
-  setActiveTab: (tab: any) => void;
+  setActiveTab: (tab: string) => void;
   createNewProject: () => void;
   setActiveProjectId: (id: string) => void;
   formatValue: (val: number) => string;
@@ -22,10 +22,10 @@ interface DashboardViewProps {
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
-  projects, credits, setCredits, setActiveTab, createNewProject, setActiveProjectId, formatValue, marketItemsCount
+  projects, credits, setActiveTab, createNewProject, setActiveProjectId, formatValue
 }) => {
   const [businessTypeIdx, setBusinessTypeIdx] = useState(0);
-  const businessTypes = ['Kuliner', 'Minuman', 'Retail', 'UMKM', 'Outlet'];
+  const businessTypes = useMemo(() => ['Kuliner', 'Minuman', 'Retail', 'UMKM', 'Outlet'], []); // Memoized or move outside. Moving outside is cleaner but memo is fine here.
   const [fade, setFade] = useState(true);
 
   // Stats Calculations
@@ -44,7 +44,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       }, 500);
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [businessTypes]);
 
   return (
     <div className="space-y-6 pb-32 pt-2 animate-in fade-in slide-in-from-bottom-10 duration-1000 max-w-lg mx-auto">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Zap, Check, CreditCard, Landmark, 
+  Zap, Check, Landmark, 
   Smartphone, Wallet, Coins, 
   TrendingUp, ArrowRight, ShieldAlert, 
   Award, Crown, Flame, Info, CheckCircle2,
@@ -214,7 +214,7 @@ export const TopUpView: React.FC<TopUpViewProps> = ({ formatValue, topUpCredits,
                   {PAYMENT_METHODS.map(method => (
                      <button
                         key={method.id}
-                        onClick={() => setPaymentMethod(method.id as any)}
+                        onClick={() => setPaymentMethod(method.id as 'qris' | 'va' | 'ewallet')}
                         className={`flex flex-col items-center justify-center gap-2 py-4 rounded-2xl border-2 transition-all
                         ${paymentMethod === method.id 
                            ? 'border-indigo-600 bg-indigo-50 text-indigo-700' 
