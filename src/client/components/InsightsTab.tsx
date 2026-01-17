@@ -1,20 +1,20 @@
 
 import React from 'react';
-import { TrendingUp, Flame, Scissors, AlertCircle, ChevronDown, Receipt, Percent, Layers, Tag, ShieldCheck, Banknote, Wallet, ShoppingCart, Info, BarChart2 } from 'lucide-react';
+import { TrendingUp, Flame, Scissors, AlertCircle, ChevronDown, Receipt, Percent, Layers, Tag, ShieldCheck, Banknote, Wallet, ShoppingCart, Info } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
-import { CalculationResult, Platform } from '@shared/types';
+import { CalculationResult, Platform, Currency } from '@shared/types';
 import { PLATFORM_DATA } from '../lib/constants';
 
 interface ProfitSimulatorProps {
   results: CalculationResult[];
-  chartData: any[];
-  feeComparisonData: any[];
+  chartData: { name: string; profit: number; color: string }[];
+  feeComparisonData: { name: string; Fees: number; color: string }[];
   promoPercent: number;
   setPromoPercent: (val: number) => void;
   expandedPlatform: Platform | null;
   setExpandedPlatform: (p: Platform | null) => void;
   formatValue: (val: number) => string;
-  selectedCurrency: any;
+  selectedCurrency: Currency;
 }
 
 export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({

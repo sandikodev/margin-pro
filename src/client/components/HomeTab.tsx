@@ -7,7 +7,7 @@ interface DashboardViewProps {
   projects: Project[];
   credits: number;
   setCredits: React.Dispatch<React.SetStateAction<number>>;
-  setActiveTab: (tab: any) => void;
+  setActiveTab: (tab: 'home' | 'calc' | 'insights' | 'market' | 'edu' | 'profile' | 'cashflow' | 'about' | 'changelog' | 'topup') => void;
   createNewProject: () => void;
   setActiveProjectId: (id: string) => void;
   formatValue: (val: number) => string;

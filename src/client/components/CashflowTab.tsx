@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { Banknote, AlertTriangle, Plus, CalendarClock, TrendingUp, ArrowDownRight, ArrowUpRight, Calculator, CheckCircle2, Trash2, Target, Sliders, ShieldAlert, Wallet, Hourglass, ShieldCheck } from 'lucide-react';
+import { Banknote, AlertTriangle, Plus, TrendingUp, ArrowDownRight, ArrowUpRight, Calculator, CheckCircle2, Trash2, Target, Sliders, ShieldAlert, Hourglass, ShieldCheck } from 'lucide-react';
 import { Liability, CashflowRecord, Project } from '@shared/types';
 import { calculateLoanPayment, calculateFinancialHealth } from '../utils';
 
@@ -123,7 +123,7 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
             { id: 'debt', label: 'Utang' },
             { id: 'strategy', label: 'Simulasi' }
           ].map(tab => (
-            <button key={tab.id} onClick={() => setActiveSubTab(tab.id as any)} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeSubTab === tab.id ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>{tab.label}</button>
+            <button key={tab.id} onClick={() => setActiveSubTab(tab.id as 'journal' | 'debt' | 'strategy')} className={`px-4 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeSubTab === tab.id ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}>{tab.label}</button>
           ))}
         </div>
       </header>
