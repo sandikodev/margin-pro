@@ -11,6 +11,7 @@ Dokumen ini adalah "Single Source of Truth" untuk standar teknis, pola desain, d
 ### Prinsip Utama (The Core Principles)
 1.  **Performance First**: Aplikasi harus load < 1 detik. "Cold start" server harus minimal.
 2.  **Offline-Capable (Hybrid Strategy)**: User harus bisa melihat/edit data proyek tanpa internet. Sinkronisasi terjadi di background.
+    -   **Sync Strategy**: The `useProjects` hook abstracts this complexity. The UI components don't know if data comes from LocalStorage or API; they just consume the `projects` array.
 3.  **End-to-End Type Safety**: Kita tidak menebak tipe data. Backend dan Frontend berbagi tipe secara otomatis (Hono RPC). Jika merah di VS Code, jangan di-commit.
 4.  **Simple yet Scalable**: Hindari over-engineering. Gunakan solusi sederhana (e.g., LocalStorage, SQLite) sampai terbukti butuh yang lebih kompleks.
 
