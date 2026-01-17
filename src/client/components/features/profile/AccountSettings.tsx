@@ -1,12 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { User, Mail, Phone, Save, Upload, CheckCircle2 } from 'lucide-react';
 import { useProfile } from '../../../hooks/useProfile';
 
-interface AccountSettingsProps {
-  onBack: () => void;
-}
-
-export const AccountSettings: React.FC<AccountSettingsProps> = ({ onBack }) => {
+export const AccountSettings: React.FC = () => {
   const { activeBusiness, updateBusiness } = useProfile();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -19,14 +15,7 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ onBack }) => {
 
   const [isSaved, setIsSaved] = useState(false);
 
-  useEffect(() => {
-    setProfile({
-      ownerName: activeBusiness.ownerName || '',
-      email: activeBusiness.email || '',
-      phone: activeBusiness.phone || '',
-      avatarUrl: activeBusiness.avatarUrl || ''
-    });
-  }, [activeBusiness]);
+  // State sync effect removed. Parent should key this component by business ID.
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

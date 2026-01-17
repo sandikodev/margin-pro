@@ -1,8 +1,8 @@
 
 import React, { useState, useMemo } from 'react';
-import { TrendingUp, Flame, AlertCircle, ChevronDown, Layers, ShieldCheck, Store, Globe, Utensils, Box, ArrowRight, Settings2, Sliders, CreditCard, Coins, CheckCircle2, Clock, Activity, Package, BarChart3, Eye, EyeOff, AlertTriangle, Tag, Receipt, Wallet, Info, LayoutGrid, PieChart, X, Scissors } from 'lucide-react';
+import { TrendingUp, Flame, AlertCircle, Layers, ShieldCheck, Store, Globe, Utensils, Box, Settings2, Sliders, Clock, Activity, Eye, EyeOff, Tag, Receipt, Wallet, Info, LayoutGrid, PieChart, Scissors } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
-import { CalculationResult, Platform, Project, PlatformOverrides } from '@shared/types';
+import { CalculationResult, Platform, Project, PlatformOverrides, Currency } from '@shared/types';
 import { PLATFORM_DATA, TERMINOLOGY } from '../../../lib/constants';
 import { calculateTotalHPP } from '../../../lib/utils';
 import { FloatingActionMenu } from '../../ui/FloatingActionMenu';
@@ -10,25 +10,33 @@ import { Modal } from '../../ui/Modal';
 import { TabNavigation, TabItem } from '../../ui/TabNavigation';
 import { Carousel, CarouselItem } from '../../ui/Carousel';
 
-const TargetIcon: React.FC<{ className?: string }> = ({ className }) => (
-   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-);
+interface ChartDataItem {
+  name: string;
+  profit: number;
+  color: string;
+}
+
+interface FeeComparisonItem {
+  name: string;
+  Fees: number;
+  color: string;
+}
 
 interface ProfitSimulatorProps {
   results: CalculationResult[];
-  chartData: any[];
-  feeComparisonData: any[];
+  chartData: ChartDataItem[];
+  feeComparisonData: FeeComparisonItem[];
   promoPercent: number;
   setPromoPercent: (val: number) => void;
   expandedPlatform: Platform | null;
   setExpandedPlatform: (p: Platform | null) => void;
   formatValue: (val: number) => string;
-  selectedCurrency: any;
+  selectedCurrency: Currency;
   activeProject: Project;
   updateProject: (updates: Partial<Project>) => void;
   overrides: Record<Platform, PlatformOverrides>;
   setOverrides: React.Dispatch<React.SetStateAction<Record<Platform, PlatformOverrides>>>;
-  onBack: () => void;
+  // onBack removed as unused
   onOpenSidebar: () => void;
   t: (key: keyof typeof TERMINOLOGY) => string;
 }
@@ -38,7 +46,7 @@ type CategoryType = 'food' | 'marketplace' | 'export' | 'offline';
 export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
   results, chartData, feeComparisonData, promoPercent, setPromoPercent, 
   expandedPlatform, setExpandedPlatform, formatValue, selectedCurrency, 
-  activeProject, updateProject, overrides, setOverrides, onBack, onOpenSidebar, t
+  activeProject, updateProject, overrides, setOverrides, onOpenSidebar, t
 }) => {
   const [activeCategory, setActiveCategory] = useState<CategoryType>('food');
   const [isPreviewing, setIsPreviewing] = useState(false);
@@ -54,16 +62,13 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
 
   let displayProfit = 0;
   let displayLabel = '';
-  let displaySubLabel = '';
 
   if (effectiveStrategy === 'markup') {
      displayProfit = activeProject.targetNet || 0;
      displayLabel = t('strategyMarkup');
-     displaySubLabel = t('profitTarget');
   } else {
      displayProfit = (activeProject.competitorPrice || 0) - totalHPP;
      displayLabel = t('strategyCompetitor');
-     displaySubLabel = 'Sesuai Harga Saingan';
   }
 
   const displayTotalPotential = displayProfit * targetPortions;
@@ -112,10 +117,7 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
   };
 
   // Safe toFixed helper
-  const safeToFixed = (val: number | undefined, digits: number = 0) => {
-    if (val === undefined || val === null || isNaN(val)) return '0';
-    return val.toFixed(digits);
-  };
+
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
@@ -479,7 +481,7 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
             layout="stretch" 
             tabs={modalTabsData} 
             activeTab={modalTab} 
-            onChange={(id) => setModalTab(id as any)} 
+            onChange={(id) => setModalTab(id as 'settings' | 'breakdown')} 
             className="p-0 border-none mt-2" 
           />
         }

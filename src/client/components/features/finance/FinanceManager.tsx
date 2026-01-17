@@ -1,12 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  Banknote, AlertTriangle, Plus, CalendarClock, TrendingUp, 
-  ArrowDownRight, ArrowUpRight, Calculator, CheckCircle2, Trash2, 
-  Target, Sliders, ShieldAlert, Wallet, Hourglass, ShieldCheck, 
-  XCircle, ShoppingCart, Package, Zap, Building2, HelpCircle, 
-  PieChart, ChevronDown, Calendar, Search, Filter, X 
+  Banknote, Plus, CalendarClock, TrendingUp, 
+  ArrowDownRight, ArrowUpRight, Calculator, CheckCircle2, 
+  Target, ShieldAlert, Wallet, ShieldCheck, 
+  ShoppingCart, Package, Zap, Building2, HelpCircle
 } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { Liability, CashflowRecord, Project, TransactionCategory, BusinessProfile } from '@shared/types';
 import { calculateLoanPayment, calculateFinancialHealth } from '../../../lib/utils';
 import { Modal } from '../../ui/Modal';
@@ -30,13 +29,13 @@ interface ExtendedFinanceManagerProps extends FinanceManagerProps {
   monthlyFixedCost?: number;
   setMonthlyFixedCost?: (val: number) => void;
   currentSavings?: number;
-  setCurrentSavings?: (val: number) => void;
+  // setCurrentSavings removed as unused
 }
 
 export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
   liabilities, setLiabilities, cashflow, setCashflow, activeProject, formatValue,
   monthlyFixedCost = 3500000, setMonthlyFixedCost = (_: number) => {},
-  currentSavings = 2500000, setCurrentSavings = (_: number) => {},
+  currentSavings = 2500000, 
   toggleLiabilityPaid = (_: string) => {},
   deleteCashflow = (_: string) => {},
   activeBusiness, updateBusiness
@@ -118,7 +117,6 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
   
   const {
       projectedNetFreeCashflow,
-      targetBufferAmount,
       monthsToReachBuffer,
       savingsPercentage,
   } = useMemo(() => calculateFinancialHealth(
@@ -313,7 +311,7 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
         variant="sticky" 
         tabs={tabs} 
         activeTab={activeSubTab} 
-        onChange={(id) => setActiveSubTab(id as any)} 
+        onChange={(id) => setActiveSubTab(id as 'journal' | 'debt' | 'strategy')} 
       />
 
       {activeSubTab === 'journal' && (

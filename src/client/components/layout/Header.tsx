@@ -3,18 +3,21 @@ import { Menu, RefreshCw, Volume2, User, ChevronRight, ArrowLeft, PenLine } from
 import { CURRENCIES } from '../../lib/constants';
 import { Project, BusinessProfile } from '@shared/types';
 
+import { Currency } from '@shared/types';
+import { TabId } from './MobileNav';
+
 interface HeaderProps {
   setSidebarOpen: (val: boolean) => void;
   activeTab: string;
   activeProject?: Project;
   updateProject?: (updates: Partial<Project>) => void;
-  selectedCurrency: any;
-  setSelectedCurrency: (c: any) => void;
+  selectedCurrency: Currency;
+  setSelectedCurrency: (c: Currency) => void;
   fetchLiveRates: () => void;
   isRefreshingRates: boolean;
   isSpeaking: boolean;
   handleAudioSummary: () => void;
-  setActiveTab: (tab: any) => void;
+  setActiveTab: (tab: TabId) => void;
   credits: number;
   activeBusiness?: BusinessProfile;
   isProfileEditing?: boolean;
@@ -30,11 +33,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [tempTitle, setTempTitle] = useState('');
   const titleInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (activeProject && !isEditingTitle) {
-      setTempTitle(activeProject.name);
-    }
-  }, [activeProject, isEditingTitle]);
+  // Removed state-syncing effect to prevent render cascades
 
   useEffect(() => {
     if (isEditingTitle && titleInputRef.current) {
@@ -140,7 +139,12 @@ export const Header: React.FC<HeaderProps> = ({
              />
           ) : (
              <h2 
-                onClick={() => isEditable && setIsEditingTitle(true)}
+                onClick={() => {
+                  if (isEditable) {
+                    setTempTitle(activeProject.name);
+                    setIsEditingTitle(true);
+                  }
+                }}
                 className={`text-sm lg:text-lg font-black uppercase tracking-tight truncate w-full flex items-center gap-2 group ${isEditable ? 'text-slate-900 cursor-text hover:text-indigo-600' : 'text-slate-900'}`}
                 title={isEditable ? "Klik untuk ganti nama" : ""}
              >

@@ -32,7 +32,7 @@ import { useTTS } from '../../hooks/useTTS';
 import { useSettings } from '../../hooks/useSettings'; 
 import { useProfile } from '../../hooks/useProfile';
 import { usePricingEngine } from '../../hooks/usePricingEngine';
-import { useToast } from '../../components/ui/Toast';
+import { useToast } from '../../context/ToastContext';
 
 export const DashboardShell: React.FC = () => {
   const navigate = useNavigate();
@@ -68,7 +68,7 @@ export const DashboardShell: React.FC = () => {
 
   const { selectedCurrency, setSelectedCurrency, exchangeRates, isRefreshingRates, fetchLiveRates, formatValue } = useCurrency();
   const { results, chartData, feeComparisonData, overrides, setOverrides, promoPercent, setPromoPercent } = usePricingEngine(activeProject, selectedCurrency, exchangeRates);
-  const { liabilities, setLiabilities, cashflow, setCashflow, monthlyFixedCost, setMonthlyFixedCost, currentSavings, setCurrentSavings, toggleLiabilityPaid, deleteCashflow } = useFinance();
+  const { liabilities, setLiabilities, cashflow, setCashflow, monthlyFixedCost, setMonthlyFixedCost, currentSavings, toggleLiabilityPaid, deleteCashflow } = useFinance();
   const { credits, transactionHistory, deductCredits, topUpCredits } = useMarketplace();
   const { isSpeaking, handleAudioSummary: playSummary } = useTTS();
   const { settings, toggleLanguage, t } = useSettings();
@@ -182,7 +182,7 @@ export const DashboardShell: React.FC = () => {
               <DashboardView 
                 projects={projects} 
                 credits={credits} 
-                setCredits={topUpCredits as any}
+                setCredits={(amount: number) => { topUpCredits(amount); }}
                 setActiveTab={handleTabChange} 
                 createNewProject={handleCreateNewProject} 
                 setActiveProjectId={setActiveProjectId} 
@@ -202,7 +202,7 @@ export const DashboardShell: React.FC = () => {
             {(activeTab === 'profile') && (
               <MerchantProfile 
                 credits={credits} 
-                setCredits={topUpCredits as any} 
+                // setCredits removed 
                 transactionHistory={transactionHistory}
                 settings={settings}
                 toggleLanguage={toggleLanguage}
@@ -241,7 +241,7 @@ export const DashboardShell: React.FC = () => {
                 monthlyFixedCost={monthlyFixedCost}
                 setMonthlyFixedCost={setMonthlyFixedCost}
                 currentSavings={currentSavings}
-                setCurrentSavings={setCurrentSavings}
+                // setCurrentSavings removed
                 toggleLiabilityPaid={toggleLiabilityPaid}
                 deleteCashflow={deleteCashflow}
                 activeBusiness={profile.activeBusiness}
@@ -275,7 +275,6 @@ export const DashboardShell: React.FC = () => {
                 updateProject={updateProject}
                 overrides={overrides}
                 setOverrides={setOverrides}
-                onBack={() => handleTabChange('calc')}
                 onOpenSidebar={() => setIsSidebarOpen(true)}
                 t={t}
               />

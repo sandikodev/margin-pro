@@ -1,24 +1,23 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  User, Settings, Bell, ChevronRight, LogOut, History, ShoppingBag, Layers, 
-  Store, GraduationCap, PlusCircle, Check, 
+  Settings, Bell, ChevronRight, LogOut, History, ShoppingBag, 
+  Store, PlusCircle, 
   Building2, MapPin, 
-  Map, Save, CheckCircle2, LayoutGrid, 
-  ShieldCheck, Upload, Trash2,
-  TrendingUp, Wallet, Coins, Briefcase, Gem, Activity
+  Map, Save, CheckCircle2, 
+  ShieldCheck, Trash2,
+  TrendingUp, Wallet, Briefcase, Gem, Activity
 } from 'lucide-react';
 import { AppSettings, BusinessProfile, BusinessType } from '@shared/types';
 import { ProfileIdentity } from './ProfileIdentity';
 import { ProfileFinancials } from './ProfileFinancials';
-import { AccountSettings } from './AccountSettings';
 import { NotificationModal } from '../../modals/NotificationModal';
 import { TabNavigation, TabItem } from '../../ui/TabNavigation';
 
 interface MerchantProfileProps {
   credits: number;
-  setCredits: React.Dispatch<React.SetStateAction<number>>;
-  transactionHistory: any[];
+  // setCredits removed as unused
+  transactionHistory: { name: string; date: string | number; price: number }[];
   settings: AppSettings;
   toggleLanguage: () => void;
   isEditingProfile: boolean;
@@ -36,7 +35,7 @@ interface MerchantProfileProps {
 }
 
 export const MerchantProfile: React.FC<MerchantProfileProps> = ({ 
-  credits, setCredits, transactionHistory, settings, toggleLanguage,
+  credits, transactionHistory, settings, toggleLanguage,
   isEditingProfile, setIsEditingProfile, onTopUpClick,
   businesses, activeBusinessId, activeBusiness, addBusiness, switchBusiness, updateBusiness, deleteBusiness,
   initialTab = 'outlets',
@@ -152,7 +151,7 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                         <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Jenis Usaha</label>
-                        <select value={editForm.type} onChange={(e) => setEditForm({...editForm, type: e.target.value as any})} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold border border-slate-100 outline-none">
+                        <select value={editForm.type} onChange={(e) => setEditForm({...editForm, type: e.target.value as BusinessType})} className="w-full bg-slate-50 p-4 rounded-2xl text-sm font-bold border border-slate-100 outline-none">
                             <option value="fnb_offline">Warung / Resto Makan Ditempat</option>
                             <option value="fnb_online">Cloud Kitchen (Hanya Online)</option>
                             <option value="retail">Toko Kelontong / Retail</option>
@@ -255,7 +254,7 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
         variant="sticky" 
         tabs={tabs} 
         activeTab={activeTab} 
-        onChange={(id) => setActiveTab(id as any)} 
+        onChange={(id) => setActiveTab(id as 'outlets' | 'account' | 'ledger')} 
       />
 
       <div className="animate-in slide-in-from-bottom-4 duration-500 min-h-[400px]">

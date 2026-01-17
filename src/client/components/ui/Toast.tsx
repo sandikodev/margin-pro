@@ -1,27 +1,11 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { X, CheckCircle2, AlertCircle, Info } from 'lucide-react';
+import { ToastContext, Toast, ToastType } from '../../context/ToastContext';
 
-type ToastType = 'success' | 'error' | 'info';
-
-interface Toast {
-  id: string;
-  message: string;
-  type: ToastType;
-}
-
-interface ToastContextType {
-  showToast: (message: string, type?: ToastType) => void;
-}
-
-const ToastContext = createContext<ToastContextType | undefined>(undefined);
-
-export const useToast = () => {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
-  }
-  return context;
-};
+// ToastContext and useToast moved to context/ToastContext.tsx
+// Actually, re-exporting *might* trigger the same rule if not careful, but usually re-exporting a function is fine.
+// The rule forbids *defining* components and non-components.
+// Let's try re-exporting.
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<Toast[]>([]);

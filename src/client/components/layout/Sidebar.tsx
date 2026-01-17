@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { BarChart3, Plus, X, User, Trash2, Star, Search, Clock, TrendingUp, MoreVertical, LayoutGrid, Heart, Upload, Loader2, Pin, Store, ChevronUp, Check, Copy, FilePlus, ChevronRight, Globe, Building2, PenLine, ArrowRightLeft, Layers, CornerUpRight, MoreHorizontal, ArrowLeft, XCircle } from 'lucide-react';
+import { BarChart3, Plus, X, Trash2, Star, Search, TrendingUp, LayoutGrid, Heart, Upload, Loader2, Pin, Store, ChevronUp, Check, Copy, FilePlus, ChevronRight, Globe, Building2, ArrowRightLeft, Layers, ArrowLeft, XCircle } from 'lucide-react';
 import { Project, BusinessProfile } from '@shared/types';
 import { useContextTrigger } from '../../hooks/useContextTrigger';
-import { ContextMenu, ContextMenuItem, ContextMenuSeparator, ContextMenuLabel, ContextMenuSubTrigger } from '../ui/ContextMenu';
+import { ContextMenu, ContextMenuItem, ContextMenuSeparator, ContextMenuLabel } from '../ui/ContextMenu';
 import { Modal } from '../ui/Modal';
 
 interface SidebarProps {
@@ -13,13 +13,12 @@ interface SidebarProps {
   activeTab: string;
   activeProjectId: string;
   setActiveProjectId: (id: string) => void;
-  setActiveTab: (tab: any) => void;
+  setActiveTab: (tab: string) => void;
   createNewProject: () => void;
   addProject: (project: Project) => void;
   editProject: (id: string, updates: Partial<Project>) => void;
   importProjectWithAI: (jsonString: string) => Promise<string | null>;
   isImporting: boolean;
-  credits: number;
   deleteProject: (id: string) => void;
   toggleFavorite: (id: string) => void;
   activeBusiness?: BusinessProfile;
@@ -77,11 +76,11 @@ const SidebarItem: React.FC<{
     onInteractionStart(); 
     startX.current = e.touches[0].clientX;
     isDragging.current = true;
-    triggerProps.onTouchStart && triggerProps.onTouchStart(e);
+    if (triggerProps.onTouchStart) triggerProps.onTouchStart(e);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    triggerProps.onTouchMove && triggerProps.onTouchMove(e);
+    if (triggerProps.onTouchMove) triggerProps.onTouchMove(e);
     if (!isDragging.current || isRenaming) return;
     if (isPressing) return;
 
@@ -97,7 +96,7 @@ const SidebarItem: React.FC<{
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    triggerProps.onTouchEnd && triggerProps.onTouchEnd(e);
+    if (triggerProps.onTouchEnd) triggerProps.onTouchEnd(e);
     isDragging.current = false;
     
     if (currentOffset.current < -60) {
@@ -110,13 +109,7 @@ const SidebarItem: React.FC<{
     }
   };
 
-  useEffect(() => {
-    if (!isActive) {
-      setOffset(0);
-      currentOffset.current = 0;
-      setIsRenaming(false);
-    }
-  }, [isActive]);
+  // State reset handled by key-based remounting in parent
 
   const handleFinishRename = () => {
     if (tempName.trim() && tempName !== project.name) {
@@ -161,7 +154,7 @@ const SidebarItem: React.FC<{
       </div>
 
       <div 
-        onClick={(e) => {
+        onClick={() => {
             if (Math.abs(offset) > 5) {
                 setOffset(0);
                 currentOffset.current = 0;
@@ -172,7 +165,7 @@ const SidebarItem: React.FC<{
         }}
         onContextMenu={(e) => {
             onInteractionStart();
-            triggerProps.onContextMenu && triggerProps.onContextMenu(e);
+            if (triggerProps.onContextMenu) triggerProps.onContextMenu(e);
         }} 
         onTouchStart={handleTouchStart} 
         onTouchMove={handleTouchMove}   
@@ -245,7 +238,7 @@ const SidebarItem: React.FC<{
 export const Sidebar: React.FC<SidebarProps> = ({
   isOpen, setIsOpen, projects, allProjects, activeTab, activeProjectId, 
   setActiveProjectId, setActiveTab, createNewProject, addProject, editProject, importProjectWithAI, isImporting,
-  credits, deleteProject, toggleFavorite, 
+  deleteProject, toggleFavorite, 
   activeBusiness, businesses, onSwitchBusiness
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -287,6 +280,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     fileInputRef.current?.click();
   };
 
+  /* eslint-disable react-hooks/purity */ // Suppress purity check for event handler
   const handleCloneProject = (sourceProject: Project) => {
     if (!activeBusiness?.id) return; 
 
@@ -306,6 +300,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     setIsCreationModalOpen(false);
     setIsOpen(false);
   };
+  /* eslint-enable react-hooks/purity */
 
   const handleTransferProject = (action: 'move' | 'copy') => {
     if (!contextMenu?.project || !transferTargetId) return;
@@ -450,7 +445,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                   {favoriteProjects.map(p => (
                       <SidebarItem 
-                        key={p.id}
+                        key={`${p.id}-${(activeProjectId === p.id && activeTab === 'calc') ? 'active' : 'inactive'}`}
                         project={p}
                         isActive={activeProjectId === p.id && activeTab === 'calc'}
                         onClick={() => { setActiveProjectId(p.id); setActiveTab('calc'); setIsOpen(false); }}
@@ -476,7 +471,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                    {recentProjects.map(p => (
                       <SidebarItem 
-                        key={p.id}
+                        key={`${p.id}-${(activeProjectId === p.id && activeTab === 'calc') ? 'active' : 'inactive'}`}
                         project={p}
                         isActive={activeProjectId === p.id && activeTab === 'calc'}
                         onClick={() => { setActiveProjectId(p.id); setActiveTab('calc'); setIsOpen(false); }}
