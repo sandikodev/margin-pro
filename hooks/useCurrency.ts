@@ -1,0 +1,52 @@
+
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { GoogleGenAI } from "@google/genai";
+import { CURRENCIES } from '../lib/constants';
+
+export const useCurrency = () => {
+  const [selectedCurrency, setSelectedCurrency] = useState(CURRENCIES[0]);
+
+  const { data: exchangeRates, isLoading: isRefreshingRates, refetch: fetchLiveRates } = useQuery({
+    queryKey: ['exchangeRates'],
+    queryFn: async () => {
+      try {
+        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const response = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: 'Return a JSON object with approximate market exchange rates for 1 USD, 1 SGD, 1 CNY, and 1 JPY converted to Indonesian Rupiah (IDR). The JSON must have keys "USD", "SGD", "CNY", "JPY" with number values.',
+          config: {
+            responseMimeType: 'application/json',
+          }
+        });
+        const data = JSON.parse(response.text || '{}');
+        return { ...data, IDR: 1 };
+      } catch (e) {
+        console.error("Forex Fetch Error:", e);
+        // Fallback values
+        return { USD: 16300, SGD: 12150, CNY: 2250, JPY: 108, IDR: 1 };
+      }
+    },
+    initialData: { IDR: 1, USD: 16000, SGD: 12000, CNY: 2200, JPY: 105 },
+    staleTime: 1000 * 60 * 60, // 1 Hour
+  });
+
+  const formatValue = (idrAmount: number) => {
+    const rate = exchangeRates[selectedCurrency.code] || 1;
+    const converted = selectedCurrency.code === 'IDR' ? idrAmount : idrAmount / rate;
+    return new Intl.NumberFormat(selectedCurrency.locale, { 
+      style: 'currency', 
+      currency: selectedCurrency.code, 
+      maximumFractionDigits: converted < 10 ? 2 : 0 
+    }).format(converted);
+  };
+
+  return {
+    selectedCurrency,
+    setSelectedCurrency,
+    exchangeRates,
+    isRefreshingRates,
+    fetchLiveRates,
+    formatValue
+  };
+};
