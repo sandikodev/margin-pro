@@ -20,7 +20,7 @@ export const DEMO_BUSINESS: BusinessProfile[] = [
     cashOnHand: 8500000,
     themeColor: 'indigo',
     establishedDate: Date.now() - 1000 * 60 * 60 * 24 * 365, // 1 year ago
-    avatarUrl: 'https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?auto=format&fit=crop&w=200&q=80' // Mock Image
+    avatarUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=200&q=80' // Restaurant Mock Image
   },
   {
     id: 'demo-biz-002',
