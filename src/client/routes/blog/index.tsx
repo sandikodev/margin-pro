@@ -1,13 +1,23 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { getAllPosts } from '../../lib/blog';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { getAllPosts, BlogPost } from '../../lib/blog';
 
 export const BlogIndex = () => {
     const navigate = useNavigate();
-    const allPosts = getAllPosts();
+    const [allPosts, setAllPosts] = useState<BlogPost[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const [searchQuery, setSearchQuery] = useState('');
+    useEffect(() => {
+        const fetchPosts = async () => {
+             const posts = await getAllPosts();
+             setAllPosts(posts);
+             setLoading(false);
+        };
+        fetchPosts();
+    }, []);
+
+    const [searchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
     
     // Get unique categories
@@ -24,6 +34,12 @@ export const BlogIndex = () => {
     // Separate Featured Post (First one)
     const featuredPost = filteredPosts.length > 0 ? filteredPosts[0] : null;
     const gridPosts = filteredPosts.slice(1);
+
+    if (loading) return (
+        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
+        </div>
+    );
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
