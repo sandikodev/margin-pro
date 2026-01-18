@@ -13,6 +13,15 @@ export const BlogPostPage = () => {
     const navigate = useNavigate();
     const [post, setPost] = useState<BlogPost | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 100);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     useEffect(() => {
         const load = async () => {
@@ -39,13 +48,20 @@ export const BlogPostPage = () => {
         </div>
     );
 
+
+
+    // ... loading states
+
     // Filter out H1 from markdown if we are displaying it in Hero
     const cleanContent = post.content.replace(/^#\s+(.*)/m, '');
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
             <header className="fixed top-0 w-full z-50 transition-all duration-300 pointer-events-none">
-                <div className="max-w-6xl mx-auto px-6 h-24 flex items-center justify-between pointer-events-auto">
+                <div className={`
+                    mx-auto h-20 flex items-center justify-between pointer-events-auto transition-all duration-500 ease-out
+                    ${isScrolled ? 'w-full px-2 max-w-none' : 'max-w-6xl px-6'}
+                `}>
                     <button 
                         onClick={() => navigate('/blog')} 
                         className="group flex items-center gap-3 px-4 py-2.5 rounded-full bg-slate-900/40 backdrop-blur-md border border-white/10 text-slate-300 hover:text-white hover:bg-slate-900/60 hover:border-white/20 transition-all hover:-translate-x-1"
