@@ -44,13 +44,16 @@ export const BlogPostPage = () => {
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
-            <header className="fixed top-0 w-full z-50 bg-slate-950/0 transition-all duration-300">
-                <div className="max-w-4xl mx-auto px-6 h-20 flex items-center justify-between">
+            <header className="fixed top-0 w-full z-50 bg-gradient-to-b from-slate-950/80 to-transparent backdrop-blur-sm transition-all duration-300 pointer-events-none">
+                <div className="max-w-6xl mx-auto px-6 h-24 flex items-center justify-between pointer-events-auto">
                     <button 
                         onClick={() => navigate('/blog')} 
-                        className="w-10 h-10 rounded-full bg-black/20 backdrop-blur-md border border-white/10 flex items-center justify-center text-white hover:bg-black/40 transition-colors"
+                        className="group flex items-center gap-3 px-4 py-2.5 rounded-full bg-slate-900/40 backdrop-blur-md border border-white/10 text-slate-300 hover:text-white hover:bg-slate-900/60 hover:border-white/20 transition-all hover:-translate-x-1"
                     >
-                        <ArrowLeft className="w-5 h-5" />
+                        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-indigo-500/20 transition-colors">
+                            <ArrowLeft className="w-4 h-4" />
+                        </div>
+                        <span className="text-sm font-bold tracking-wide pr-2">Hub</span>
                     </button>
                 </div>
             </header>
