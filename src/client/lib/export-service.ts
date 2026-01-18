@@ -1,4 +1,4 @@
-import { jsPDF } from "jspdf";
+import type { jsPDF } from "jspdf";
 import { Project, Platform, PlatformConfig } from '@shared/types';
 import { calculateTotalHPP, calculateEffectiveCost, calculatePricingStrategies, calculateOperationalBurnRate } from './utils';
 
@@ -73,11 +73,12 @@ const drawFooter = (doc: jsPDF) => {
   doc.text("Digital Transformation for Indonesian UMKM | www.konxc.space", 15, 287);
 };
 
-export const generateIntelligencePDF = (
+export const generateIntelligencePDF = async (
   activeProject: Project,
   formatValue: (val: number) => string,
   platformData: Record<string, PlatformConfig>
 ) => {
+  const { jsPDF } = await import('jspdf');
   const doc = new jsPDF();
   const totalPages = 4;
   const prodConfig = activeProject.productionConfig || { period: 'weekly', daysActive: 5, targetUnits: 40 };

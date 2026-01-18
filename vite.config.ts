@@ -24,11 +24,54 @@ export default defineConfig(({ mode }) => {
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
-          manualChunks: {
-            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-            'vendor-recharts': ['recharts'],
-            'vendor-genai': ['@google/genai'],
-            'vendor-utils': ['jspdf', 'lucide-react']
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              // Core React (Must stay together usually)
+              if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+                return 'vendor-react';
+              }
+
+              // Heavy UI Libs
+              if (id.includes('recharts')) {
+                return 'vendor-recharts';
+              }
+              if (id.includes('framer-motion')) {
+                return 'vendor-framer';
+              }
+              if (id.includes('lucide-react')) {
+                return 'vendor-icons';
+              }
+
+              // PDF Generation (Split to avoid loading both if not needed)
+              if (id.includes('jspdf')) {
+                return 'vendor-jspdf';
+              }
+              if (id.includes('html2canvas')) {
+                return 'vendor-html2canvas';
+              }
+
+              // Markdown & Content Engine (Split from main bundle)
+              if (id.includes('react-markdown') || id.includes('remark') || id.includes('rehype') || id.includes('micromark') || id.includes('unist') || id.includes('vfile')) {
+                return 'vendor-markdown';
+              }
+              if (id.includes('katex')) {
+                return 'vendor-latex';
+              }
+
+
+              // AI
+              if (id.includes('@google/genai')) {
+                return 'vendor-genai';
+              }
+
+              // General Utils
+              if (id.includes('date-fns')) {
+                return 'vendor-date';
+              }
+              if (id.includes('zod')) {
+                return 'vendor-zod';
+              }
+            }
           }
         }
       }
