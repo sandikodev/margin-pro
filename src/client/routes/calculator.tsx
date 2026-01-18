@@ -9,7 +9,7 @@ import { ExportActions } from '../components/features/calculator/ExportActions';
 import { FloatingActionMenu, FloatingActionItem } from '../components/ui/FloatingActionMenu';
 import { calculateTotalHPP } from '../lib/utils';
 import { generateIntelligencePDF, downloadProjectJSON, copyProjectToClipboard } from '../lib/export-service';
-import { useConfig } from '../context/ConfigContext';
+import { useConfig } from '../hooks/useConfig';
 
 interface ProductCalculatorProps {
   activeProject: Project;

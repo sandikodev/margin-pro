@@ -7,15 +7,15 @@ import { FloatingActionMenu } from '../../ui/FloatingActionMenu';
 import { Modal } from '../../ui/Modal';
 import { TabNavigation, TabItem } from '../../ui/TabNavigation';
 import { Carousel, CarouselItem } from '../../ui/Carousel';
-import { useConfig } from '../../../context/ConfigContext';
+import { useConfig } from '../../../hooks/useConfig';
 
-interface ChartDataItem {
+export interface ChartDataItem {
   name: string;
   profit: number;
   color: string;
 }
 
-interface FeeComparisonItem {
+export interface FeeComparisonItem {
   name: string;
   Fees: number;
   color: string;
@@ -340,7 +340,7 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
               </div>
               
               <div className="lg:col-span-5 space-y-4">
-                {results.sort((a,b) => b.totalDeductions - a.totalDeductions).map((r, idx) => (
+                {results.sort((a,b) => b.recommended.totalDeductions - a.recommended.totalDeductions).map((r, idx) => (
                   <div key={r.platform} className={`p-5 rounded-2xl border transition-all ${idx === 0 ? 'bg-rose-50 border-rose-200' : 'bg-white border-slate-100'}`}>
                       <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">
@@ -352,11 +352,11 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
                         <div className="flex justify-between items-end">
                           <div className="flex flex-col">
                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Beban Potongan</span>
-                            <span className="text-lg font-black text-slate-900">{formatValue(r.totalDeductions)}</span>
+                            <span className="text-lg font-black text-slate-900">{formatValue(r.recommended.totalDeductions)}</span>
                           </div>
                           <div className="text-right flex flex-col items-end">
                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">% Dari Harga</span>
-                            <span className="text-sm font-black text-rose-500">{safePercent(r.totalDeductions, r.recommendedPrice)}%</span>
+                            <span className="text-sm font-black text-rose-500">{safePercent(r.recommended.totalDeductions, r.recommended.price)}%</span>
                           </div>
                         </div>
                     </div>

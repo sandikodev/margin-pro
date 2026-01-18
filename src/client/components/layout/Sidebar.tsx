@@ -95,8 +95,8 @@ const SidebarItem: React.FC<{
     }
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (triggerProps.onTouchEnd) triggerProps.onTouchEnd(e);
+  const handleTouchEnd = () => {
+    if (triggerProps.onTouchEnd) triggerProps.onTouchEnd();
     isDragging.current = false;
     
     if (currentOffset.current < -60) {

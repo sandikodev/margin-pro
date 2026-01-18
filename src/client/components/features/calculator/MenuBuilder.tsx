@@ -13,10 +13,11 @@ interface MenuBuilderProps {
   createNewProject: () => void;
   deleteProject: (id: string) => void;
   formatValue: (val: number) => string;
+  onSimulate: () => void;
 }
 
 export const MenuBuilder: React.FC<MenuBuilderProps> = ({
-  activeProject, updateProject, createNewProject, deleteProject, formatValue
+  activeProject, updateProject, createNewProject, deleteProject, formatValue, onSimulate
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false); 
@@ -168,6 +169,7 @@ export const MenuBuilder: React.FC<MenuBuilderProps> = ({
         formatValue={formatValue}
         prodConfig={prodConfig}
         totalEffectiveCost={totalEffectiveCost}
+        onSimulate={onSimulate}
       />
       
       <div className="lg:hidden fixed bottom-28 right-6 z-50 flex flex-col items-end gap-4 pointer-events-none">

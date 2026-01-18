@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useMidtrans } from '../hooks/useMidtrans';
-import { Check, Star, Zap, Shield } from 'lucide-react';
+import { Check, Star, Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useToast } from '../context/ToastContext';
 

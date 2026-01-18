@@ -1,23 +1,23 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
-  Settings, Layers, Languages, Save, RefreshCw, 
-  ChevronRight, ArrowLeft, Palette, Percent, DollarSign,
-  Edit3, Check, X, LayoutDashboard, Activity, Database,
+  Settings, Layers, Languages, RefreshCw, 
+  ChevronRight, ArrowLeft, Palette, Percent,
+  Edit3, Check, X, LayoutDashboard, Activity,
   Search, Download, Upload, AlertCircle, TrendingUp,
-  BarChart2, PieChart as PieChartIcon, SearchCode,
+  PieChart as PieChartIcon, SearchCode,
   Cpu, Brush, Zap, Terminal, Sliders, ShieldCheck,
-  Globe, Moon, Sun, Monitor, HardDrive, Box
+  Sun, HardDrive
 } from 'lucide-react';
 import { 
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  BarChart, Bar, XAxis, YAxis,
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis 
 } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useConfig } from '../../../context/ConfigContext';
+import { useConfig } from '../../../hooks/useConfig';
 import { useToast } from '../../../context/ToastContext';
 import { api } from '../../../lib/client';
-import { Platform } from '@shared/types';
+import { Platform, PlatformConfig, PlatformCategory } from '@shared/types';
 
 // TYPES
 type AdminTab = 'overview' | 'settings' | 'platforms' | 'translations' | 'intelligence' | 'branding';
@@ -32,25 +32,24 @@ interface AuditEntry {
 
 export const AdminDashboard: React.FC = () => {
     const { settings, platforms, translations, refreshConfigs } = useConfig();
-    const { addToast } = useToast();
+    const { showToast } = useToast();
     
     // UI STATE
     const [activeTab, setActiveTab] = useState<AdminTab>('overview');
     const [isSaving, setIsSaving] = useState(false);
     const [editingPlatform, setEditingPlatform] = useState<string | null>(null);
-    const [platformBuffer, setPlatformBuffer] = useState<any>({});
+    const [platformBuffer, setPlatformBuffer] = useState<Partial<PlatformConfig>>({});
     const [searchTerm, setSearchTerm] = useState('');
     const [filterMissing, setFilterMissing] = useState(false);
     const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
     const [auditLogs, setAuditLogs] = useState<AuditEntry[]>([]);
     const [activePlatformCategory, setActivePlatformCategory] = useState<string>('all');
     const [simulationImpact, setSimulationImpact] = useState<number>(0);
-    const [terminalLogs, setTerminalLogs] = useState<{msg: string, type: 'cmd' | 'info' | 'warn'}[]>([]);
 
     // ANALYTICS DATA
     const platformDistribution = useMemo(() => {
         const counts: Record<string, number> = {};
-        Object.values(platforms).forEach((p: any) => {
+        Object.values(platforms).forEach((p: PlatformConfig) => {
             counts[p.category] = (counts[p.category] || 0) + 1;
         });
         return Object.entries(counts).map(([name, value]) => ({ name, value }));
@@ -61,12 +60,12 @@ export const AdminDashboard: React.FC = () => {
     const commissionData = useMemo(() => {
         return Object.entries(platforms).map(([id, p]) => ({
             id,
-            val: (p as any).defaultCommission * 100
+            val: p.defaultCommission * 100
         }));
     }, [platforms]);
 
     const platformEfficiency = useMemo(() => {
-        return Object.entries(platforms).map(([id, p]: [any, any]) => ({
+        return Object.entries(platforms).map(([id, p]: [string, PlatformConfig]) => ({
             subject: id.split(' ')[0],
             efficiency: Math.random() * 80 + 20, // Synthetic index
             margin: (1 - p.defaultCommission) * 100,
@@ -85,7 +84,7 @@ export const AdminDashboard: React.FC = () => {
     }, [settings]);
 
     const filteredPlatforms = useMemo(() => {
-        return Object.entries(platforms).filter(([_, p]: [any, any]) => {
+        return Object.entries(platforms).filter(([_, p]: [string, PlatformConfig]) => {
             if (activePlatformCategory === 'all') return true;
             return p.category === activePlatformCategory;
         });
@@ -107,15 +106,15 @@ export const AdminDashboard: React.FC = () => {
     const handleSaveSetting = async (key: string, value: string) => {
         setIsSaving(true);
         try {
-            await (api.admin.settings[':key'] as any).$put({ 
+            await (api.admin.settings[':key'] as unknown as { $put: (arg: { param: { key: string }, json: { value: string } }) => Promise<Response> }).$put({ 
                 param: { key },
                 json: { value }
             });
             await refreshConfigs();
-            addToast('Setting updated!', 'success');
+            showToast('Setting updated!', 'success');
             addAuditLog('System Setting Update', `Changed ${key} to ${value}`, 'success');
-        } catch (error) {
-            addToast('Update failed', 'error');
+        } catch {
+            showToast('Update failed', 'error');
             addAuditLog('System Setting Update', `Failed to change ${key}`, 'error');
         } finally {
             setIsSaving(false);
@@ -125,16 +124,16 @@ export const AdminDashboard: React.FC = () => {
     const handleSavePlatform = async (id: string) => {
         setIsSaving(true);
         try {
-            await (api.admin.platforms[':id'] as any).$put({
+            await (api.admin.platforms[':id'] as unknown as { $put: (arg: { param: { id: string }, json: Partial<PlatformConfig> }) => Promise<Response> }).$put({
                 param: { id },
                 json: platformBuffer
             });
             await refreshConfigs();
             setEditingPlatform(null);
-            addToast(`${id} updated!`, 'success');
+            showToast(`${id} updated!`, 'success');
             addAuditLog('Platform Update', `Modified policy for ${id}`, 'success');
-        } catch (error) {
-            addToast('Failed to update platform', 'error');
+        } catch {
+            showToast('Failed to update platform', 'error');
             addAuditLog('Platform Update', `Failed to modify ${id}`, 'error');
         } finally {
             setIsSaving(false);
@@ -144,15 +143,15 @@ export const AdminDashboard: React.FC = () => {
     const handleSaveTranslation = async (key: string, umkm: string, pro: string) => {
         setIsSaving(true);
         try {
-            await (api.admin.translations[':key'] as any).$put({
+            await (api.admin.translations[':key'] as unknown as { $put: (arg: { param: { key: string }, json: { umkm: string, pro: string } }) => Promise<Response> }).$put({
                 param: { key },
                 json: { umkm, pro }
             });
             await refreshConfigs();
-            addToast(`Term "${key}" updated!`, 'success');
+            showToast(`Term "${key}" updated!`, 'success');
             addAuditLog('Dictionary Update', `Updated labels for ${key}`, 'success');
-        } catch (error) {
-            addToast('Failed update', 'error');
+        } catch {
+            showToast('Failed update', 'error');
             addAuditLog('Dictionary Update', `Error updating ${key}`, 'error');
         } finally {
             setIsSaving(false);
@@ -200,27 +199,27 @@ export const AdminDashboard: React.FC = () => {
         a.download = `margins-pro-full-backup-${new Date().toISOString().split('T')[0]}.json`;
         a.click();
         addAuditLog('System', 'Full cryptographically stamped backup created', 'success');
-        addToast('Full system backup created!', 'success');
+        showToast('Full system backup created!', 'success');
     };
 
     const bulkMigrateCategory = async (from: string, to: string) => {
         if (!confirm(`Are you sure you want to migrate ALL platforms from ${from} to ${to}?`)) return;
         setIsSaving(true);
         try {
-            const targets = Object.entries(platforms).filter(([_, p]: [any, any]) => p.category === from);
-            await Promise.all(targets.map(([id, p]: [any, any]) => 
-                (api.admin.platforms[':id'] as any).$put({ param: { id }, json: { ...p, category: to } })
+            const targets = Object.entries(platforms).filter(([_, p]: [string, PlatformConfig]) => p.category === from);
+            await Promise.all(targets.map(([id, p]: [string, PlatformConfig]) => 
+                (api.admin.platforms[':id'] as unknown as { $put: (arg: { param: { id: string }, json: Partial<PlatformConfig> }) => Promise<Response> }).$put({ param: { id }, json: { ...p, category: to as PlatformCategory } })
             ));
             await refreshConfigs();
             addAuditLog('Migration', `Moved ${targets.length} platforms from ${from} to ${to}`, 'info');
-            addToast(`Migration complete: ${targets.length} platforms moved`, 'success');
-        } catch { addToast('Migration failed', 'error'); }
+            showToast(`Migration complete: ${targets.length} platforms moved`, 'success');
+        } catch { showToast('Migration failed', 'error'); }
         finally { setIsSaving(false); }
     };
 
     // FILTERED TRANSLATIONS
     const filteredTranslations = useMemo(() => {
-        return Object.entries(translations).filter(([key, val]: [string, any]) => {
+        return Object.entries(translations).filter(([key, val]: [string, { umkm: string; pro: string }]) => {
             const matchesSearch = key.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 val.umkm.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 val.pro.toLowerCase().includes(searchTerm.toLowerCase());
@@ -277,7 +276,7 @@ export const AdminDashboard: React.FC = () => {
                         ].map(tab => (
                             <button 
                                 key={tab.id}
-                                onClick={() => setActiveTab(tab.id as any)}
+                                onClick={() => setActiveTab(tab.id as AdminTab)}
                                 className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all duration-300 group ${activeTab === tab.id ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100' : 'bg-transparent text-slate-500 hover:bg-slate-50'}`}
                             >
                                 <div className="flex items-center gap-4 font-black text-[10px] uppercase tracking-widest">
@@ -295,7 +294,7 @@ export const AdminDashboard: React.FC = () => {
                              ].map(tab => (
                                  <button 
                                      key={tab.id}
-                                     onClick={() => setActiveTab(tab.id as any)}
+                                     onClick={() => setActiveTab(tab.id as AdminTab)}
                                      className={`w-full flex items-center justify-between p-3 rounded-xl transition-all duration-300 group mb-1 ${activeTab === tab.id ? 'bg-slate-900 text-white shadow-xl' : 'bg-transparent text-slate-500 hover:bg-slate-50'}`}
                                  >
                                      <div className="flex items-center gap-3 font-black text-[9px] uppercase tracking-widest">
@@ -572,11 +571,11 @@ export const AdminDashboard: React.FC = () => {
                                                             setIsSaving(true);
                                                             try {
                                                                 await Promise.all(Object.keys(platforms).map(id => 
-                                                                    (api.admin.platforms[':id'] as any).$put({ param: { id }, json: { ...platforms[id as Platform], defaultCommission: val } })
+                                                                    (api.admin.platforms[':id'] as unknown as { $put: (arg: { param: { id: string }, json: Partial<PlatformConfig> }) => Promise<Response> }).$put({ param: { id }, json: { ...platforms[id as Platform], defaultCommission: val } })
                                                                 ));
                                                                 await refreshConfigs();
-                                                                addToast('Mass update successful!', 'success');
-                                                            } catch { addToast('Mass update failed', 'error'); }
+                                                                showToast('Mass update successful!', 'success');
+                                                            } catch { showToast('Mass update failed', 'error'); }
                                                             finally { setIsSaving(false); }
                                                         }
                                                     }
@@ -602,7 +601,7 @@ export const AdminDashboard: React.FC = () => {
                                 </div>
 
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    {filteredPlatforms.map(([id, p]: [string, any]) => (
+                                    {filteredPlatforms.map(([id, p]: [string, PlatformConfig]) => (
                                         <div key={id} className={`p-8 rounded-[2.5rem] border transition-all duration-300 relative group overflow-hidden ${editingPlatform === id ? 'bg-indigo-50/50 border-indigo-200' : 'bg-slate-50/50 border-slate-100 hover:border-indigo-200'}`}>
                                             <div className="flex items-center justify-between mb-8">
                                                 <div className="flex items-center gap-4">
@@ -617,7 +616,7 @@ export const AdminDashboard: React.FC = () => {
                                                             <button onClick={() => setEditingPlatform(null)} className="p-2 bg-slate-200 text-slate-600 rounded-xl"><X className="w-4 h-4" /></button>
                                                          </div>
                                                      ) : (
-                                                         <button onClick={() => { setEditingPlatform(id); setPlatformBuffer({ ...(p as any) }); }} className="p-2 bg-white text-slate-400 hover:text-indigo-600 rounded-xl border border-slate-200 opacity-0 group-hover:opacity-100 transition-all shadow-sm"><Edit3 className="w-4 h-4" /></button>
+                                                         <button onClick={() => { setEditingPlatform(id); setPlatformBuffer({ ...p }); }} className="p-2 bg-white text-slate-400 hover:text-indigo-600 rounded-xl border border-slate-200 opacity-0 group-hover:opacity-100 transition-all shadow-sm"><Edit3 className="w-4 h-4" /></button>
                                                      )}
                                                 </div>
                                             </div>
@@ -654,7 +653,7 @@ export const AdminDashboard: React.FC = () => {
                                                         </div>
                                                         <div className="space-y-2">
                                                             <label className="text-[10px] font-black uppercase text-slate-400">Category</label>
-                                                            <select className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold" value={platformBuffer.category} onChange={(e) => setPlatformBuffer({...platformBuffer, category: e.target.value})}>
+                                                            <select className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold" value={platformBuffer.category} onChange={(e) => setPlatformBuffer({...platformBuffer, category: e.target.value as PlatformCategory})}>
                                                                 <option value="food">Food Delivery</option>
                                                                 <option value="marketplace">E-Commerce</option>
                                                                 <option value="offline">Offline/Store</option>
@@ -880,7 +879,7 @@ export const AdminDashboard: React.FC = () => {
                                         <h2 className="text-2xl font-black text-slate-800 tracking-tight">Global Aesthetic Engine</h2>
                                         <p className="text-sm text-slate-400 mt-1 font-medium">Control the brand identity across the entire ecosystem</p>
                                     </div>
-                                    <button onClick={() => addToast('Design synced to database', 'success')} className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-100 hover:scale-105 transition-all">Save Brand State</button>
+                                    <button onClick={() => showToast('Design synced to database', 'success')} className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-100 hover:scale-105 transition-all">Save Brand State</button>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -998,7 +997,7 @@ export const AdminDashboard: React.FC = () => {
                                         ].map(cmd => (
                                             <button 
                                                 key={cmd.id}
-                                                onClick={() => { setActiveTab(cmd.id as any); setIsCommandPaletteOpen(false); }}
+                                                onClick={() => { setActiveTab(cmd.id as AdminTab); setIsCommandPaletteOpen(false); }}
                                                 className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 text-slate-600 hover:text-indigo-600 transition-all text-xs font-bold"
                                             >
                                                 <cmd.icon className="w-4 h-4" /> {cmd.label}

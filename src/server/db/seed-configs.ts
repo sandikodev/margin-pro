@@ -41,15 +41,16 @@ export async function seedConfigs() {
 
     // 3. Seed Translations
     for (const [key, labels] of Object.entries(TERMINOLOGY)) {
+        const typedLabels = labels as { umkm: string; pro: string };
         await db.insert(translations).values({
             key: key,
-            umkmLabel: (labels as any).umkm,
-            proLabel: (labels as any).pro,
+            umkmLabel: typedLabels.umkm,
+            proLabel: typedLabels.pro,
         }).onConflictDoUpdate({
             target: translations.key,
             set: {
-                umkmLabel: (labels as any).umkm,
-                proLabel: (labels as any).pro,
+                umkmLabel: typedLabels.umkm,
+                proLabel: typedLabels.pro,
             }
         });
     }

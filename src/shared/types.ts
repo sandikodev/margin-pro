@@ -17,13 +17,15 @@ export enum Platform {
   OFFLINE = 'Direct Selling'
 }
 
+export type PlatformCategory = 'food' | 'marketplace' | 'export' | 'offline';
+
 export interface PlatformConfig {
   defaultCommission: number;
   defaultFixedFee: number;
   withdrawalFee: number;
   color: string;
   officialTermsUrl: string;
-  category: 'food' | 'marketplace' | 'export' | 'offline';
+  category: PlatformCategory;
 }
 
 export interface PlatformOverrides {
@@ -136,6 +138,7 @@ export interface Currency {
   symbol: string;
   name: string;
   rate: number;
+  locale: string;
 }
 
 export interface User {

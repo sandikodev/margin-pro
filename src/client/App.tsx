@@ -1,71 +1,63 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useToast } from './context/ToastContext';
+import { useAuth } from './hooks/useAuth';
 
-// Routes
+// Eager Imports (Critical Path)
 import { LandingPage } from './routes/landing';
 import { AuthPage } from './routes/auth';
-import { OnboardingWizard } from './routes/onboarding';
-import { DemoTour } from './routes/demo-tour';
-import { DashboardShell } from './components/layout/DashboardShell';
-import { AdminDashboard } from './components/features/admin/AdminDashboard';
-import { PricingPage } from './routes/pricing';
+
+// Lazy Imports (Chunked)
+const OnboardingWizard = React.lazy(() => import('./routes/onboarding').then(module => ({ default: module.OnboardingWizard })));
+const DemoTour = React.lazy(() => import('./routes/demo-tour').then(module => ({ default: module.DemoTour })));
+const DashboardShell = React.lazy(() => import('./components/layout/DashboardShell').then(module => ({ default: module.DashboardShell })));
+const AdminDashboard = React.lazy(() => import('./components/features/admin/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
+const PricingPage = React.lazy(() => import('./routes/pricing').then(module => ({ default: module.PricingPage })));
+const SystemLayout = React.lazy(() => import('./layouts/SystemLayout').then(module => ({ default: module.SystemLayout })));
+const BlogIndex = React.lazy(() => import('./routes/blog').then(module => ({ default: module.BlogIndex })));
+const BlogPostPage = React.lazy(() => import('./routes/blog/post').then(module => ({ default: module.BlogPostPage })));
+
+// Loading Component
+const PageLoader = () => (
+ <div className="min-h-screen flex items-center justify-center bg-slate-50">
+   <div className="flex flex-col items-center gap-4">
+     <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading Content...</p>
+   </div>
+ </div>
+);
 
 // Data
 import { DEMO_BUSINESS, DEMO_PROJECTS, DEMO_CASHFLOW, DEMO_LIABILITIES, DEMO_USER_CREDENTIALS } from './lib/demo-data';
 import { BusinessProfile } from '@shared/types';
 import { useProfile } from './hooks/useProfile';
-
-// --- AUTH GUARDS ---
-
-const RequireAuth = ({ children }: { children: React.ReactNode }) => {
-  const isAuth = localStorage.getItem('margins_pro_auth');
-  const location = useLocation();
-
-  if (isAuth !== 'true') {
-    return <Navigate to="/auth" state={{ from: location }} replace />;
-  }
-  return children;
-};
-
-const RedirectIfAuth = ({ children }: { children: React.ReactNode }) => {
-  const isAuth = localStorage.getItem('margins_pro_auth');
-  const hasOnboarded = localStorage.getItem('margins_pro_onboarded');
-  
-  if (isAuth === 'true') {
-      if (hasOnboarded === 'true') {
-          return <Navigate to="/app" replace />;
-      }
-      return <Navigate to="/onboarding" replace />;
-  }
-  return children;
-};
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 // --- AUTH DATA HELPER ---
 const populateDemoData = () => {
-    localStorage.clear();
-    localStorage.setItem('margins_pro_businesses_v3', JSON.stringify(DEMO_BUSINESS));
-    localStorage.setItem('margins_pro_active_business_id_v3', DEMO_BUSINESS[0].id);
-    localStorage.setItem('margins_pro_v12_final', JSON.stringify(DEMO_PROJECTS));
-    localStorage.setItem('margins_pro_cashflow', JSON.stringify(DEMO_CASHFLOW));
-    localStorage.setItem('margins_pro_liabilities', JSON.stringify(DEMO_LIABILITIES));
-    localStorage.setItem('margins_pro_auth', 'true');
-    localStorage.setItem('margins_pro_onboarded', 'true');
-    localStorage.setItem('margins_pro_is_demo', 'true');
-    localStorage.setItem('margins_pro_demo_welcome', 'true');
+    // Only populate if missing, to prevent overwriting user work in demo
+    if (!localStorage.getItem('margins_pro_businesses_v3')) {
+        localStorage.setItem('margins_pro_businesses_v3', JSON.stringify(DEMO_BUSINESS));
+        localStorage.setItem('margins_pro_active_business_id_v3', DEMO_BUSINESS[0].id);
+        localStorage.setItem('margins_pro_v12_final', JSON.stringify(DEMO_PROJECTS));
+        localStorage.setItem('margins_pro_cashflow', JSON.stringify(DEMO_CASHFLOW));
+        localStorage.setItem('margins_pro_liabilities', JSON.stringify(DEMO_LIABILITIES));
+        localStorage.setItem('margins_pro_onboarded', 'true');
+        localStorage.setItem('margins_pro_is_demo', 'true');
+        localStorage.setItem('margins_pro_demo_welcome', 'true');
+    }
 };
 
-// --- WRAPPER COMPONENTS ---
-// We wrap pages to handle internal navigation logic that was previously in App.tsx
+// --- WRAPPERS ---
 
 const AuthWrapper = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { login } = useAuth();
   const location = useLocation();
   const [initialMode, setInitialMode] = useState<'login' | 'register'>(location.state?.mode || 'register');
   const [isDemo, setIsDemo] = useState(location.state?.isDemo || false);
 
-  // Synchronize state if location state changes (derived state pattern)
   const [prevLocationState, setPrevLocationState] = useState(location.state);
   if (location.state !== prevLocationState) {
     setPrevLocationState(location.state);
@@ -77,13 +69,28 @@ const AuthWrapper = () => {
      // Demo Logic
      if (email === DEMO_USER_CREDENTIALS.email && password === DEMO_USER_CREDENTIALS.password) {
          populateDemoData();
-         window.location.href = '/app'; // Hard reload to ensure hooks pick up new storage
+         login('demo-token-123', {
+             id: 'demo-user-1',
+             email: email,
+             name: 'Demo Merchant',
+             role: 'user',
+             createdAt: Date.now()
+         });
          return;
      }
+     
+     // MOCKED REAL LOGIN
+     login('mock-token-xyz', {
+         id: 'user-' + Date.now(),
+         email: email || 'user@example.com',
+         name: 'New User',
+         role: 'user',
+         createdAt: Date.now()
+     });
 
-     localStorage.setItem('margins_pro_auth', 'true');
      showToast("Login Berhasil", "success");
      
+     // Check onboarding status
      const onboarded = localStorage.getItem('margins_pro_onboarded');
      if (onboarded === 'true') {
          navigate('/app');
@@ -107,10 +114,6 @@ const AuthWrapper = () => {
 const OnboardingWrapper = () => {
     const navigate = useNavigate();
     const { showToast } = useToast();
-    // We need useProfile to add business! 
-    // BUT useProfile relies on storage. 
-    // Ideally we should move addBusiness logic inside OnboardingWizard or pass a handler.
-    // For now, simpler to reuse the useProfile hook, even if redundant in other routes.
     const profile = useProfile();
 
     const handleComplete = (data: Partial<BusinessProfile>) => {
@@ -137,10 +140,16 @@ const OnboardingWrapper = () => {
     };
 
     return <OnboardingWizard onComplete={handleComplete} />;
-};
+  };
 
 const LandingWrapper = () => {
     const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
+
+    if (isAuthenticated) {
+        return <Navigate to="/app" replace />;
+    }
+
     return (
         <LandingPage 
             onGetStarted={() => navigate('/auth', { state: { mode: 'register' } })}
@@ -161,61 +170,59 @@ const DemoWrapper = () => {
 };
 
 export const App: React.FC = () => {
-  // Demo Welcome Toast Logic
-  useEffect(() => {
-     // We can't use useToast here because it's outside ToastProvider in this specific render tree position usually 
-     // BUT here App IS inside ToastProvider in index.tsx?
-     // Wait, index.tsx wraps App with ToastProvider. So useToast works!
-  }, []);
-  
-  // Note: ToastProvider is in index.tsx, so we are good.
-
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Public Routes (Redirect to /app if logged in) */}
-        <Route path="/" element={
-            <RedirectIfAuth>
-                <LandingWrapper />
-            </RedirectIfAuth>
-        } />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+        {/* PUBLIC */}
+        <Route path="/" element={<LandingWrapper />} />
         
         <Route path="/auth" element={
-            <RedirectIfAuth>
-                <AuthWrapper />
-            </RedirectIfAuth>
+             <AuthWrapper />
         } />
 
         <Route path="/demo" element={
-             <RedirectIfAuth>
-                <DemoWrapper />
-             </RedirectIfAuth>
+            <DemoWrapper />
         } />
 
-        <Route path="/admin" element={<AdminDashboard />} />
-
-        {/* Protected Routes */}
+        {/* PROTECTED */}
         <Route path="/onboarding" element={
-            <RequireAuth>
+            <ProtectedRoute>
                 <OnboardingWrapper />
-            </RequireAuth>
+            </ProtectedRoute>
         } />
 
         <Route path="/app/*" element={
-            <RequireAuth>
+            <ProtectedRoute>
                 <DashboardShell />
-            </RequireAuth>
+            </ProtectedRoute>
         } />
 
+        {/* SYSTEM (ADMIN ONLY) */}
+        {/* Note: We use 'admin' role check here. Demo user is 'user', so this tests security. */}
+        <Route path="/system" element={
+            <ProtectedRoute requiredRole="admin" redirectTo="/app"> 
+               <SystemLayout /> 
+            </ProtectedRoute>
+        }>
+            <Route path="admin" element={<AdminDashboard />} /> 
+            <Route index element={<Navigate to="admin" replace />} />
+        </Route>
+
         <Route path="/pricing" element={
-            <RequireAuth>
+            <ProtectedRoute>
                 <PricingPage />
-            </RequireAuth>
+            </ProtectedRoute>
         } />
+
+        {/* PUBLIC CONTENT */}
+        <Route path="/blog" element={<BlogIndex />} />
+        <Route path="/blog/:slug" element={<BlogPostPage />} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 };

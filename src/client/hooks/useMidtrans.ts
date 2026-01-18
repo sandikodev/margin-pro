@@ -3,7 +3,9 @@ import { useEffect, useState } from 'react';
 
 declare global {
     interface Window {
-        snap: any;
+        snap: {
+            pay: (token: string, options: unknown) => void;
+        };
     }
 }
 
@@ -11,16 +13,13 @@ const MIDTRANS_SNAP_URL = "https://app.midtrans.com/snap/snap.js";
 const CLIENT_KEY = "Mid-client-sK82M9wG1HME4rwa"; // Setup Env var in real app
 
 export const useMidtrans = () => {
-    const [isLoaded, setIsLoaded] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(() => !!document.getElementById("midtrans-script"));
 
     useEffect(() => {
         const scriptId = "midtrans-script";
-        const existingScript = document.getElementById(scriptId);
-
-        if (existingScript) {
-            setIsLoaded(true);
-            return;
-        }
+        // We rely on lazy useState to handle the case where script is already present.
+        // If it exists but isLoaded is false (rare race condition), we proceed to check/create.
+        if (isLoaded || document.getElementById(scriptId)) return;
 
         const script = document.createElement("script");
         script.src = MIDTRANS_SNAP_URL;
@@ -34,9 +33,9 @@ export const useMidtrans = () => {
             // Optional cleanup if we want to remove it on unmount
             // document.body.removeChild(script); 
         };
-    }, []);
+    }, [isLoaded]);
 
-    const pay = (snapToken: string, onSuccess: (result: any) => void, onPending: (result: any) => void, onError: (result: any) => void, onClose: () => void) => {
+    const pay = (snapToken: string, onSuccess: (result: unknown) => void, onPending: (result: unknown) => void, onError: (result: unknown) => void, onClose: () => void) => {
         if (window.snap) {
             window.snap.pay(snapToken, {
                 onSuccess,

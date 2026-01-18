@@ -8,7 +8,11 @@ export const users = sqliteTable("users", {
     email: text("email").unique().notNull(),
     password: text("password").notNull(), // Hashed
     name: text("name"),
-    role: text("role").default("user"),
+    role: text("role").default("user"), // user, super_admin, affiliate
+    referralCode: text("referral_code").unique(), // Unique code for this user
+    referredBy: text("referred_by"), // Code of the referrer
+    affiliateEarnings: integer("affiliate_earnings").default(0),
+    permissions: text("permissions", { mode: "json" }).$type<string[]>().default(sql`'[]'`), // ['can_manage_users', 'can_view_revenue']
     createdAt: integer("created_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
 });
 

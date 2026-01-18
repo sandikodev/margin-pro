@@ -76,11 +76,11 @@ export const PLATFORM_DATA: Record<Platform, PlatformConfig> = {
 };
 
 export const CURRENCIES = [
-  { code: 'IDR', symbol: 'Rp', locale: 'id-ID' },
-  { code: 'USD', symbol: '$', locale: 'en-US' },
-  { code: 'SGD', symbol: 'S$', locale: 'en-SG' },
-  { code: 'CNY', symbol: '¥', locale: 'zh-CN' },
-  { code: 'JPY', symbol: '¥', locale: 'ja-JP' }
+  { code: 'IDR', symbol: 'Rp', locale: 'id-ID', name: 'Indonesian Rupiah', rate: 1 },
+  { code: 'USD', symbol: '$', locale: 'en-US', name: 'US Dollar', rate: 15500 },
+  { code: 'SGD', symbol: 'S$', locale: 'en-SG', name: 'Singapore Dollar', rate: 11500 },
+  { code: 'CNY', symbol: '¥', locale: 'zh-CN', name: 'Chinese Yuan', rate: 2150 },
+  { code: 'JPY', symbol: '¥', locale: 'ja-JP', name: 'Japanese Yen', rate: 105 }
 ];
 
 export const INITIAL_MARKETPLACE: MarketplaceItem[] = [

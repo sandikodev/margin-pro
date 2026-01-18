@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Share2, FileText, FileJson, Copy, Check } from 'lucide-react';
 import { Project } from '@shared/types';
 import { generateIntelligencePDF, downloadProjectJSON, copyProjectToClipboard } from '../../../lib/export-service';
-import { useConfig } from '../../../context/ConfigContext';
+import { useConfig } from '../../../hooks/useConfig';
 
 interface ExportActionsProps {
   activeProject: Project;

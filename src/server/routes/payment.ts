@@ -126,7 +126,7 @@ export const paymentRoutes = new Hono()
         }
 
         if (newStatus !== "PENDING") {
-            await db.update(invoices).set({ status: newStatus as any }).where(eq(invoices.id, order_id));
+            await db.update(invoices).set({ status: newStatus as "PENDING" | "PAID" | "FAILED" }).where(eq(invoices.id, order_id));
         }
 
         return c.json({ status: "ok" });

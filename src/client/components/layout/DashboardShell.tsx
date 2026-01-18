@@ -149,7 +149,6 @@ export const DashboardShell: React.FC = () => {
         editProject={editProject}
         importProjectWithAI={importProjectWithAI}
         isImporting={isImporting}
-        credits={credits}
         deleteProject={deleteProject}
         toggleFavorite={toggleFavorite}
         activeBusiness={profile.activeBusiness}
@@ -276,6 +275,10 @@ export const DashboardShell: React.FC = () => {
                 overrides={overrides}
                 setOverrides={setOverrides}
                 onOpenSidebar={() => setIsSidebarOpen(true)}
+                onBack={() => {
+                  if (activeProject) setActiveTab('calc'); 
+                  else setActiveTab('home');
+                }}
                 t={t}
               />
             )}
