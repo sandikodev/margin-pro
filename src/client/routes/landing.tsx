@@ -41,14 +41,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
              </a>
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center">
              <button onClick={onLogin} className="text-sm font-bold text-slate-300 hover:text-white transition-colors">
                Masuk
              </button>
-             <div className={`transition-all duration-500 ease-out transform ${isScrolled ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}`}>
+             <div className={`overflow-hidden transition-all duration-500 ease-out ${isScrolled ? 'max-w-[200px] opacity-100 ml-4' : 'max-w-0 opacity-0 ml-0'}`}>
                  <button 
                     onClick={onGetStarted}
-                    className="bg-white text-slate-950 px-5 py-2.5 rounded-lg font-black text-sm hover:bg-indigo-50 transition-colors shadow-lg shadow-white/5"
+                    className="whitespace-nowrap bg-white text-slate-950 px-5 py-2.5 rounded-lg font-black text-sm hover:bg-indigo-50 transition-colors shadow-lg shadow-white/5"
                  >
                     Coba Gratis
                  </button>
