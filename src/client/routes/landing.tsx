@@ -200,6 +200,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
                   <span className="font-black text-white tracking-tight">MARGINS PRO</span>
                </div>
                <p className="text-[10px] font-medium">© 2025 PT Koneksi Jaringan Indonesia.</p>
+               <div className="flex gap-4 mt-2">
+                  <a href="/legal/terms" className="text-[10px] hover:text-white transition-colors">Terms</a>
+                  <a href="/legal/privacy" className="text-[10px] hover:text-white transition-colors">Privacy</a>
+               </div>
             </div>
             
             <div className="flex gap-6">

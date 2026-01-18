@@ -16,6 +16,8 @@ const PricingPage = React.lazy(() => import('./routes/pricing').then(module => (
 const SystemLayout = React.lazy(() => import('./layouts/SystemLayout').then(module => ({ default: module.SystemLayout })));
 const BlogIndex = React.lazy(() => import('./routes/blog').then(module => ({ default: module.BlogIndex })));
 const BlogPostPage = React.lazy(() => import('./routes/blog/post').then(module => ({ default: module.BlogPostPage })));
+const TermsPage = React.lazy(() => import('./routes/legal/terms').then(module => ({ default: module.TermsPage })));
+const PrivacyPage = React.lazy(() => import('./routes/legal/privacy').then(module => ({ default: module.PrivacyPage })));
 
 // Loading Component
 const PageLoader = () => (
@@ -218,6 +220,8 @@ export const App: React.FC = () => {
         {/* PUBLIC CONTENT */}
         <Route path="/blog" element={<BlogIndex />} />
         <Route path="/blog/:slug" element={<BlogPostPage />} />
+        <Route path="/legal/terms" element={<TermsPage />} />
+        <Route path="/legal/privacy" element={<PrivacyPage />} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
