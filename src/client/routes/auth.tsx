@@ -95,7 +95,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                Stop Guessing.<br/>Start <span className="text-indigo-400">Profiting.</span>
             </h1>
             <p className="text-lg text-slate-400 leading-relaxed font-medium">
-               "Margins Pro transformed how we view our unit economics. It's not just a calculator, it's a cheat sheet for profitability."
+               "Margin Pro transformed how we view our unit economics. It's not just a calculator, it's a cheat sheet for profitability."
             </p>
             
             {/* Stats/Social Proof (Mock) */}

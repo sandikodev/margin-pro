@@ -14,7 +14,7 @@ export const TermsPage: React.FC = () => {
             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
               <Shield size={20} strokeWidth={3} />
             </div>
-            <span className="font-extrabold tracking-tight text-lg text-slate-900">MARGINS<span className="text-indigo-600">PRO</span></span>
+            <span className="font-extrabold tracking-tight text-lg text-slate-900">MARGIN<span className="text-indigo-600">PRO</span></span>
           </div>
           <button onClick={() => navigate('/')} className="text-sm font-semibold text-slate-500 hover:text-indigo-600 flex items-center gap-1">
             <ChevronLeft size={16} />
@@ -29,10 +29,10 @@ export const TermsPage: React.FC = () => {
 
         <div className="prose prose-slate max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-indigo-600">
           <h3>1. Acceptance of Terms</h3>
-          <p>By accessing and using MarginsPro ("the Service"), you agree to be bound by these Terms of Service. If you do not agree, strictly do not use the Service.</p>
+          <p>By accessing and using Margin Pro ("the Service"), you agree to be bound by these Terms of Service. If you do not agree, strictly do not use the Service.</p>
 
           <h3>2. SaaS License</h3>
-          <p>MarginsPro grants you a limited, non-exclusive, non-transferable license to use the financing and margin calculation software for your business operations. This license is contingent upon valid subscription payment.</p>
+          <p>Margin Pro grants you a limited, non-exclusive, non-transferable license to use the financing and margin calculation software for your business operations. This license is contingent upon valid subscription payment.</p>
 
           <h3>3. Data Privacy & Security</h3>
           <p>We take data security seriously. Your financial data is encrypted and stored securely. We do not sell your proprietary pricing strategies to third parties. See our Privacy Policy for details.</p>
@@ -44,7 +44,7 @@ export const TermsPage: React.FC = () => {
           </p>
 
           <h3>5. Disclaimer of Warranties</h3>
-          <p>The Service is provided "AS IS". While we strive for accuracy in our HPP and Margin algorithms, you acknowledge that financial decisions are your sole responsibility. MarginsPro is not a certified financial advisor.</p>
+          <p>The Service is provided "AS IS". While we strive for accuracy in our HPP and Margin algorithms, you acknowledge that financial decisions are your sole responsibility. Margin Pro is not a certified financial advisor.</p>
 
           <h3>6. Termination</h3>
           <p>We reserve the right to terminate accounts that abuse the API, attempt to reverse-engineer the algorithms, or violate these terms.</p>

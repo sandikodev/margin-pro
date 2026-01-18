@@ -28,7 +28,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
             <div className="w-8 h-8 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
               <Activity className="w-5 h-5 text-white" />
             </div>
-            <span className="font-black text-lg tracking-tight hidden md:block">MARGINS</span>
+            <span className="font-black text-lg tracking-tight hidden md:block">MARGIN</span>
           </div>
 
           {/* Desktop Nav */}
@@ -274,7 +274,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
                </div>
                <div className="p-6 bg-slate-900 rounded-2xl border border-slate-800">
                   <h4 className="font-bold text-sm mb-2 flex items-center gap-2"><HelpCircle className="w-4 h-4 text-indigo-500" /> Bisa untuk retail non-makanan?</h4>
-                  <p className="text-xs text-slate-400 leading-relaxed">Bisa! Margins Pro juga mendukung perhitungan untuk toko baju, craft, dan jasa. Cukup pilih kategori saat onboarding.</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">Bisa! Margin Pro juga mendukung perhitungan untuk toko baju, craft, dan jasa. Cukup pilih kategori saat onboarding.</p>
                </div>
             </div>
          </div>
@@ -301,7 +301,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
             <div className="flex flex-col items-center md:items-start gap-3">
                <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
                   <Activity className="w-5 h-5 text-indigo-500" />
-                  <span className="font-black text-white tracking-tight">MARGINS PRO</span>
+                  <span className="font-black text-white tracking-tight">MARGIN PRO</span>
                </div>
                <p className="text-[10px] font-medium text-center md:text-left max-w-xs">
                   © 2025 PT Koneksi Jaringan Indonesia.<br/>

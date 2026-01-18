@@ -147,7 +147,7 @@ export const PricingPage = () => {
                     amount: tier === 'pro_monthly' ? 150000 : 2500000,
                     items: [{
                         id: tier,
-                        name: tier === 'pro_monthly' ? 'Margins Pro Monthly' : 'Margins Pro Lifetime',
+                        name: tier === 'pro_monthly' ? 'Margin Pro Monthly' : 'Margin Pro Lifetime',
                         price: tier === 'pro_monthly' ? 150000 : 2500000,
                         quantity: 1
                     }],
@@ -204,7 +204,7 @@ export const PricingPage = () => {
                          </div>
                     )}
                     <h1 className="text-4xl md:text-6xl font-black text-slate-800 tracking-tight">
-                        Unlock <span className="text-indigo-600">Margins Pro</span>
+                        Unlock <span className="text-indigo-600">Margin Pro</span>
                     </h1>
                     <p className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
                         Take full control of your business finance with AI-driven insights, unlimited projects, and advanced simulations.

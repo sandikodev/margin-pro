@@ -14,7 +14,7 @@ export const PrivacyPage: React.FC = () => {
             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
               <Lock size={20} strokeWidth={3} />
             </div>
-            <span className="font-extrabold tracking-tight text-lg text-slate-900">MARGINS<span className="text-indigo-600">PRO</span></span>
+            <span className="font-extrabold tracking-tight text-lg text-slate-900">MARGIN<span className="text-indigo-600">PRO</span></span>
           </div>
           <button onClick={() => navigate('/')} className="text-sm font-semibold text-slate-500 hover:text-indigo-600 flex items-center gap-1">
             <ChevronLeft size={16} />
@@ -47,7 +47,7 @@ export const PrivacyPage: React.FC = () => {
           </p>
 
           <h3>3. Data Storage & Security</h3>
-          <p>MarginsPro uses enterprise-grade encryption for database storage. We partner with Midtrans for payment processing, meaning your credit card details never touch our servers.</p>
+          <p>Margin Pro uses enterprise-grade encryption for database storage. We partner with Midtrans for payment processing, meaning your credit card details never touch our servers.</p>
 
           <h3>4. Third-Party Sharing</h3>
           <p>We do not share your private business logic (recipes, costs) with anyone. Aggregated, anonymized data may be used for "Market Benchmark" features, but never traceable to your specific entity.</p>
