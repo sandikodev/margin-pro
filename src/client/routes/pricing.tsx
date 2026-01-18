@@ -33,19 +33,12 @@ const PricingCard: React.FC<PricingCardProps> = ({
 
     // Dynamic Visuals
     const Container = isPopular ? motion.div : 'div';
-    const baseClasses = "snap-center min-w-[85%] md:min-w-0 flex flex-col gap-6 relative overflow-hidden transition-all duration-300";
-    
-    // Merge base classes with specific styles
-    const containerClasses = isPopular 
-        ? `${baseClasses} bg-slate-900 rounded-[2.5rem] p-8 border-4 border-indigo-500 shadow-2xl shadow-indigo-500/20 order-first md:order-none`
-        : `${baseClasses} bg-white rounded-[2.5rem] p-8 border border-slate-200 ${isStarter ? 'opacity-70 hover:opacity-100' : ''}`;
-
     const containerProps = isPopular ? {
         initial: { y: 20, opacity: 0 },
         animate: { y: 0, opacity: 1 },
-        className: containerClasses
+        className: "bg-slate-900 rounded-[2.5rem] p-8 border-4 border-indigo-500 relative flex flex-col gap-6 shadow-2xl shadow-indigo-500/20"
     } : {
-        className: containerClasses
+        className: `bg-white rounded-[2.5rem] p-8 border border-slate-200 flex flex-col gap-6 relative overflow-hidden ${isStarter ? 'opacity-70 hover:opacity-100 transition-opacity' : ''}`
     };
 
     return (
@@ -108,6 +101,13 @@ const PricingCard: React.FC<PricingCardProps> = ({
     );
 };
 
+// --- HELPER DATA ---
+const TIERS = [
+    { id: 'starter', label: 'Starter', price: 'Rp 0' },
+    { id: 'pro_monthly', label: 'Pro', price: 'Rp 150k' },
+    { id: 'pro_lifetime', label: 'Lifetime', price: 'Rp 2.5jt' }
+] as const;
+
 // --- MAIN PAGE ---
 
 export const PricingPage = () => {
@@ -117,11 +117,13 @@ export const PricingPage = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [invoices, setInvoices] = useState<Invoice[]>([]);
+    
+    // Mobile Tab State
+    const [activeTab, setActiveTab] = useState<typeof TIERS[number]['id']>('pro_monthly');
 
     useEffect(() => {
         if (user?.id) {
             // Mock fetching invoices
-            // In a real app: fetch('/api/invoices?userId=' + user.id)
         }
     }, [user]);
 
@@ -192,9 +194,9 @@ export const PricingPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 py-24 px-4 md:px-8 font-sans overflow-x-hidden">
+        <div className="min-h-screen bg-slate-50 py-24 px-4 md:px-8 font-sans">
             {/* Header */}
-            <div className="max-w-7xl mx-auto space-y-16">
+            <div className="max-w-7xl mx-auto space-y-12">
                 <div className="text-center space-y-6">
                     {!user && (
                          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-600 text-[10px] font-black uppercase tracking-widest mb-4">
@@ -216,12 +218,33 @@ export const PricingPage = () => {
                     )}
                 </div>
 
-                {/* PRICING CARDS - Responsive Carousel */}
-                <div className="
-                    flex flex-nowrap overflow-x-auto snap-x snap-mandatory gap-4 pb-8 -mx-4 px-4 
-                    md:grid md:grid-cols-3 md:gap-8 md:overflow-visible md:pb-0 md:mx-auto md:px-0
-                    items-stretch
-                ">
+                {/* MOBILE SEGMENTED CONTROL */}
+                <div className="md:hidden flex justify-center sticky top-20 z-30">
+                     <div className="bg-slate-200/80 backdrop-blur-md p-1.5 rounded-2xl flex items-center shadow-inner">
+                        {TIERS.map(t => {
+                            const isActive = activeTab === t.id;
+                            return (
+                                <button
+                                    key={t.id}
+                                    onClick={() => setActiveTab(t.id)}
+                                    className={`relative px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 ${isActive ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+                                >
+                                    {isActive && (
+                                        <motion.div 
+                                            layoutId="activeTab"
+                                            className="absolute inset-0 bg-white rounded-xl shadow-sm"
+                                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                        />
+                                    )}
+                                    <span className="relative z-10">{t.label}</span>
+                                </button>
+                            );
+                        })}
+                     </div>
+                </div>
+
+                {/* DESKTOP GRID (Hidden on Mobile) */}
+                <div className="hidden md:grid md:grid-cols-3 gap-8 max-w-5xl mx-auto items-start">
                     <PricingCard 
                         tier="starter"
                         price="Rp 0"
@@ -252,6 +275,54 @@ export const PricingPage = () => {
                         isLoaded={isLoaded}
                         onAction={() => handleAction('pro_lifetime')}
                     />
+                </div>
+
+                {/* MOBILE TAB CONTENT (Shown only on mobile) */}
+                <div className="md:hidden">
+                    <div className="max-w-md mx-auto">
+                        {activeTab === 'starter' && (
+                            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
+                                <PricingCard 
+                                    tier="starter"
+                                    price="Rp 0"
+                                    unit="/ forever"
+                                    features={['Basic Calculators', '1 Project Limit', 'Community Support']}
+                                    user={user}
+                                    onAction={() => handleAction('starter')}
+                                />
+                            </motion.div>
+                        )}
+                        {activeTab === 'pro_monthly' && (
+                            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+                                <PricingCard 
+                                    tier="pro_monthly"
+                                    price="Rp 150k"
+                                    unit="/ month"
+                                    features={['Unlimited Projects', 'AI Intelligence Hub', 'Global Branding Engine', 'Priority Support', 'Advanced Exports']}
+                                    isPopular
+                                    isLoading={isLoading}
+                                    user={user}
+                                    isLoaded={isLoaded}
+                                    onAction={() => handleAction('pro_monthly')}
+                                />
+                            </motion.div>
+                        )}
+                        {activeTab === 'pro_lifetime' && (
+                             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                                <PricingCard 
+                                    tier="pro_lifetime"
+                                    price="Rp 2.5jt"
+                                    unit="/ once"
+                                    features={['Everything in Pro', 'Lifetime Updates', 'No Recurring Fees', 'Founder Status Badge']}
+                                    isLifetime
+                                    isLoading={isLoading}
+                                    user={user}
+                                    isLoaded={isLoaded}
+                                    onAction={() => handleAction('pro_lifetime')}
+                                />
+                             </motion.div>
+                        )}
+                    </div>
                 </div>
 
                 {/* INVOICE HISTORY (Auth Only) */}
