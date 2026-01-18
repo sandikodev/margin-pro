@@ -1,8 +1,6 @@
 import { jsPDF } from "jspdf";
-import { Project, Platform } from '@shared/types';
-// Removed unused imports
+import { Project, Platform, PlatformConfig } from '@shared/types';
 import { calculateTotalHPP, calculateEffectiveCost, calculatePricingStrategies, calculateOperationalBurnRate } from './utils';
-import { PLATFORM_DATA } from './constants';
 
 /**
  * Hyper-Forensic Intelligence PDF Service v7.0 - ULTRA DETAIL EDITION
@@ -75,7 +73,11 @@ const drawFooter = (doc: jsPDF) => {
   doc.text("Digital Transformation for Indonesian UMKM | www.konxc.space", 15, 287);
 };
 
-export const generateIntelligencePDF = (activeProject: Project, formatValue: (val: number) => string) => {
+export const generateIntelligencePDF = (
+  activeProject: Project,
+  formatValue: (val: number) => string,
+  platformData: Record<string, PlatformConfig>
+) => {
   const doc = new jsPDF();
   const totalPages = 4;
   const prodConfig = activeProject.productionConfig || { period: 'weekly', daysActive: 5, targetUnits: 40 };
@@ -90,9 +92,9 @@ export const generateIntelligencePDF = (activeProject: Project, formatValue: (va
     Object.values(Platform).reduce((acc, p) => ({
       ...acc,
       [p]: {
-        commission: PLATFORM_DATA[p].defaultCommission * 100,
-        fixedFee: PLATFORM_DATA[p].defaultFixedFee,
-        withdrawal: PLATFORM_DATA[p].withdrawalFee
+        commission: (platformData[p]?.defaultCommission || 0) * 100,
+        fixedFee: platformData[p]?.defaultFixedFee || 0,
+        withdrawal: platformData[p]?.withdrawalFee || 0
       }
     }), {} as Record<Platform, { commission: number; fixedFee: number; withdrawal: number }>),
     0, 0.11

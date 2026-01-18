@@ -1,14 +1,13 @@
-
 import React, { useState, useMemo } from 'react';
 import { TrendingUp, Flame, AlertCircle, Layers, ShieldCheck, Store, Globe, Utensils, Box, Settings2, Sliders, Clock, Activity, Eye, EyeOff, Tag, Receipt, Wallet, Info, LayoutGrid, PieChart, Scissors } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
 import { CalculationResult, Platform, Project, PlatformOverrides, Currency } from '@shared/types';
-import { PLATFORM_DATA, TERMINOLOGY } from '../../../lib/constants';
 import { calculateTotalHPP } from '../../../lib/utils';
 import { FloatingActionMenu } from '../../ui/FloatingActionMenu';
 import { Modal } from '../../ui/Modal';
 import { TabNavigation, TabItem } from '../../ui/TabNavigation';
 import { Carousel, CarouselItem } from '../../ui/Carousel';
+import { useConfig } from '../../../context/ConfigContext';
 
 interface ChartDataItem {
   name: string;
@@ -38,7 +37,7 @@ interface ProfitSimulatorProps {
   setOverrides: React.Dispatch<React.SetStateAction<Record<Platform, PlatformOverrides>>>;
   // onBack removed as unused
   onOpenSidebar: () => void;
-  t: (key: keyof typeof TERMINOLOGY) => string;
+  t: (key: string) => string;
 }
 
 type CategoryType = 'food' | 'marketplace' | 'export' | 'offline';
@@ -51,6 +50,8 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
   const [activeCategory, setActiveCategory] = useState<CategoryType>('food');
   const [isPreviewing, setIsPreviewing] = useState(false);
   const [modalTab, setModalTab] = useState<'settings' | 'breakdown'>('settings');
+
+  const { platforms: platformData } = useConfig();
 
   const totalHPP = useMemo(() => calculateTotalHPP(activeProject.costs, activeProject.productionConfig), [activeProject]);
   const targetPortions = activeProject.productionConfig?.targetUnits || 0;
@@ -74,8 +75,8 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
   const displayTotalPotential = displayProfit * targetPortions;
 
   const filteredResults = useMemo(() => {
-    return results.filter(r => PLATFORM_DATA[r.platform].category === activeCategory);
-  }, [results, activeCategory]);
+    return results.filter(r => platformData[r.platform]?.category === activeCategory);
+  }, [results, activeCategory, platformData]);
 
   // Updated to match TabItem interface (using LucideIcon type implicitly)
   const categories: TabItem[] = [
@@ -342,61 +343,61 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
                 {results.sort((a,b) => b.totalDeductions - a.totalDeductions).map((r, idx) => (
                   <div key={r.platform} className={`p-5 rounded-2xl border transition-all ${idx === 0 ? 'bg-rose-50 border-rose-200' : 'bg-white border-slate-100'}`}>
                       <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-2.5 h-2.5 rounded-full" style={{backgroundColor: PLATFORM_DATA[r.platform].color}}></div>
-                          <span className="text-[10px] font-black uppercase text-slate-700 tracking-wider">{r.platform}</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2.5 h-2.5 rounded-full" style={{backgroundColor: platformData[r.platform]?.color}}></div>
+                            <span className="text-[10px] font-black uppercase text-slate-700 tracking-wider">{r.platform}</span>
+                          </div>
+                          {idx === 0 && <span className="text-[8px] font-black bg-rose-500 text-white px-2 py-0.5 rounded-full uppercase">Tertinggi</span>}
                         </div>
-                        {idx === 0 && <span className="text-[8px] font-black bg-rose-500 text-white px-2 py-0.5 rounded-full uppercase">Tertinggi</span>}
-                      </div>
-                      <div className="flex justify-between items-end">
-                        <div className="flex flex-col">
-                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Beban Potongan</span>
-                          <span className="text-lg font-black text-slate-900">{formatValue(r.totalDeductions)}</span>
+                        <div className="flex justify-between items-end">
+                          <div className="flex flex-col">
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Beban Potongan</span>
+                            <span className="text-lg font-black text-slate-900">{formatValue(r.totalDeductions)}</span>
+                          </div>
+                          <div className="text-right flex flex-col items-end">
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">% Dari Harga</span>
+                            <span className="text-sm font-black text-rose-500">{safePercent(r.totalDeductions, r.recommendedPrice)}%</span>
+                          </div>
                         </div>
-                        <div className="text-right flex flex-col items-end">
-                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">% Dari Harga</span>
-                          <span className="text-sm font-black text-rose-500">{safePercent(r.totalDeductions, r.recommendedPrice)}%</span>
-                        </div>
-                      </div>
-                  </div>
-                ))}
-              </div>
+                    </div>
+                  ))}
+                </div>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6">
-        {filteredResults.map(res => {
-          const isCompetitorStrategy = effectiveStrategy === 'competitor';
-          const cardScenario = isCompetitorStrategy ? (res.competitorProtection || res.recommended) : res.recommended;
-
-          const displayPrice = cardScenario.price;
-          const displayProfit = cardScenario.netProfit;
-          
-          return (
-            <div key={res.platform} className={`bg-white rounded-[2.5rem] border-2 transition-all shadow-sm flex flex-col relative overflow-hidden ${expandedPlatform === res.platform ? 'border-indigo-600 ring-4 ring-indigo-500/5' : 'border-slate-100'}`}>
-              <div className="absolute top-0 left-0 w-full h-1.5" style={{backgroundColor: PLATFORM_DATA[res.platform].color}}></div>
-              
-              <div className="p-8 flex flex-col md:flex-row md:items-center justify-between gap-8">
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg" style={{backgroundColor: PLATFORM_DATA[res.platform].color}}>
-                       {res.platform.charAt(0)}
+ 
+        <div className="grid grid-cols-1 gap-6">
+          {filteredResults.map(res => {
+            const isCompetitorStrategy = effectiveStrategy === 'competitor';
+            const cardScenario = isCompetitorStrategy ? (res.competitorProtection || res.recommended) : res.recommended;
+  
+            const displayPrice = cardScenario.price;
+            const displayProfit = cardScenario.netProfit;
+            
+            return (
+              <div key={res.platform} className={`bg-white rounded-[2.5rem] border-2 transition-all shadow-sm flex flex-col relative overflow-hidden ${expandedPlatform === res.platform ? 'border-indigo-600 ring-4 ring-indigo-500/5' : 'border-slate-100'}`}>
+                <div className="absolute top-0 left-0 w-full h-1.5" style={{backgroundColor: platformData[res.platform]?.color}}></div>
+                
+                <div className="p-8 flex flex-col md:flex-row md:items-center justify-between gap-8">
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg" style={{backgroundColor: platformData[res.platform]?.color}}>
+                         {res.platform.charAt(0)}
+                      </div>
+                      <div>
+                          <h3 className="text-xl font-black text-slate-900 leading-none">{res.platform}</h3>
+                          <p className={`text-[10px] font-bold uppercase tracking-widest mt-1.5 ${cardScenario.isBleeding ? 'text-rose-500' : 'text-emerald-500'}`}>
+                             {cardScenario.isBleeding ? 'Status: Kurang Untung / Rugi' : 'Status: Keuntungan Aman'}
+                          </p>
+                      </div>
                     </div>
                     <div>
-                        <h3 className="text-xl font-black text-slate-900 leading-none">{res.platform}</h3>
-                        <p className={`text-[10px] font-bold uppercase tracking-widest mt-1.5 ${cardScenario.isBleeding ? 'text-rose-500' : 'text-emerald-500'}`}>
-                           {cardScenario.isBleeding ? 'Status: Kurang Untung / Rugi' : 'Status: Keuntungan Aman'}
-                        </p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Harga Jual Yang Disarankan</p>
+                      <p className="text-4xl lg:text-5xl font-black tracking-tighter" style={{color: platformData[res.platform]?.color}}>
+                         {formatValue(displayPrice)}
+                      </p>
                     </div>
                   </div>
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Harga Jual Yang Disarankan</p>
-                    <p className="text-4xl lg:text-5xl font-black tracking-tighter" style={{color: PLATFORM_DATA[res.platform].color}}>
-                       {formatValue(displayPrice)}
-                    </p>
-                  </div>
-                </div>
 
                 <div className="flex gap-4">
                   <div className={`rounded-[2rem] p-7 text-white shadow-xl flex flex-col justify-center min-w-[180px] bg-emerald-500 shadow-emerald-500/20`}>

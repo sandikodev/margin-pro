@@ -9,6 +9,7 @@ import { ExportActions } from '../components/features/calculator/ExportActions';
 import { FloatingActionMenu, FloatingActionItem } from '../components/ui/FloatingActionMenu';
 import { calculateTotalHPP } from '../lib/utils';
 import { generateIntelligencePDF, downloadProjectJSON, copyProjectToClipboard } from '../lib/export-service';
+import { useConfig } from '../context/ConfigContext';
 
 interface ProductCalculatorProps {
   activeProject: Project;
@@ -22,6 +23,7 @@ interface ProductCalculatorProps {
 export const ProductCalculator: React.FC<ProductCalculatorProps> = ({
   activeProject, updateProject, createNewProject, deleteProject, formatValue, goToSimulation
 }) => {
+  const { platforms } = useConfig();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [fabMode, setFabMode] = useState<'main' | 'export'>('main'); 
   const [copySuccess, setCopySuccess] = useState(false);
@@ -100,7 +102,7 @@ export const ProductCalculator: React.FC<ProductCalculatorProps> = ({
       id: 'pdf',
       label: 'PDF Report',
       icon: FileText,
-      onClick: () => generateIntelligencePDF(activeProject, formatValue),
+      onClick: () => generateIntelligencePDF(activeProject, formatValue, platforms),
       variant: 'danger'
     }
   ];

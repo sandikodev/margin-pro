@@ -2,13 +2,15 @@
 import React from 'react';
 import { GraduationCap, Lightbulb, Calculator, Target, ShieldCheck, BookOpen, ExternalLink, Globe } from 'lucide-react';
 import { Platform } from '@shared/types';
-import { PLATFORM_DATA } from '../../../lib/constants';
+import { useConfig } from '../../../context/ConfigContext';
 
 interface AcademyViewProps {
   onOpenAbout?: () => void;
 }
 
 export const AcademyView: React.FC<AcademyViewProps> = ({ onOpenAbout }) => {
+  const { platforms } = useConfig();
+
   const getPlatformHighlights = (p: Platform) => {
     switch (p) {
       case Platform.GO_FOOD:
@@ -85,17 +87,17 @@ export const AcademyView: React.FC<AcademyViewProps> = ({ onOpenAbout }) => {
           </h4>
         </div>
         <div className="divide-y divide-slate-100">
-          {Object.values(Platform).map(p => (
+          {Object.entries(platforms).map(([p, data]: [string, any]) => (
             <div key={p} className="p-8 flex flex-col md:flex-row gap-6 hover:bg-slate-50 transition-all group">
               <div className="flex items-start gap-6 flex-grow">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-white text-base shadow-xl shrink-0" style={{backgroundColor: PLATFORM_DATA[p].color}}>{p.charAt(0)}</div>
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-white text-base shadow-xl shrink-0" style={{backgroundColor: data.color}}>{p.charAt(0)}</div>
                 <div className="flex flex-col gap-3 w-full">
                   <div className="flex flex-col">
                     <span className="font-black text-slate-800 tracking-tight text-lg">{p} Merchant</span>
                     <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest mt-1">Poin Penting Syarat & Ketentuan</span>
                   </div>
                   <ul className="bg-slate-100/50 p-4 rounded-xl border border-slate-100 space-y-2">
-                      {getPlatformHighlights(p).map((point, idx) => (
+                      {getPlatformHighlights(p as Platform).map((point, idx) => (
                         <li key={idx} className="flex items-start gap-2 text-xs text-slate-600 leading-relaxed">
                           <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full mt-1.5 shrink-0"></span>
                           <span>{point}</span>
@@ -104,7 +106,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({ onOpenAbout }) => {
                   </ul>
                 </div>
               </div>
-              <a href={PLATFORM_DATA[p].officialTermsUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-4 py-3 rounded-xl hover:bg-indigo-600 hover:text-white transition-all self-start md:self-center whitespace-nowrap">
+              <a href={data.officialTermsUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-4 py-3 rounded-xl hover:bg-indigo-600 hover:text-white transition-all self-start md:self-center whitespace-nowrap">
                   Baca Dokumen Resmi <ExternalLink className="w-3 h-3" />
               </a>
             </div>

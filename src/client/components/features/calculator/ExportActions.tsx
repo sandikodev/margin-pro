@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Share2, FileText, FileJson, Copy, Check } from 'lucide-react';
 import { Project } from '@shared/types';
 import { generateIntelligencePDF, downloadProjectJSON, copyProjectToClipboard } from '../../../lib/export-service';
+import { useConfig } from '../../../context/ConfigContext';
 
 interface ExportActionsProps {
   activeProject: Project;
@@ -10,6 +11,7 @@ interface ExportActionsProps {
 }
 
 export const ExportActions: React.FC<ExportActionsProps> = ({ activeProject, formatValue }) => {
+  const { platforms } = useConfig();
   const [showMenu, setShowMenu] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -38,7 +40,7 @@ export const ExportActions: React.FC<ExportActionsProps> = ({ activeProject, for
               <p className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Select Format</p>
             </div>
             
-            <button onClick={() => { generateIntelligencePDF(activeProject, formatValue); setShowMenu(false); }} className="w-full flex items-center gap-3 px-3 py-3 hover:bg-rose-50 rounded-xl text-left group transition-colors">
+            <button onClick={() => { generateIntelligencePDF(activeProject, formatValue, platforms); setShowMenu(false); }} className="w-full flex items-center gap-3 px-3 py-3 hover:bg-rose-50 rounded-xl text-left group transition-colors">
               <div className="p-2 bg-rose-100 text-rose-600 rounded-lg group-hover:bg-rose-600 group-hover:text-white transition-all"><FileText className="w-4 h-4" /></div>
               <div className="flex flex-col">
                 <span className="text-xs font-black text-slate-700">PDF Intelligence Report</span>

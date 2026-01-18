@@ -1,30 +1,34 @@
-import { useState, useMemo } from 'react';
-import { Platform, Project, PlatformOverrides } from '@shared/types';
-import { PLATFORM_DATA } from '../lib/constants';
+import { useState, useMemo, useEffect } from 'react';
+import { Platform, Project, PlatformOverrides, Currency } from '@shared/types';
 import { calculatePricingStrategies } from '../lib/utils';
-
-import { Currency } from '@shared/types';
+import { useConfig } from '../context/ConfigContext';
 
 export const usePricingEngine = (
   activeProject: Project | undefined,
   selectedCurrency: Currency,
   exchangeRates: Record<string, number>
 ) => {
+  const { platforms: platformData, settings, isLoading } = useConfig();
   const [promoPercent, setPromoPercent] = useState<number>(0);
-  const taxRate = 0.11;
+  const taxRate = parseFloat(settings.TAX_RATE || '0.11');
 
-  // Initialize overrides based on constants
-  const [overrides, setOverrides] = useState<Record<Platform, PlatformOverrides>>(() => {
-    const initial: Partial<Record<Platform, PlatformOverrides>> = {};
-    Object.values(Platform).forEach(p => {
-      initial[p] = {
-        commission: PLATFORM_DATA[p].defaultCommission * 100,
-        fixedFee: PLATFORM_DATA[p].defaultFixedFee,
-        withdrawal: PLATFORM_DATA[p].withdrawalFee
-      };
-    });
-    return initial as Record<Platform, PlatformOverrides>;
-  });
+  // Initialize overrides based on dynamic data
+  const [overrides, setOverrides] = useState<Record<Platform, PlatformOverrides>>({} as any);
+
+  useEffect(() => {
+    if (!isLoading && Object.keys(platformData).length > 0) {
+      const initial: Partial<Record<Platform, PlatformOverrides>> = {};
+      Object.keys(platformData).forEach(key => {
+        const p = key as Platform;
+        initial[p] = {
+          commission: platformData[p].defaultCommission * 100,
+          fixedFee: platformData[p].defaultFixedFee,
+          withdrawal: platformData[p].withdrawalFee
+        };
+      });
+      setOverrides(initial as Record<Platform, PlatformOverrides>);
+    }
+  }, [platformData, isLoading]);
 
   // Core Calculation
   const results = useMemo(() => {
@@ -37,8 +41,8 @@ export const usePricingEngine = (
     name: r.platform,
     profit: r.recommended.netProfit,
     price: r.recommended.price,
-    color: PLATFORM_DATA[r.platform].color
-  })).sort((a, b) => b.profit - a.profit), [results]);
+    color: platformData[r.platform]?.color || '#cbd5e1'
+  })).sort((a, b) => b.profit - a.profit), [results, platformData]);
 
   // Derived Data for Fee Comparison
   const feeComparisonData = useMemo(() => results.map(r => {
@@ -47,9 +51,9 @@ export const usePricingEngine = (
     return {
       name: r.platform,
       'Fees': value,
-      color: PLATFORM_DATA[r.platform].color
+      color: platformData[r.platform]?.color || '#cbd5e1'
     };
-  }), [results, selectedCurrency, exchangeRates]);
+  }), [results, selectedCurrency, exchangeRates, platformData]);
 
   return {
     results,
