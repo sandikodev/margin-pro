@@ -1,92 +1,24 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { z } from "zod";
-import { zValidator } from "@hono/zod-validator";
-import { db } from "./db";
-import { users, projects } from "./db/schema";
-import { eq } from "drizzle-orm";
+import { auth } from "./routes/auth";
+import { projectRoutes } from "./routes/projects";
+import { configRoutes } from "./routes/configs";
+import { adminRoutes } from "./routes/admin";
+import { paymentRoutes } from "./routes/payment";
 
 const app = new Hono();
 
 app.use("*", cors());
 
 // --- RPC Routes ---
+// We mount the sub-apps to form the API
 export const api = app.basePath("/api")
     .get("/health", (c) => c.json({ status: "ok", runtime: "bun" }))
-
-    // Auth Example (Mock for now, replacing hooks later)
-    .post("/auth/login", zValidator("json", z.object({
-        email: z.string().email(),
-        password: z.string()
-    })), async (c) => {
-        const { email } = c.req.valid("json");
-        // TODO: Verify password hash
-        const user = await db.query.users.findFirst({
-            where: eq(users.email, email)
-        });
-
-        if (!user) return c.json({ error: "Invalid credentials" }, 401);
-
-        // In real app: Sign JWT
-        return c.json({ user: { id: user.id, name: user.name, email: user.email } });
-    })
-
-    // Projects CRUD
-    .get("/projects", async (c) => {
-        // TODO: Filter by business/user
-        const allProjects = await db.select().from(projects);
-        return c.json(allProjects.map(p => ({
-            ...p,
-            ...(p.data as Record<string, unknown>), // Flatten json data to match Project interface
-            lastModified: p.lastModified.getTime() // Convert Date to timestamp number
-        })));
-    })
-    .post("/projects", zValidator("json", z.object({
-        name: z.string(),
-        label: z.string().optional(),
-        businessId: z.string().optional(),
-        data: z.any()
-    })), async (c) => {
-        const body = c.req.valid("json");
-        const id = Math.random().toString(36).substring(7); // Simple ID gen
-
-        const newProject = {
-            id,
-            businessId: body.businessId || 'default', // Fallback
-            name: body.name,
-            label: body.label,
-            data: body.data,
-            lastModified: new Date(),
-            isFavorite: false
-        };
-
-        await db.insert(projects).values(newProject);
-        return c.json({ status: "created", id });
-    })
-    .put("/projects/:id", zValidator("json", z.object({
-        name: z.string().optional(),
-        label: z.string().optional(),
-        data: z.any(),
-        isFavorite: z.boolean().optional()
-    })), async (c) => {
-        const id = c.req.param("id");
-        const body = c.req.valid("json");
-
-        await db.update(projects).set({
-            ...(body.name ? { name: body.name } : {}),
-            ...(body.label ? { label: body.label } : {}),
-            ...(body.data ? { data: body.data } : {}),
-            ...(body.isFavorite !== undefined ? { isFavorite: body.isFavorite } : {}),
-            lastModified: new Date()
-        }).where(eq(projects.id, id));
-
-        return c.json({ status: "updated" });
-    })
-    .delete("/projects/:id", async (c) => {
-        const id = c.req.param("id");
-        await db.delete(projects).where(eq(projects.id, id));
-        return c.json({ status: "deleted" });
-    });
+    .route("/auth", auth)
+    .route("/projects", projectRoutes)
+    .route("/configs", configRoutes)
+    .route("/admin", adminRoutes)
+    .route("/midtrans", paymentRoutes);
 
 // --- SEO & Static File Serving ---
 
@@ -104,10 +36,6 @@ app.use("*", async (c, next) => {
     const title = "Margins Pro - Intelligence Pricing SaaS";
     const description = "Hitung profit margin, simulasi harga, dan atur keuangan bisnis kuliner & retail anda.";
     const image = "https://placehold.co/1200x630/4f46e5/white?text=Margins+Pro"; // Placeholder
-
-    // Logic to determine dynamic tags based on URL path
-    // Example: /project/:id -> Fetch project and set title
-    // For now, we use defaults, but this structure allows expansion.
 
     let html = "";
 
