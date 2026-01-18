@@ -181,9 +181,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
                         <h4 className="text-2xl font-black mb-2">Profit Simulator</h4>
                         <p className="text-sm text-slate-400 leading-relaxed max-w-xs">Lihat potensi cuan bersih di GoFood, Grab, & ShopeeFood sebelum Anda posting menu.</p>
                      </div>
-                     <button onClick={() => window.location.href = '/demo'} className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1">
-                        Coba Simulator <ArrowRight size={14} />
-                     </button>
                   </div>
                </div>
 
@@ -199,9 +196,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
                         <h4 className="text-2xl font-black mb-2">Anti-Boncos Shield</h4>
                         <p className="text-sm text-slate-400 leading-relaxed max-w-xs">Sistem otomatis mendeteksi jika harga jual Anda terlalu rendah untuk menutup biaya komisi & operasional.</p>
                      </div>
-                     <button onClick={() => window.location.href = '/demo'} className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
-                        Lihat Cara Kerja <ArrowRight size={14} />
-                     </button>
                   </div>
                </div>
             </div>
