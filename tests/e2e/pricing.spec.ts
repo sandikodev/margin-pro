@@ -12,9 +12,10 @@ test.describe('Pricing Page & Payment Flow', () => {
         await page.goto('http://localhost:5173/pricing');
 
         // 3. Verify Tiers
-        await expect(page.getByText('Unlock Margins Pro')).toBeVisible();
-        await expect(page.getByText('Rp 150k')).toBeVisible(); // Monthly
-        await expect(page.getByText('Rp 2.5jt')).toBeVisible(); // Lifetime
+        const desktopView = page.locator('.md\\:grid'); // Escape colon
+        await expect(desktopView.getByText('Unlock Margin Pro')).toBeVisible();
+        await expect(desktopView.getByText('Rp 150k')).toBeVisible(); // Monthly
+        await expect(desktopView.getByText('Rp 2.5jt')).toBeVisible(); // Lifetime
     });
 
     test('should load Midtrans script', async ({ page }) => {
