@@ -18,6 +18,7 @@ const BlogIndex = React.lazy(() => import('./routes/blog').then(module => ({ def
 const BlogPostPage = React.lazy(() => import('./routes/blog/post').then(module => ({ default: module.BlogPostPage })));
 const TermsPage = React.lazy(() => import('./routes/legal/terms').then(module => ({ default: module.TermsPage })));
 const PrivacyPage = React.lazy(() => import('./routes/legal/privacy').then(module => ({ default: module.PrivacyPage })));
+const InvitePage = React.lazy(() => import('./routes/invite').then(module => ({ default: module.InvitePage })));
 
 // Loading Component
 const PageLoader = () => (
@@ -57,12 +58,16 @@ const AuthWrapper = () => {
   const { showToast } = useToast();
   const { login } = useAuth();
   const location = useLocation();
-  const [initialMode, setInitialMode] = useState<'login' | 'register'>(location.state?.mode || 'register');
-  const [isDemo, setIsDemo] = useState(location.state?.isDemo || false);
-
   // Capture referral code from URL query params (e.g. ?ref=ANDI123)
   const searchParams = new URLSearchParams(location.search);
   const referralCode = searchParams.get('ref') || location.state?.referralCode || '';
+  
+  // Capture mode from URL query params
+  const modeParam = searchParams.get('mode');
+  const [initialMode, setInitialMode] = useState<'login' | 'register'>(
+      location.state?.mode || (modeParam === 'login' ? 'login' : 'register')
+  );
+  const [isDemo, setIsDemo] = useState(location.state?.isDemo || false);
 
   const [prevLocationState, setPrevLocationState] = useState(location.state);
   if (location.state !== prevLocationState) {
@@ -202,6 +207,8 @@ export const App: React.FC = () => {
         <Route path="/demo" element={
             <DemoWrapper />
         } />
+
+        <Route path="/r/:code" element={<InvitePage />} />
 
         {/* PROTECTED */}
         <Route path="/onboarding" element={

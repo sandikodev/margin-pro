@@ -69,4 +69,29 @@ export const auth = new Hono()
             user: { id: newUserId, name, email, role: "user", permissions: [] },
             referralCode: newReferralCode
         });
+    })
+    .get("/validate-ref/:code", async (c) => {
+        const code = c.req.param("code");
+
+        // Find user who owns this code
+        const referrer = await db.query.users.findFirst({
+            where: eq(users.referralCode, code),
+            columns: {
+                name: true,
+                referralCode: true
+            }
+        });
+
+        if (!referrer) {
+            // Return 200 with valid:false to avoid console 404 errors
+            return c.json({ valid: false, message: "Invalid referral code" }, 200);
+        }
+
+        return c.json({
+            valid: true,
+            referrer: {
+                name: referrer.name,
+                code: referrer.referralCode
+            }
+        });
     });

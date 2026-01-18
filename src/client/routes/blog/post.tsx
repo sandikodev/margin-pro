@@ -203,7 +203,7 @@ export const BlogPostPage = () => {
                                 <p className="text-slate-400 text-sm max-w-xs leading-relaxed">Stop guessing, start profiting. The tool for your brain.</p>
                             </div>
                             <button 
-                                onClick={() => navigate('/auth?mode=register')}
+                                onClick={() => navigate({ pathname: '/auth', search: window.location.search }, { state: { mode: 'register' } })}
                                 className="bg-white text-slate-950 px-8 py-4 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-indigo-50 transition-colors shadow-lg shadow-white/10 w-full md:w-auto text-center"
                             >
                                 System Access
@@ -241,7 +241,7 @@ export const BlogPostPage = () => {
                                 <h5 className="text-white font-bold mb-2 text-sm">Need better margins?</h5>
                                 <p className="text-xs text-slate-400 mb-4 leading-relaxed">Simulate price changes and see the impact instantly.</p>
                                 <button 
-                                    onClick={() => navigate('/pricing')}
+                                    onClick={() => navigate({ pathname: '/pricing', search: window.location.search })}
                                     className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-colors"
                                 >
                                     Check Plans

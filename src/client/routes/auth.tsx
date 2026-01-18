@@ -159,6 +159,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                     <div className="relative group">
                         <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
                         <input 
+                        name="name"
                         type="text" 
                         value={formData.name}
                         onChange={(e) => setFormData({...formData, name: e.target.value})}
@@ -172,6 +173,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                     <div className="relative group">
                         <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
                         <input 
+                        name="referralCode"
                         type="text" 
                         value={formData.referralCode}
                         onChange={(e) => setFormData({...formData, referralCode: e.target.value})}
@@ -188,6 +190,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                     <div className="relative group">
                     <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${isDemo ? 'text-indigo-500' : 'text-slate-400 group-focus-within:text-indigo-500'}`} />
                     <input 
+                        name="email"
                         type="email" 
                         value={formData.email}
                         readOnly={isDemo}
@@ -206,6 +209,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                     <div className="relative group">
                     <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${isDemo ? 'text-indigo-500' : 'text-slate-400 group-focus-within:text-indigo-500'}`} />
                     <input 
+                        name="password"
                         type={showPass ? "text" : "password"} 
                         value={formData.password}
                         readOnly={isDemo}
