@@ -4,16 +4,16 @@ import { Platform, Project, MarketplaceItem } from '@shared/types';
 import { INITIAL_MARKETPLACE } from '../../lib/constants';
 
 // Routes (Tabs)
-import { DashboardView } from '../../routes/index';
-import { ProductCalculator } from '../../routes/calculator'; 
-import { MarketplaceView } from '../../routes/market'; 
-import { ProfitSimulator } from '../../routes/insights';
-import { AcademyView } from '../../routes/academy';
-import { MerchantProfile } from '../../routes/profile';
-import { FinanceManager } from '../../routes/finance';
-import { AboutView } from '../../routes/about';
-import { ChangelogView } from '../../routes/changelog';
-import { TopUpView } from '../../routes/topup';
+import { DashboardView } from '../../routes/app/index';
+import { ProductCalculator } from '../../routes/app/calculator'; 
+import { MarketplaceView } from '../../routes/app/market'; 
+import { ProfitSimulator } from '../../routes/app/insights';
+import { AcademyView } from '../../routes/app/academy';
+import { MerchantProfile } from '../../routes/app/profile';
+import { FinanceManager } from '../../routes/app/finance';
+import { AboutView } from '../../routes/app/about';
+import { ChangelogView } from '../../routes/app/changelog';
+import { TopUpView } from '../../routes/app/topup';
 
 // Layout
 import { Sidebar } from '../../components/layout/Sidebar';

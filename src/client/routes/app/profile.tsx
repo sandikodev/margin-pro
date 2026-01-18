@@ -1,5 +1,5 @@
 import React from 'react';
-import { MerchantProfile as MerchantProfileComponent } from '../components/features/profile/MerchantProfile';
+import { MerchantProfile as MerchantProfileComponent } from '../../components/features/profile/MerchantProfile';
 import { AppSettings, BusinessProfile } from '@shared/types';
 
 interface MerchantProfileProps {

@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { ProfitSimulator as SimulatorComponent, ChartDataItem, FeeComparisonItem } from '../components/features/insights/ProfitSimulator';
+import { ProfitSimulator as SimulatorComponent, ChartDataItem, FeeComparisonItem } from '../../components/features/insights/ProfitSimulator';
 import { CalculationResult, Platform, Project, PlatformOverrides, Currency } from '@shared/types';
-import { TERMINOLOGY } from '../lib/constants';
+import { TERMINOLOGY } from '../../lib/constants';
 
 interface ProfitSimulatorProps {
   results: CalculationResult[];

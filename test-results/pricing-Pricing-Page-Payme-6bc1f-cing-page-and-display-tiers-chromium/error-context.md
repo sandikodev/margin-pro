@@ -1,0 +1,87 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - heading "Unlock Margin Pro" [level=1] [ref=e6]
+    - paragraph [ref=e7]: Take full control of your business finance with AI-driven insights, unlimited projects, and advanced simulations.
+  - generic [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - text: Starter
+        - generic [ref=e11]:
+          - generic [ref=e12]: Rp 0
+          - generic [ref=e13]: / forever
+      - list [ref=e14]:
+        - listitem [ref=e15]:
+          - img [ref=e16]
+          - text: Basic Calculators
+        - listitem [ref=e18]:
+          - img [ref=e19]
+          - text: 1 Project Limit
+        - listitem [ref=e21]:
+          - img [ref=e22]
+          - text: Community Support
+      - button "Current Plan" [disabled] [ref=e24]
+    - generic [ref=e25]:
+      - img [ref=e27]
+      - generic [ref=e29]:
+        - text: Most Popular
+        - generic [ref=e30]:
+          - generic [ref=e31]: Rp 150k
+          - generic [ref=e32]: / month
+      - list [ref=e33]:
+        - listitem [ref=e34]:
+          - img [ref=e35]
+          - text: Unlimited Projects
+        - listitem [ref=e37]:
+          - img [ref=e38]
+          - text: AI Intelligence Hub
+        - listitem [ref=e40]:
+          - img [ref=e41]
+          - text: Global Branding Engine
+        - listitem [ref=e43]:
+          - img [ref=e44]
+          - text: Priority Support
+        - listitem [ref=e46]:
+          - img [ref=e47]
+          - text: Advanced Exports
+      - button "Upgrade Now" [ref=e49]:
+        - text: Upgrade Now
+        - img [ref=e50]
+    - generic [ref=e52]:
+      - img [ref=e54]
+      - generic [ref=e56]:
+        - text: Lifetime Deal
+        - generic [ref=e57]:
+          - generic [ref=e58]: Rp 2.5jt
+          - generic [ref=e59]: / once
+      - list [ref=e60]:
+        - listitem [ref=e61]:
+          - img [ref=e62]
+          - text: Everything in Pro
+        - listitem [ref=e64]:
+          - img [ref=e65]
+          - text: Lifetime Updates
+        - listitem [ref=e67]:
+          - img [ref=e68]
+          - text: No Recurring Fees
+        - listitem [ref=e70]:
+          - img [ref=e71]
+          - text: Founder Status Badge
+      - button "Upgrade Now" [ref=e73]:
+        - text: Upgrade Now
+        - img [ref=e74]
+  - generic [ref=e76]:
+    - generic [ref=e77]:
+      - generic [ref=e78]:
+        - img [ref=e80]
+        - heading "Billing History" [level=3] [ref=e84]
+      - generic [ref=e85]: demo@margins.pro
+    - generic [ref=e86]:
+      - img [ref=e88]
+      - generic [ref=e91]: No billing history found
+  - generic [ref=e93]:
+    - img [ref=e94]
+    - text: Secured by Midtrans
+```

@@ -2,14 +2,14 @@
 import React, { useState } from 'react';
 import { Settings, Trash2, FilePlus, Share2, FileJson, Copy, FileText, ArrowLeft, Check } from 'lucide-react';
 import { Project } from '@shared/types';
-import { OperationalContext } from '../components/calculator/OperationalContext';
-import { CostList } from '../components/calculator/CostList';
-import { PricingStrategySection } from '../components/calculator/PricingStrategySection';
-import { ExportActions } from '../components/features/calculator/ExportActions';
-import { FloatingActionMenu, FloatingActionItem } from '../components/ui/FloatingActionMenu';
-import { calculateTotalHPP } from '../lib/utils';
-import { generateIntelligencePDF, downloadProjectJSON, copyProjectToClipboard } from '../lib/export-service';
-import { useConfig } from '../hooks/useConfig';
+import { OperationalContext } from '../../components/calculator/OperationalContext';
+import { CostList } from '../../components/calculator/CostList';
+import { PricingStrategySection } from '../../components/calculator/PricingStrategySection';
+import { ExportActions } from '../../components/features/calculator/ExportActions';
+import { FloatingActionMenu, FloatingActionItem } from '../../components/ui/FloatingActionMenu';
+import { calculateTotalHPP } from '../../lib/utils';
+import { generateIntelligencePDF, downloadProjectJSON, copyProjectToClipboard } from '../../lib/export-service';
+import { useConfig } from '../../hooks/useConfig';
 
 interface ProductCalculatorProps {
   activeProject: Project;

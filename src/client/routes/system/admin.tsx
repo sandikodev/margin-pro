@@ -14,9 +14,9 @@ import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis 
 } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useConfig } from '../../../hooks/useConfig';
-import { useToast } from '../../../context/ToastContext';
-import { api } from '../../../lib/client';
+import { useConfig } from '../../hooks/useConfig';
+import { useToast } from '../../context/ToastContext';
+import { api } from '../../lib/client';
 import { Platform, PlatformConfig, PlatformCategory, User as UserModel } from '@shared/types';
 
 // TYPES

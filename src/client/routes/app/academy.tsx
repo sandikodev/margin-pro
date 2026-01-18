@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AcademyView as AcademyComponent } from '../components/features/academy/AcademyView';
+import { AcademyView as AcademyComponent } from '../../components/features/academy/AcademyView';
 
 interface AcademyViewProps {
   onOpenAbout?: () => void;

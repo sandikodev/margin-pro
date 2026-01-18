@@ -4,21 +4,23 @@ import { useToast } from './context/ToastContext';
 import { useAuth } from './hooks/useAuth';
 
 // Eager Imports (Critical Path)
-import { LandingPage } from './routes/landing';
-import { AuthPage } from './routes/auth';
+// Eager Imports (Critical Path)
+import { LandingPage } from './routes/public/landing';
+import { AuthPage } from './routes/public/auth';
 
 // Lazy Imports (Chunked)
-const OnboardingWizard = React.lazy(() => import('./routes/onboarding').then(module => ({ default: module.OnboardingWizard })));
-const DemoTour = React.lazy(() => import('./routes/demo-tour').then(module => ({ default: module.DemoTour })));
+const OnboardingWizard = React.lazy(() => import('./routes/app/onboarding').then(module => ({ default: module.OnboardingWizard })));
+const DemoTour = React.lazy(() => import('./routes/public/demo-tour').then(module => ({ default: module.DemoTour })));
 const DashboardShell = React.lazy(() => import('./components/layout/DashboardShell').then(module => ({ default: module.DashboardShell })));
-const AdminDashboard = React.lazy(() => import('./components/features/admin/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
-const PricingPage = React.lazy(() => import('./routes/pricing').then(module => ({ default: module.PricingPage })));
+// Moved AdminDashboard from components to routes/system
+const AdminDashboard = React.lazy(() => import('./routes/system/admin').then(module => ({ default: module.AdminDashboard })));
+const PricingPage = React.lazy(() => import('./routes/public/pricing').then(module => ({ default: module.PricingPage })));
 const SystemLayout = React.lazy(() => import('./layouts/SystemLayout').then(module => ({ default: module.SystemLayout })));
-const BlogIndex = React.lazy(() => import('./routes/blog').then(module => ({ default: module.BlogIndex })));
-const BlogPostPage = React.lazy(() => import('./routes/blog/post').then(module => ({ default: module.BlogPostPage })));
-const TermsPage = React.lazy(() => import('./routes/legal/terms').then(module => ({ default: module.TermsPage })));
-const PrivacyPage = React.lazy(() => import('./routes/legal/privacy').then(module => ({ default: module.PrivacyPage })));
-const InvitePage = React.lazy(() => import('./routes/invite').then(module => ({ default: module.InvitePage })));
+const BlogIndex = React.lazy(() => import('./routes/public/blog').then(module => ({ default: module.BlogIndex })));
+const BlogPostPage = React.lazy(() => import('./routes/public/blog/post').then(module => ({ default: module.BlogPostPage })));
+const TermsPage = React.lazy(() => import('./routes/public/legal/terms').then(module => ({ default: module.TermsPage })));
+const PrivacyPage = React.lazy(() => import('./routes/public/legal/privacy').then(module => ({ default: module.PrivacyPage })));
+const InvitePage = React.lazy(() => import('./routes/public/invite').then(module => ({ default: module.InvitePage })));
 
 // Loading Component
 const PageLoader = () => (

@@ -2,11 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { getPostBySlug } from '../../lib/blog';
-import { MarkdownRenderer } from '../../components/content/MarkdownRenderer';
+import { getPostBySlug } from '../../../lib/blog';
+import { MarkdownRenderer } from '../../../components/content/MarkdownRenderer';
 
 // ... imports
-import { BlogPost } from '../../lib/blog';
+import { BlogPost } from '../../../lib/blog';
 
 export const BlogPostPage = () => {
     const { slug } = useParams();

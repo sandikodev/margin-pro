@@ -1,8 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Filter, Flame, Trophy, Clock, ChevronRight, Sparkles, BadgeCheck } from 'lucide-react';
 import { MarketplaceItem } from '@shared/types';
-import { FilterModal, SortOption } from '../components/modals/FilterModal';
-import { MarketItemCard } from '../components/features/market/MarketItemCard';
+import { FilterModal, SortOption } from '../../components/modals/FilterModal';
+import { MarketItemCard } from '../../components/features/market/MarketItemCard';
 
 interface MarketplaceViewProps {
   items: MarketplaceItem[];

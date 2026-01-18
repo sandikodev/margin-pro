@@ -1,6 +1,6 @@
 import React from 'react';
 import { Liability, CashflowRecord, Project, BusinessProfile } from '@shared/types';
-import { FinanceManager as FinanceComponent } from '../components/features/finance/FinanceManager';
+import { FinanceManager as FinanceComponent } from '../../components/features/finance/FinanceManager';
 
 interface FinanceManagerProps {
   liabilities: Liability[];
