@@ -55,16 +55,19 @@ const MermaidChart = ({ chart }: { chart: string }) => {
 
 export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   return (
-    <div className="prose prose-invert prose-indigo max-w-none 
+    <div className="prose prose-invert prose-lg max-w-none 
         prose-headings:font-black prose-headings:tracking-tight 
-        prose-h1:text-4xl prose-h1:mb-8 prose-h1:bg-gradient-to-r prose-h1:from-white prose-h1:to-slate-400 prose-h1:bg-clip-text prose-h1:text-transparent
-        prose-p:text-slate-300 prose-p:leading-relaxed prose-p:font-medium
+        prose-h1:text-5xl prose-h1:mb-8 prose-h1:bg-gradient-to-r prose-h1:from-white prose-h1:to-slate-400 prose-h1:bg-clip-text prose-h1:text-transparent
+        prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6 prose-h2:text-white
+        prose-h3:text-2xl prose-h3:text-white
+        prose-p:text-slate-300 prose-p:leading-8 prose-p:font-normal prose-p:text-lg
         prose-strong:text-white prose-strong:font-bold
-        prose-a:text-indigo-400 prose-a:no-underline hover:prose-a:underline
-        prose-code:text-indigo-300 prose-code:bg-indigo-950/30 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:before:content-none prose-code:after:content-none
-        prose-blockquote:border-l-indigo-500 prose-blockquote:bg-slate-900/50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:not-italic
-        prose-li:text-slate-300
-        prose-img:rounded-xl prose-img:shadow-2xl prose-img:border prose-img:border-slate-800
+        prose-a:text-indigo-400 prose-a:no-underline hover:prose-a:text-indigo-300 hover:prose-a:underline
+        prose-code:text-indigo-300 prose-code:bg-indigo-950/30 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:font-mono prose-code:text-sm prose-code:before:content-none prose-code:after:content-none
+        prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:bg-slate-900/50 prose-blockquote:py-4 prose-blockquote:px-8 prose-blockquote:rounded-r-2xl prose-blockquote:not-italic prose-blockquote:text-slate-300 prose-blockquote:font-medium
+        prose-li:text-slate-300 prose-li:text-lg
+        prose-ul:my-6 prose-li:my-2
+        prose-img:rounded-3xl prose-img:shadow-2xl prose-img:border prose-img:border-slate-800 prose-img:w-full prose-img:my-10
     ">
       <ReactMarkdown
         remarkPlugins={[remarkMath]}
