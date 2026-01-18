@@ -211,11 +211,7 @@ export const App: React.FC = () => {
             <Route index element={<Navigate to="admin" replace />} />
         </Route>
 
-        <Route path="/pricing" element={
-            <ProtectedRoute>
-                <PricingPage />
-            </ProtectedRoute>
-        } />
+        <Route path="/pricing" element={<PricingPage />} />
 
         {/* PUBLIC CONTENT */}
         <Route path="/blog" element={<BlogIndex />} />
