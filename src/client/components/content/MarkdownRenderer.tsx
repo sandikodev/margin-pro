@@ -100,12 +100,15 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
             const id = children?.toString().toLowerCase().replace(/[^\w]+/g, '-');
             return <h2 id={id} className="scroll-mt-32 relative group">
                 {children}
-                <a href={`#${id}`} className="absolute -left-6 top-1.5 opacity-0 group-hover:opacity-100 text-slate-600 hover:text-indigo-500 transition-opacity">#</a>
+                <a href={`#${id}`} className="absolute -left-8 top-1 opacity-0 group-hover:opacity-100 text-slate-600 hover:text-indigo-500 transition-opacity text-2xl font-normal no-underline">#</a>
             </h2>;
           },
           h3: ({ children }) => {
              const id = children?.toString().toLowerCase().replace(/[^\w]+/g, '-');
-             return <h3 id={id} className="scroll-mt-32">{children}</h3>;
+             return <h3 id={id} className="scroll-mt-32 relative group">
+                {children}
+                <a href={`#${id}`} className="absolute -left-8 top-1 opacity-0 group-hover:opacity-100 text-slate-600 hover:text-indigo-500 transition-opacity text-xl font-normal no-underline">#</a>
+             </h3>;
           }
         }}
       >

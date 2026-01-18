@@ -22,6 +22,8 @@ A POS system is **"The Hands"**. It is designed for speed, execution, and record
 
 **Margin Pro is "The Brain"**. We are not interested in just recording what happened. We are obsessed with answering: *"Why did it happen, and how do we make it more profitable?"*
 
+![Chaos vs Clarity: The Hands vs The Brain](/blog-assets/brain-vs-hands.png)
+
 ## The Blind Spot of Modern POS
 
 Most modern POS systems are excellent at **Operations** but terrible at **Economics**. They treat every dollar of revenue as equal. But as any seasoned restaurateur knows, a dollar from a *Dine-in Coffee* is vastly different from a dollar from a *GrabFood Promo Combo*.
@@ -29,6 +31,8 @@ Most modern POS systems are excellent at **Operations** but terrible at **Econom
 ### The Invisible Leak
 
 Let's look at a typical "Blind Spot" scenario that kills thousands of F&B businesses every year.
+
+![The Invisible Profit Leak](/blog-assets/invisible-leak.png)
 
 You sell a **Spicy Chicken Bowl** for **Rp 35.000**.
 - **COGS (Ingredients)**: Rp 12.000 (34%)
@@ -55,6 +59,8 @@ Your POS will never tell you this. It will just say "Sales are up!".
 Margin Pro exists to solve this specific blindness. We believe that **Profitability should be engineered, not discovered.**
 
 To do this, we restrict our focus to the **Unit Economics Equation**:
+
+![Unit Economics Blueprint](/blog-assets/unit-economics.png)
 
 $$ \text{True Margin} = \text{Revenue}_{net} - (\text{COGS}_{fluctuating} + \text{channel}_{cost} + \text{packaging}) $$
 
