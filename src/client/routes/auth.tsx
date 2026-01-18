@@ -80,7 +80,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   return (
     <div className="h-[100dvh] w-full bg-white text-slate-900 flex flex-col animate-in fade-in slide-in-from-bottom-8 duration-500 overflow-hidden">
       {/* ... Header ... */}
-       <div className="p-6 pt-safe shrink-0 flex justify-between items-start">
+       <div className="p-3 md:p-6 shrink-0 flex justify-between items-start">
         <button 
           onClick={onBack}
           className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors"
@@ -226,8 +226,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
         </div>
       </div>
       
-      {/* Footer Decoration - Fixed */}
-      <div className="h-2 w-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shrink-0"></div>
+      {/* Footer Decoration Removed */}
     </div>
   );
 };

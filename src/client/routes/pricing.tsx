@@ -194,7 +194,7 @@ export const PricingPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 py-24 px-4 md:px-8 font-sans">
+        <div className="min-h-screen bg-slate-50 py-12 px-4 md:px-8 font-sans">
             {/* Header */}
             <div className="max-w-7xl mx-auto space-y-12">
                 <div className="text-center space-y-6">
@@ -219,7 +219,7 @@ export const PricingPage = () => {
                 </div>
 
                 {/* MOBILE SEGMENTED CONTROL */}
-                <div className="md:hidden flex justify-center sticky top-24 z-30 mb-8">
+                <div className="md:hidden flex justify-center sticky top-2 z-30 mb-4">
                      <div className="bg-slate-200/80 backdrop-blur-md p-1.5 rounded-2xl flex items-center shadow-lg border border-white/20">
                         {TIERS.map(t => {
                             const isActive = activeTab === t.id;
@@ -393,7 +393,7 @@ export const PricingPage = () => {
                     </motion.div>
                 )}
 
-                <div className="flex justify-center gap-8 text-slate-300 grayscale opacity-50 pt-12">
+                <div className="flex justify-center gap-8 text-slate-300 grayscale opacity-50 pt-4">
                      <span className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
                         <Shield className="w-4 h-4" /> Secured by Midtrans
                      </span>
