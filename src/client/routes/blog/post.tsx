@@ -34,6 +34,82 @@ export const BlogPostPage = () => {
         load();
     }, [slug]);
 
+    // Focus Management
+    const titleRef = React.useRef<HTMLHeadingElement>(null);
+
+    useEffect(() => {
+        if (post) {
+            // 1. Update Title & Meta
+            document.title = `${post.title} | Margin Intelligence`;
+            
+            // Helper to update/create meta tags
+            const updateMeta = (name: string, content: string, attr = 'name') => {
+                let tag = document.querySelector(`meta[${attr}="${name}"]`);
+                if (!tag) {
+                    tag = document.createElement('meta');
+                    tag.setAttribute(attr, name);
+                    document.head.appendChild(tag);
+                }
+                tag.setAttribute('content', content);
+            };
+
+            // Standard SEO
+            updateMeta('description', post.excerpt);
+            
+            // Open Graph
+            updateMeta('og:title', post.title, 'property');
+            updateMeta('og:description', post.excerpt, 'property');
+            updateMeta('og:image', post.image ? window.location.origin + post.image : '', 'property');
+            updateMeta('og:type', 'article', 'property');
+            
+            // Twitter Card
+            updateMeta('twitter:card', 'summary_large_image');
+            updateMeta('twitter:title', post.title);
+            updateMeta('twitter:description', post.excerpt);
+            updateMeta('twitter:image', post.image ? window.location.origin + post.image : '');
+
+            // 2. JSON-LD Structured Data
+            const scriptId = 'json-ld-article';
+            let script = document.getElementById(scriptId) as HTMLScriptElement;
+            if (!script) {
+                script = document.createElement('script');
+                script.id = scriptId;
+                script.type = 'application/ld+json';
+                document.head.appendChild(script);
+            }
+            script.text = JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "BlogPosting",
+                "headline": post.title,
+                "description": post.excerpt,
+                "image": post.image ? [window.location.origin + post.image] : [],
+                "author": {
+                    "@type": "Person",
+                    "name": post.author
+                },
+                "publisher": {
+                    "@type": "Organization",
+                    "name": "Margin Pro",
+                    "logo": {
+                        "@type": "ImageObject",
+                        "url": window.location.origin + "/logo.png" // Placeholder or actual logo
+                    }
+                },
+                "datePublished": post.date,
+                "mainEntityOfPage": {
+                    "@type": "WebPage",
+                    "@id": window.location.href
+                }
+            });
+
+            // 3. Focus Management: Move focus to title for accessibility
+            // Short timeout to ensure render completion
+            setTimeout(() => {
+                titleRef.current?.focus();
+            }, 100);
+        }
+    }, [post]);
+
     if (loading) return (
         <div className="min-h-screen bg-slate-950 flex items-center justify-center">
             <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
@@ -65,6 +141,7 @@ export const BlogPostPage = () => {
                     <button 
                         onClick={() => navigate('/blog')} 
                         className="group flex items-center gap-3 px-4 py-2.5 rounded-full bg-slate-900/40 backdrop-blur-md border border-white/10 text-slate-300 hover:text-white hover:bg-slate-900/60 hover:border-white/20 transition-all hover:-translate-x-1"
+                        aria-label="Back to Blog Hub"
                     >
                         <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-indigo-500/20 transition-colors">
                             <ArrowLeft className="w-4 h-4" />
@@ -88,7 +165,12 @@ export const BlogPostPage = () => {
                              <span className="inline-block px-3 py-1 mb-6 rounded-full bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest shadow-xl">
                                 {post.category}
                             </span>
-                            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white mb-6 leading-tight drop-shadow-2xl">
+                            {/* Accessible Title Focus Target */}
+                            <h1 
+                                ref={titleRef}
+                                tabIndex={-1}
+                                className="text-4xl md:text-6xl font-black tracking-tight text-white mb-6 leading-tight drop-shadow-2xl outline-none"
+                            >
                                 {post.title}
                             </h1>
                             <div className="flex items-center justify-center gap-4 text-sm font-medium text-slate-300">
@@ -104,8 +186,8 @@ export const BlogPostPage = () => {
             )}
 
             {/* Content Layout with TOC */}
-            <div className="max-w-6xl mx-auto px-6 relative z-20">
-                <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12 lg:gap-24">
+            <div className="max-w-6xl mx-auto px-10 relative z-20">
+                <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12 lg:gap-16">
                     
                     {/* Main Article */}
                     <article className={`${post.image ? '-mt-10' : 'pt-32'} min-w-0`}> 
@@ -137,7 +219,7 @@ export const BlogPostPage = () => {
                                     <span className="w-4 h-[1px] bg-slate-600"></span>
                                     On this page
                                 </h4>
-                                <nav className="space-y-1">
+                                <nav className="space-y-1" role="navigation" aria-label="Table of Contents">
                                     {cleanContent.match(/^##\s+(.*)/gm)?.map((header, i) => {
                                         const title = header.replace(/^##\s+/, '');
                                         const id = title.toLowerCase().replace(/[^\w]+/g, '-');
