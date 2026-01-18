@@ -147,6 +147,10 @@ export interface User {
   name?: string;
   role?: 'user' | 'admin';
   createdAt?: number;
+  referralCode?: string;
+  referredBy?: string;
+  affiliateEarnings?: number;
+  permissions?: string; // JSON string
 }
 
 export interface Business extends BusinessProfile {
@@ -162,7 +166,7 @@ export interface Invoice {
   status: 'PENDING' | 'PAID' | 'FAILED';
   snapToken?: string;
   createdAt?: number;
-  items?: any[];
+  items?: unknown[];
 }
 
 

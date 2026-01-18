@@ -6,7 +6,7 @@ import {
   Search, Download, Upload, AlertCircle, TrendingUp,
   PieChart as PieChartIcon, SearchCode,
   Cpu, Brush, Zap, Terminal, Sliders, ShieldCheck,
-  Sun, HardDrive
+  Sun, HardDrive, User
 } from 'lucide-react';
 import { 
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, 
@@ -17,10 +17,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useConfig } from '../../../hooks/useConfig';
 import { useToast } from '../../../context/ToastContext';
 import { api } from '../../../lib/client';
-import { Platform, PlatformConfig, PlatformCategory } from '@shared/types';
+import { Platform, PlatformConfig, PlatformCategory, User as UserModel } from '@shared/types';
 
 // TYPES
-type AdminTab = 'overview' | 'settings' | 'platforms' | 'translations' | 'intelligence' | 'branding';
+type AdminTab = 'overview' | 'settings' | 'platforms' | 'translations' | 'intelligence' | 'branding' | 'users';
 
 interface AuditEntry {
   id: string;
@@ -45,6 +45,53 @@ export const AdminDashboard: React.FC = () => {
     const [auditLogs, setAuditLogs] = useState<AuditEntry[]>([]);
     const [activePlatformCategory, setActivePlatformCategory] = useState<string>('all');
     const [simulationImpact, setSimulationImpact] = useState<number>(0);
+
+    // USERS STATE
+    const [users, setUsers] = useState<UserModel[]>([]);
+    const [userSearch, setUserSearch] = useState('');
+
+    const fetchUsers = async () => {
+        try {
+            const res = await (api.admin.users as unknown as { $get: () => Promise<Response> }).$get();
+            if (res.ok) {
+                const data = await res.json();
+                setUsers(data as UserModel[]);
+            }
+        } catch (e) { console.error("Failed to fetch users", e); }
+    };
+
+    useEffect(() => {
+        if (activeTab === 'users') {
+            fetchUsers();
+        }
+    }, [activeTab]);
+
+    const handleRoleUpdate = async (userId: string, newRole: string) => {
+        if (!confirm(`Are you sure you want to change this user's role to ${newRole}?`)) return;
+        setIsSaving(true);
+        try {
+            await (api.admin.users[':id'] as unknown as { $put: (arg: { param: { id: string }, json: { role: string } }) => Promise<Response> }).$put({
+                param: { id: userId },
+                json: { role: newRole }
+            });
+            await fetchUsers();
+            showToast('User role updated', 'success');
+            addAuditLog('User Role Update', `Changed user ${userId} to ${newRole}`, 'success');
+        } catch {
+            showToast('Failed to update role', 'error');
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const filteredUsers = useMemo(() => {
+         if (!userSearch) return users;
+         return users.filter(u => 
+            u.name?.toLowerCase().includes(userSearch.toLowerCase()) || 
+            u.email?.toLowerCase().includes(userSearch.toLowerCase()) ||
+            u.referralCode?.toLowerCase().includes(userSearch.toLowerCase())
+         );
+    }, [users, userSearch]);
 
     // ANALYTICS DATA
     const platformDistribution = useMemo(() => {
@@ -270,6 +317,7 @@ export const AdminDashboard: React.FC = () => {
                     <div className="bg-white rounded-[2rem] border border-slate-200 p-2 shadow-sm">
                         {[
                             { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+                            { id: 'users', label: 'User Management', icon: User },
                             { id: 'settings', label: 'Variables', icon: Settings },
                             { id: 'platforms', label: 'Platform Policies', icon: Layers },
                             { id: 'translations', label: 'Dictionary', icon: Languages },
@@ -506,6 +554,110 @@ export const AdminDashboard: React.FC = () => {
                             </motion.div>
                         )}
 
+
+                        {activeTab === 'users' && (
+                            <motion.div 
+                                key="users"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="space-y-8"
+                            >
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                    <div>
+                                        <h2 className="text-2xl font-black text-slate-800 tracking-tight">User Management</h2>
+                                        <p className="text-sm text-slate-400 mt-1 font-medium">Monitor registrations and manage access levels</p>
+                                    </div>
+                                    <div className="relative group">
+                                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                                            <input 
+                                                type="text" 
+                                                placeholder="Search user by name, email, or ref code..."
+                                                className="pl-12 pr-6 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white w-full md:w-80 font-bold text-sm shadow-sm transition-all"
+                                                value={userSearch}
+                                                onChange={(e) => setUserSearch(e.target.value)}
+                                            />
+                                    </div>
+                                </div>
+
+                                <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="bg-slate-50/80 border-b border-slate-100">
+                                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">User Details</th>
+                                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Role</th>
+                                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Affiliate Stats</th>
+                                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Joined</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-50">
+                                                {filteredUsers.length === 0 ? (
+                                                    <tr>
+                                                        <td colSpan={4} className="px-8 py-20 text-center">
+                                                            <div className="flex flex-col items-center gap-4 text-slate-300">
+                                                                <User className="w-12 h-12" />
+                                                                <p className="text-sm font-black uppercase tracking-widest">No users found</p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ) : (
+                                                    filteredUsers.map((user) => (
+                                                        <tr key={user.id} className="hover:bg-indigo-50/30 transition-colors group">
+                                                            <td className="px-8 py-6">
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="w-10 h-10 rounded-full bg-indigo-100/50 flex items-center justify-center text-indigo-600 font-black text-xs border border-indigo-100">
+                                                                        {user.name?.charAt(0) || 'U'}
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="font-bold text-slate-800 text-sm">{user.name || 'Unknown'}</div>
+                                                                        <div className="text-xs text-slate-400 font-medium">{user.email}</div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-8 py-6">
+                                                                <select 
+                                                                    className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider border outline-none cursor-pointer ${
+                                                                        user.role === 'admin' 
+                                                                        ? 'bg-rose-50 text-rose-600 border-rose-200' 
+                                                                        : 'bg-slate-50 text-slate-500 border-slate-200'
+                                                                    }`}
+                                                                    value={user.role}
+                                                                    onChange={(e) => handleRoleUpdate(user.id, e.target.value)}
+                                                                >
+                                                                    <option value="user">User</option>
+                                                                    <option value="admin">Admin</option>
+                                                                </select>
+                                                            </td>
+                                                            <td className="px-8 py-6">
+                                                                <div className="space-y-1">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-[10px] uppercase text-slate-400 font-bold">Code:</span>
+                                                                        <span className="text-xs font-mono font-bold text-indigo-600 bg-indigo-50 px-1.5 rounded">{user.referralCode || '-'}</span>
+                                                                    </div>
+                                                                    {user.referredBy && (
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="text-[10px] uppercase text-slate-400 font-bold">Ref By:</span>
+                                                                            <span className="text-xs font-mono text-slate-500">{user.referredBy}</span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-8 py-6">
+                                                                <span className="text-xs font-bold text-slate-400">
+                                                                    {new Date(user.createdAt).toLocaleDateString()}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                        
                         {activeTab === 'settings' && (
                             <motion.div 
                                 key="settings"
@@ -766,7 +918,114 @@ export const AdminDashboard: React.FC = () => {
                                     </div>
                                 </div>
                             </motion.div>
+
                         )}
+
+
+                        {activeTab === 'users' && (
+                            <motion.div 
+                                key="users"
+                                initial={{ opacity: 0, x: 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -20 }}
+                                className="space-y-8"
+                            >
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                                    <div>
+                                        <h2 className="text-2xl font-black text-slate-800 tracking-tight">User Management</h2>
+                                        <p className="text-sm text-slate-400 mt-1 font-medium">Monitor registrations and manage access levels</p>
+                                    </div>
+                                    <div className="relative group">
+                                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                                            <input 
+                                                type="text" 
+                                                placeholder="Search user by name, email, or ref code..."
+                                                className="pl-12 pr-6 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-indigo-500 focus:bg-white w-full md:w-80 font-bold text-sm shadow-sm transition-all"
+                                                value={userSearch}
+                                                onChange={(e) => setUserSearch(e.target.value)}
+                                            />
+                                    </div>
+                                </div>
+
+                                <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl overflow-hidden">
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="bg-slate-50/80 border-b border-slate-100">
+                                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">User Details</th>
+                                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Role</th>
+                                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Affiliate Stats</th>
+                                                    <th className="px-8 py-5 text-[10px] font-black uppercase tracking-widest text-slate-400">Joined</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-50">
+                                                {filteredUsers.length === 0 ? (
+                                                    <tr>
+                                                        <td colSpan={4} className="px-8 py-20 text-center">
+                                                            <div className="flex flex-col items-center gap-4 text-slate-300">
+                                                                <User className="w-12 h-12" />
+                                                                <p className="text-sm font-black uppercase tracking-widest">No users found</p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ) : (
+                                                    filteredUsers.map((user) => (
+                                                        <tr key={user.id} className="hover:bg-indigo-50/30 transition-colors group">
+                                                            <td className="px-8 py-6">
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="w-10 h-10 rounded-full bg-indigo-100/50 flex items-center justify-center text-indigo-600 font-black text-xs border border-indigo-100">
+                                                                        {user.name?.charAt(0) || 'U'}
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="font-bold text-slate-800 text-sm">{user.name || 'Unknown'}</div>
+                                                                        <div className="text-xs text-slate-400 font-medium">{user.email}</div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-8 py-6">
+                                                                <select 
+                                                                    className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider border outline-none cursor-pointer ${
+                                                                        user.role === 'admin' 
+                                                                        ? 'bg-rose-50 text-rose-600 border-rose-200' 
+                                                                        : 'bg-slate-50 text-slate-500 border-slate-200'
+                                                                    }`}
+                                                                    value={user.role}
+                                                                    onChange={(e) => handleRoleUpdate(user.id, e.target.value)}
+                                                                >
+                                                                    <option value="user">User</option>
+                                                                    <option value="admin">Admin</option>
+                                                                </select>
+                                                            </td>
+                                                            <td className="px-8 py-6">
+                                                                <div className="space-y-1">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-[10px] uppercase text-slate-400 font-bold">Code:</span>
+                                                                        <span className="text-xs font-mono font-bold text-indigo-600 bg-indigo-50 px-1.5 rounded">{user.referralCode || '-'}</span>
+                                                                    </div>
+                                                                    {user.referredBy && (
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="text-[10px] uppercase text-slate-400 font-bold">Ref By:</span>
+                                                                            <span className="text-xs font-mono text-slate-500">{user.referredBy}</span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-8 py-6">
+                                                                <span className="text-xs font-bold text-slate-400">
+                                                                    {new Date(user.createdAt).toLocaleDateString()}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* ... (Existing Tabs) ... */}
 
                         {activeTab === 'intelligence' && (
                             <motion.div 
