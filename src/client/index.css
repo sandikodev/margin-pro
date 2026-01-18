@@ -1,42 +1,25 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  :root {
-    --brand-primary: #6366f1;
-    --ui-radius: 1.5rem;
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-  }
- 
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-  }
-
-  .glass-effects * {
-    transition: backdrop-filter 0.5s ease;
-  }
+@theme {
+  --color-brand-primary: #6366f1;
+  --radius-ui: 1.5rem;
 }
 
-/* Custom Utilities */
-.rounded-custom {
-  border-radius: var(--ui-radius) !important;
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
 }
 
-.bg-primary-custom {
-  background-color: var(--brand-primary) !important;
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
 }
 
-.text-primary-custom {
-  color: var(--brand-primary) !important;
+.glass-effects * {
+  transition: backdrop-filter 0.5s ease;
 }
 
-.border-primary-custom {
-  border-color: var(--brand-primary) !important;
-}
-
+/* Custom Element Styling */
 input[type="range"]::-webkit-slider-thumb {
-  background: var(--brand-primary);
+  background: var(--color-brand-primary);
 }

@@ -1,16 +1,32 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMidtrans } from '../hooks/useMidtrans';
-import { Check, Star, Shield } from 'lucide-react';
+import { Check, Star, Shield, History, Clock, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useToast } from '../context/ToastContext';
+import { useAuth } from '../hooks/useAuth';
+import { Invoice } from '@shared/types';
 
 export const PricingPage = () => {
     const { isLoaded, pay } = useMidtrans();
     const { showToast } = useToast();
+    const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
+    const [invoices, setInvoices] = useState<Invoice[]>([]);
+
+    useEffect(() => {
+        if (user?.id) {
+            // Mock fetching invoices since we don't have a GET /invoices endpoint exposed yet in this scope
+            // In a real app, we would fetch from /api/invoices?userId={user.id}
+        }
+    }, [user]);
 
     const handleSubscribe = async (tier: 'pro_monthly' | 'pro_lifetime') => {
+        if (!user) {
+            showToast('Please login to subscribe', 'error');
+            return;
+        }
+
         setIsLoading(true);
         try {
             // 1. Create Invoice & Get Token
@@ -27,18 +43,31 @@ export const PricingPage = () => {
                             quantity: 1
                         }
                     ],
-                    userId: 'user_123' // TODO: Get from context
+                    userId: user.id
                 })
             });
 
             if (!res.ok) throw new Error('Failed to create invoice');
-            const { snapToken } = await res.json();
+            const data = await res.json();
+            const { snapToken, invoiceId } = data;
+
+            // Optimistic update for UI demo
+            const newInvoice: Invoice = {
+                id: invoiceId,
+                userId: user.id,
+                amount: tier === 'pro_monthly' ? 150000 : 2500000,
+                status: 'PENDING',
+                snapToken,
+                createdAt: Date.now()
+            };
+            setInvoices(prev => [newInvoice, ...prev]);
 
             // 2. Open Snap
             pay(snapToken, 
                 (result) => {
                     console.log('Success', result);
                     showToast('Payment Successful! Welcome to Pro.', 'success');
+                    setInvoices(prev => prev.map(inv => inv.id === invoiceId ? { ...inv, status: 'PAID' } : inv));
                 },
                 (result) => {
                     console.log('Pending', result);
@@ -47,6 +76,7 @@ export const PricingPage = () => {
                 (result) => {
                     console.log('Error', result);
                     showToast('Payment Failed or Denied', 'error');
+                    setInvoices(prev => prev.map(inv => inv.id === invoiceId ? { ...inv, status: 'FAILED' } : inv));
                 },
                 () => {
                     console.log('Closed');
@@ -62,7 +92,7 @@ export const PricingPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 py-20 px-4 md:px-8">
+        <div className="min-h-screen bg-slate-50 py-20 px-4 md:px-8 font-sans">
             <div className="max-w-7xl mx-auto space-y-16">
                 
                 <div className="text-center space-y-4">
@@ -153,6 +183,52 @@ export const PricingPage = () => {
                             Buy Lifetime
                         </button>
                     </div>
+                </div>
+
+                {/* INVOICE HISTORY SECTION */}
+                <div className="max-w-4xl mx-auto pt-12 border-t border-slate-200">
+                     <div className="flex items-center gap-2 mb-6">
+                        <History className="w-5 h-5 text-slate-400" />
+                        <h3 className="text-lg font-bold text-slate-700">Billing History</h3>
+                     </div>
+
+                     {invoices.length === 0 ? (
+                        <div className="text-center py-8 bg-white rounded-2xl border border-slate-200 text-slate-400 flex flex-col items-center gap-2">
+                             <FileText className="w-8 h-8 opacity-20" />
+                             <span className="text-sm">No billing history found</span>
+                        </div>
+                     ) : (
+                        <div className="space-y-3">
+                            {invoices.map(inv => (
+                                <div key={inv.id} className="bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between shadow-sm">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                                            inv.status === 'PAID' ? 'bg-emerald-100 text-emerald-600' :
+                                            inv.status === 'PENDING' ? 'bg-amber-100 text-amber-600' :
+                                            'bg-rose-100 text-rose-600'
+                                        }`}>
+                                            {inv.status === 'PAID' ? <Check size={18} /> : 
+                                             inv.status === 'PENDING' ? <Clock size={18} /> : <FileText size={18} />}
+                                        </div>
+                                        <div>
+                                            <div className="font-bold text-slate-800">Invoice #{inv.id.slice(0, 8)}...</div>
+                                            <div className="text-xs text-slate-400">{new Date(inv.createdAt || Date.now()).toLocaleDateString()}</div>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="font-bold text-slate-800">Rp {inv.amount.toLocaleString()}</div>
+                                        <div className={`text-[10px] font-black uppercase tracking-widest ${
+                                             inv.status === 'PAID' ? 'text-emerald-500' :
+                                             inv.status === 'PENDING' ? 'text-amber-500' :
+                                             'text-rose-500'
+                                        }`}>
+                                            {inv.status}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                     )}
                 </div>
 
                 <div className="flex justify-center gap-8 text-slate-300 grayscale opacity-50">

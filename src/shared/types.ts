@@ -154,6 +154,18 @@ export interface Business extends BusinessProfile {
   updatedAt?: number;
 }
 
+// --- INVOICING ---
+export interface Invoice {
+  id: string;
+  userId: string;
+  amount: number;
+  status: 'PENDING' | 'PAID' | 'FAILED';
+  snapToken?: string;
+  createdAt?: number;
+  items?: any[];
+}
+
+
 export interface SharedProps {
   user: User | null;
   business?: Business | BusinessProfile;
