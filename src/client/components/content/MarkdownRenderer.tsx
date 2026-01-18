@@ -95,6 +95,17 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) =
                 {children}
               </code>
             );
+          },
+          h2: ({ children }) => {
+            const id = children?.toString().toLowerCase().replace(/[^\w]+/g, '-');
+            return <h2 id={id} className="scroll-mt-32 relative group">
+                {children}
+                <a href={`#${id}`} className="absolute -left-6 top-1.5 opacity-0 group-hover:opacity-100 text-slate-600 hover:text-indigo-500 transition-opacity">#</a>
+            </h2>;
+          },
+          h3: ({ children }) => {
+             const id = children?.toString().toLowerCase().replace(/[^\w]+/g, '-');
+             return <h3 id={id} className="scroll-mt-32">{children}</h3>;
           }
         }}
       >
