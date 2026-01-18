@@ -219,20 +219,23 @@ export const PricingPage = () => {
                 </div>
 
                 {/* MOBILE SEGMENTED CONTROL */}
-                <div className="md:hidden flex justify-center sticky top-20 z-30">
-                     <div className="bg-slate-200/80 backdrop-blur-md p-1.5 rounded-2xl flex items-center shadow-inner">
+                <div className="md:hidden sticky top-16 z-30 w-full bg-slate-50/90 backdrop-blur-xl border-b border-slate-200/50 py-3 flex justify-center transition-all duration-300">
+                     <div className="bg-slate-200/80 p-1 rounded-xl flex items-center shadow-inner">
                         {TIERS.map(t => {
                             const isActive = activeTab === t.id;
                             return (
                                 <button
                                     key={t.id}
-                                    onClick={() => setActiveTab(t.id)}
-                                    className={`relative px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 ${isActive ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+                                    onClick={() => {
+                                        setActiveTab(t.id);
+                                        window.scrollTo({ top: 300, behavior: 'smooth' }); // Auto scroll to card focus
+                                    }}
+                                    className={`relative px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 ${isActive ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
                                 >
                                     {isActive && (
                                         <motion.div 
                                             layoutId="activeTab"
-                                            className="absolute inset-0 bg-white rounded-xl shadow-sm"
+                                            className="absolute inset-0 bg-white rounded-lg shadow-sm"
                                             transition={{ type: "spring", stiffness: 500, damping: 30 }}
                                         />
                                     )}
