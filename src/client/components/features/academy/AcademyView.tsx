@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { GraduationCap, Lightbulb, Calculator, Target, ShieldCheck, BookOpen, ExternalLink, Globe } from 'lucide-react';
-import { Platform } from '@shared/types';
-import { useConfig } from '../../../context/ConfigContext';
+import { Platform, PlatformConfig } from '@shared/types';
+import { useConfig } from '../../../hooks/useConfig';
 
 interface AcademyViewProps {
   onOpenAbout?: () => void;
@@ -87,7 +87,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({ onOpenAbout }) => {
           </h4>
         </div>
         <div className="divide-y divide-slate-100">
-          {Object.entries(platforms).map(([p, data]: [string, any]) => (
+          {Object.entries(platforms).map(([p, data]: [string, PlatformConfig]) => (
             <div key={p} className="p-8 flex flex-col md:flex-row gap-6 hover:bg-slate-50 transition-all group">
               <div className="flex items-start gap-6 flex-grow">
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-white text-base shadow-xl shrink-0" style={{backgroundColor: data.color}}>{p.charAt(0)}</div>
