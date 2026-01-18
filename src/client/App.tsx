@@ -8,6 +8,8 @@ import { AuthPage } from './routes/auth';
 import { OnboardingWizard } from './routes/onboarding';
 import { DemoTour } from './routes/demo-tour';
 import { DashboardShell } from './components/layout/DashboardShell';
+import { AdminDashboard } from './components/features/admin/AdminDashboard';
+import { PricingPage } from './routes/pricing';
 
 // Data
 import { DEMO_BUSINESS, DEMO_PROJECTS, DEMO_CASHFLOW, DEMO_LIABILITIES, DEMO_USER_CREDENTIALS } from './lib/demo-data';
@@ -190,6 +192,8 @@ export const App: React.FC = () => {
              </RedirectIfAuth>
         } />
 
+        <Route path="/admin" element={<AdminDashboard />} />
+
         {/* Protected Routes */}
         <Route path="/onboarding" element={
             <RequireAuth>
@@ -200,6 +204,12 @@ export const App: React.FC = () => {
         <Route path="/app/*" element={
             <RequireAuth>
                 <DashboardShell />
+            </RequireAuth>
+        } />
+
+        <Route path="/pricing" element={
+            <RequireAuth>
+                <PricingPage />
             </RequireAuth>
         } />
 
