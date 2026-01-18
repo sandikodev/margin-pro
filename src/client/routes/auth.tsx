@@ -80,7 +80,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   return (
     <div className="h-[100dvh] w-full bg-white text-slate-900 flex flex-col animate-in fade-in slide-in-from-bottom-8 duration-500 overflow-hidden">
       {/* ... Header ... */}
-       <div className="p-3 md:p-6 shrink-0 flex justify-between items-start">
+       {/* Header with Smart Safe Area */}
+       <div className="shrink-0 flex justify-between items-start px-3 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] md:px-6 md:pb-6 md:pt-[calc(1.5rem+env(safe-area-inset-top))]">
         <button 
           onClick={onBack}
           className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors"
