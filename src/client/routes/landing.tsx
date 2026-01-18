@@ -9,11 +9,20 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin, onDemo }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [isScrolled, setIsScrolled] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-950 text-white overflow-x-hidden font-sans selection:bg-indigo-500/30">
       {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'bg-slate-950/80 backdrop-blur-xl border-b border-white/5 py-0' : 'bg-transparent border-transparent py-2'}`}>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo(0, 0)}>
             <div className="w-8 h-8 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
@@ -36,12 +45,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
              <button onClick={onLogin} className="text-sm font-bold text-slate-300 hover:text-white transition-colors">
                Masuk
              </button>
-             <button 
-                onClick={onGetStarted}
-                className="bg-white text-slate-950 px-5 py-2.5 rounded-lg font-black text-sm hover:bg-indigo-50 transition-colors shadow-lg shadow-white/5"
-             >
-                Coba Gratis
-             </button>
+             <div className={`transition-all duration-500 ease-out transform ${isScrolled ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}`}>
+                 <button 
+                    onClick={onGetStarted}
+                    className="bg-white text-slate-950 px-5 py-2.5 rounded-lg font-black text-sm hover:bg-indigo-50 transition-colors shadow-lg shadow-white/5"
+                 >
+                    Coba Gratis
+                 </button>
+             </div>
           </div>
 
           {/* Mobile Menu Toggle */}
