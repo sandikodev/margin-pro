@@ -60,6 +60,10 @@ const AuthWrapper = () => {
   const [initialMode, setInitialMode] = useState<'login' | 'register'>(location.state?.mode || 'register');
   const [isDemo, setIsDemo] = useState(location.state?.isDemo || false);
 
+  // Capture referral code from URL query params (e.g. ?ref=ANDI123)
+  const searchParams = new URLSearchParams(location.search);
+  const referralCode = searchParams.get('ref') || location.state?.referralCode || '';
+
   const [prevLocationState, setPrevLocationState] = useState(location.state);
   if (location.state !== prevLocationState) {
     setPrevLocationState(location.state);
@@ -106,6 +110,7 @@ const AuthWrapper = () => {
         initialMode={initialMode}
         initialEmail={isDemo ? DEMO_USER_CREDENTIALS.email : ''}
         initialPassword={isDemo ? DEMO_USER_CREDENTIALS.password : ''}
+        initialReferralCode={referralCode}
         isDemo={isDemo}
         onSuccess={handleSuccess}
         onBack={() => navigate('/')}
@@ -147,15 +152,26 @@ const OnboardingWrapper = () => {
 const LandingWrapper = () => {
     const navigate = useNavigate();
     const { isAuthenticated } = useAuth();
+    const location = useLocation();
 
     if (isAuthenticated) {
         return <Navigate to="/app" replace />;
     }
 
+    // Preserve query params (like ?ref=...)
+    const handleAuthNav = (mode: 'login' | 'register') => {
+        navigate({
+            pathname: '/auth',
+            search: location.search
+        }, { 
+            state: { mode } 
+        });
+    };
+
     return (
         <LandingPage 
-            onGetStarted={() => navigate('/auth', { state: { mode: 'register' } })}
-            onLogin={() => navigate('/auth', { state: { mode: 'login' } })}
+            onGetStarted={() => handleAuthNav('register')}
+            onLogin={() => handleAuthNav('login')}
             onDemo={() => navigate('/demo')}
         />
     );
