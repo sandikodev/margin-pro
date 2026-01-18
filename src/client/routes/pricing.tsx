@@ -33,12 +33,19 @@ const PricingCard: React.FC<PricingCardProps> = ({
 
     // Dynamic Visuals
     const Container = isPopular ? motion.div : 'div';
+    const baseClasses = "snap-center min-w-[85%] md:min-w-0 flex flex-col gap-6 relative overflow-hidden transition-all duration-300";
+    
+    // Merge base classes with specific styles
+    const containerClasses = isPopular 
+        ? `${baseClasses} bg-slate-900 rounded-[2.5rem] p-8 border-4 border-indigo-500 shadow-2xl shadow-indigo-500/20 order-first md:order-none`
+        : `${baseClasses} bg-white rounded-[2.5rem] p-8 border border-slate-200 ${isStarter ? 'opacity-70 hover:opacity-100' : ''}`;
+
     const containerProps = isPopular ? {
         initial: { y: 20, opacity: 0 },
         animate: { y: 0, opacity: 1 },
-        className: "bg-slate-900 rounded-[2.5rem] p-8 border-4 border-indigo-500 relative flex flex-col gap-6 shadow-2xl shadow-indigo-500/20"
+        className: containerClasses
     } : {
-        className: `bg-white rounded-[2.5rem] p-8 border border-slate-200 flex flex-col gap-6 relative overflow-hidden ${isStarter ? 'opacity-70 hover:opacity-100 transition-opacity' : ''}`
+        className: containerClasses
     };
 
     return (
@@ -185,7 +192,7 @@ export const PricingPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 py-24 px-4 md:px-8 font-sans">
+        <div className="min-h-screen bg-slate-50 py-24 px-4 md:px-8 font-sans overflow-x-hidden">
             {/* Header */}
             <div className="max-w-7xl mx-auto space-y-16">
                 <div className="text-center space-y-6">
@@ -209,8 +216,12 @@ export const PricingPage = () => {
                     )}
                 </div>
 
-                {/* PRICING CARDS */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto items-start">
+                {/* PRICING CARDS - Responsive Carousel */}
+                <div className="
+                    flex flex-nowrap overflow-x-auto snap-x snap-mandatory gap-4 pb-8 -mx-4 px-4 
+                    md:grid md:grid-cols-3 md:gap-8 md:overflow-visible md:pb-0 md:mx-auto md:px-0
+                    items-stretch
+                ">
                     <PricingCard 
                         tier="starter"
                         price="Rp 0"
