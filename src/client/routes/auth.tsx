@@ -2,13 +2,16 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, ArrowRight, Loader2, ArrowLeft, Mail, Lock, User, Sparkles } from 'lucide-react';
 
+// --- FRONTEND AUTH LOGIC ---
+
 interface AuthPageProps {
   onSuccess: (mode: 'login' | 'register', email?: string, password?: string) => void;
   onBack: () => void;
   initialMode?: 'login' | 'register';
   initialEmail?: string;
   initialPassword?: string;
-  isDemo?: boolean; // New Prop for Demo styling
+  initialReferralCode?: string; // New Prop
+  isDemo?: boolean; 
 }
 
 export const AuthPage: React.FC<AuthPageProps> = ({ 
@@ -17,6 +20,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   initialMode = 'register',
   initialEmail = '',
   initialPassword = '',
+  initialReferralCode = '',
   isDemo = false
 }) => {
   const [mode, setMode] = useState<'login' | 'register'>(
@@ -29,32 +33,54 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   const [formData, setFormData] = useState({
     name: '',
     email: initialEmail || '',
-    password: initialPassword || ''
+    password: initialPassword || '',
+    referralCode: initialReferralCode || ''
   });
 
-  // Ensure form updates if props change (specifically for Demo flow transition)
-  // Ensure form updates if props change (specifically for Demo flow transition)
-
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.email || !formData.password) return;
     if (mode === 'register' && !formData.name) return;
 
     setLoading(true);
-    // Simulate API Call
-    setTimeout(() => {
-      setLoading(false);
-      onSuccess(mode, formData.email, formData.password);
-    }, 1500);
+    
+    if (isDemo) {
+        // Mock demo login
+        setTimeout(() => {
+            setLoading(false);
+            onSuccess(mode, formData.email, formData.password);
+        }, 1500);
+        return;
+    }
+
+    try {
+        const url = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
+        const body = mode === 'login' 
+            ? { email: formData.email, password: formData.password }
+            : { name: formData.name, email: formData.email, password: formData.password, referralCode: formData.referralCode };
+
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error || 'Authentication failed');
+
+        onSuccess(mode, formData.email, formData.password); // In real app, we might use data.user/token
+    } catch (err) {
+        alert(err instanceof Error ? err.message : 'Something went wrong');
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
-    // Uses h-[100dvh] for full mobile viewport height without clipping
     <div className="h-[100dvh] w-full bg-white text-slate-900 flex flex-col animate-in fade-in slide-in-from-bottom-8 duration-500 overflow-hidden">
-      
-      {/* Header - Fixed */}
-      <div className="p-6 pt-safe shrink-0 flex justify-between items-start">
+      {/* ... Header ... */}
+       <div className="p-6 pt-safe shrink-0 flex justify-between items-start">
         <button 
           onClick={onBack}
           className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors"
@@ -70,8 +96,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
         )}
       </div>
 
-      {/* Main Form Area - Scrollable */}
-      <div className="flex-1 overflow-y-auto px-8 w-full">
+       <div className="flex-1 overflow-y-auto px-8 w-full">
         <div className="flex flex-col justify-center min-h-full max-w-md mx-auto py-6">
             <div className="mb-10">
               <h1 className="text-3xl font-black tracking-tight text-slate-900 mb-2">
@@ -91,6 +116,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {mode === 'register' && (
+                <>
                 <div className="space-y-1.5 animate-in slide-in-from-top-2 fade-in duration-300">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nama Lengkap</label>
                   <div className="relative">
@@ -104,6 +130,20 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                     />
                   </div>
                 </div>
+                 <div className="space-y-1.5 animate-in slide-in-from-top-2 fade-in duration-300">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Kode Referral (Opsional)</label>
+                  <div className="relative">
+                    <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input 
+                      type="text" 
+                      value={formData.referralCode}
+                      onChange={(e) => setFormData({...formData, referralCode: e.target.value})}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-4 py-4 text-sm font-bold text-slate-900 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all"
+                      placeholder="Contoh: ANDI88"
+                    />
+                  </div>
+                </div>
+                </>
               )}
 
               <div className="space-y-1.5">
