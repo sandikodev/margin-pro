@@ -44,7 +44,7 @@ export const BlogPostPage = () => {
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
-            <header className="fixed top-0 w-full z-50 bg-gradient-to-b from-slate-950/80 to-transparent backdrop-blur-sm transition-all duration-300 pointer-events-none">
+            <header className="fixed top-0 w-full z-50 transition-all duration-300 pointer-events-none">
                 <div className="max-w-6xl mx-auto px-6 h-24 flex items-center justify-between pointer-events-auto">
                     <button 
                         onClick={() => navigate('/blog')} 
