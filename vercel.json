@@ -2,11 +2,19 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/(assets|public|favicon.ico)/(.*)",
-      "destination": "/$1/$2"
+      "source": "/assets/(.*)",
+      "destination": "/assets/$1"
     },
     {
-      "source": "/(.*)",
+      "source": "/(favicon.ico|logo.svg|robots.txt|manifest.json)",
+      "destination": "/$1"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.ts"
+    },
+    {
+      "source": "/((?!assets|favicon.ico|logo.svg|robots.txt|manifest.json|api|index.html).*)",
       "destination": "/api/index.ts"
     }
   ],

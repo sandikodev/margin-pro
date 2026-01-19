@@ -58,7 +58,7 @@ app.get("*", async (c, next) => {
     const url = new URL(c.req.url);
 
     // Skip API routes
-    if (url.pathname.startsWith("/api") || url.pathname.includes(".")) {
+    if (url.pathname.startsWith("/api")) {
         return next();
     }
 
@@ -95,10 +95,10 @@ app.get("*", async (c, next) => {
             if (res.ok) {
                 html = await res.text();
             } else {
-                html = "<html><body>Error loading app (Vercel)</body></html>";
+                html = `<html><body><h1>Error loading app</h1><p>Vercel Status: ${res.status}</p><p>URL: ${baseUrl}/index.html</p><p>Reason: If this is a preview deployment, ensure "Deployment Protection" is disabled in Vercel settings so the Edge Function can fetch its own assets.</p></body></html>`;
             }
         } catch (e) {
-            html = "<html><body>Error loading app (Edge Fetch)</body></html>";
+            html = `<html><body><h1>Edge Fetch Error</h1><p>${String(e)}</p></body></html>`;
         }
     } else if (process.env.NODE_ENV === "production") {
         // Local Production (Bun)
