@@ -102,9 +102,16 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 
 | Istilah | Penjelasan Sederhana |
 | :--- | :--- |
+| **Compiling** | Proses mengubah kode dari bahasa yang dipahami manusia ke bahasa yang dipahami mesin (biasanya biner atau bahasa yang lebih rendah). |
+| **Transpiling** | Mirip kompilasi, tapi mengubah satu bahasa pemrograman ke bahasa lain yang levelnya setara (misal: TypeScript ke JavaScript). |
+| **Linting** | Proses pengecekan kode secara otomatis untuk mencari potensi kesalahan penulisan atau gaya bahasa yang buruk (seperti asisten editor buku). |
+| **Formatting** | Proses merapikan susunan teks kode (spasi, baris baru, tanda kurung) agar enak dibaca manusia tanpa mengubah fungsi kodenya. |
+| **Type Checking** | Proses memvalidasi apakah "tipe" data yang digunakan sudah benar (misal: memastikan kita tidak mencoba menjumlahkan Nama dengan Angka). |
+| **CI/CD** | Sistem otomatis yang melakukan tes, build, dan deployment setiap kali pengembang menyimpan kode baru. |
 | **Runtime** | Lingkungan tempat kode dijalankan (seperti sistem operasi mini khusus untuk JavaScript). |
 | **Bundler** | Alat yang mengumpulkan ratusan file kode Anda menjadi satu atau beberapa file kecil yang siap dikirim ke user. |
 | **Tree-shaking** | Proses otomatis membuang kode yang tidak pernah dipanggil/dipakai (seperti menggoyangkan pohon untuk menjatuhkan daun kering). |
+| **Dead Code** | Bagian kode yang ada di project tapi tidak pernah dipanggil atau dijalankan (hanya menambah beban). |
 | **Cold Start** | Waktu yang dibutuhkan server "tidur" (serverless) untuk bangun dan merespons saat ada tamu (user) berkunjung. |
 | **Monorepo** | Strategi menyimpan kode backend dan frontend dalam satu folder besar agar mudah dikelola bersama. |
 | **ESM (ES Modules)** | Standar modern cara file JavaScript saling berbagi kode menggunakan `import` dan `export`. |
