@@ -4,7 +4,7 @@ import { Banknote, AlertTriangle, Plus, TrendingUp, ArrowDownRight, ArrowUpRight
 import { Liability, CashflowRecord, Project } from '@shared/types';
 import { FINANCIAL_DEFAULTS } from '@shared/constants';
 import { calculateLoanPayment, calculateFinancialHealth } from '../utils';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../context/toast-context';
 
 interface FinanceManagerProps {
   liabilities: Liability[];

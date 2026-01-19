@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { Shield, Users, BarChart3, LogOut, LayoutGrid } from 'lucide-react';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../context/toast-context';
 import { useAuth } from '../hooks/useAuth';
 
 export const SystemLayout: React.FC = () => {

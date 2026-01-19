@@ -11,7 +11,8 @@ interface TopUpViewProps {
   formatValue: (val: number) => string;
   topUpCredits: (amount: number) => void;
   onBack: () => void;
-  onHistoryClick?: () => void; // New Prop
+  onHistoryClick?: () => void;
+  currentCredits: number;
 }
 
 const PACKAGES = [

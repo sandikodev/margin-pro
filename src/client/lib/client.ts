@@ -6,4 +6,4 @@ import type { AppType } from '../../server';
 export const client = hc<AppType>('/');
 
 // Casting to any to allow deep RPC calls without hitting TS inference limits
-export const api = client.api as any;
+export const api = client.api;

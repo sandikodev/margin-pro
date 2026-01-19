@@ -1,11 +1,12 @@
 import React, { Suspense, useState, useEffect, useContext } from 'react';
-import { createBrowserRouter, RouterProvider, Navigate, Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
 import { User, BusinessProfile } from '@shared/types';
 
 // Auth & Context
-import { AuthProvider, AuthContext } from './context/AuthProvider';
-import { useAuth } from './hooks/useAuth';
-import { ToastProvider, useToast } from './context/ToastContext';
+import { AuthProvider } from './context/AuthProvider';
+import { AuthContext, useAuth } from './context/auth-context';
+import { ToastProvider } from './context/ToastContext';
+import { useToast } from './context/toast-context';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { useProfile } from './hooks/useProfile';
 
@@ -38,16 +39,11 @@ import { BlogPostPage } from './routes/public/blog/post';
 import { LegalLayout } from './layouts/LegalLayout';
 import { LegalIndexPage } from './routes/public/legal/index';
 import { LegalDocumentPage } from './routes/public/legal/document';
+import { ErrorPage } from './components/ui/ErrorPage';
 
 // Loading Component
-const PageLoader = () => (
- <div className="min-h-screen flex items-center justify-center bg-slate-50">
-   <div className="flex flex-col items-center gap-4">
-     <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading Content...</p>
-   </div>
- </div>
-);
+import { FullPageLoader } from './components/ui/design-system/Loading';
+
 
 // --- WRAPPERS (Preserved from previous implementation) ---
 
@@ -190,7 +186,7 @@ const ProtectedLayout = () => {
     const location = useLocation();
 
     if (authLoading || profile.isLoading) {
-        return <PageLoader />;
+        return <FullPageLoader text="Verifying Session..." />;
     }
 
     if (!user) {
@@ -213,6 +209,7 @@ const router = createBrowserRouter([
     {
         path: "/",
         element: <LandingWrapper />,
+        errorElement: <ErrorPage />,
     },
     {
         path: "/auth",
@@ -237,6 +234,7 @@ const router = createBrowserRouter([
     {
         path: "/app",
         element: <ProtectedLayout />,
+        errorElement: <ErrorPage />,
         children: [
             { index: true, element: <DashboardPageConnect /> },
             { path: "market", element: <MarketPageConnect /> },
@@ -291,7 +289,7 @@ export const App: React.FC = () => {
     return (
         <ToastProvider>
             <AuthProvider>
-                <Suspense fallback={<PageLoader />}>
+                <Suspense fallback={<FullPageLoader />}>
                     <RouterProvider router={router} />
                 </Suspense>
             </AuthProvider>

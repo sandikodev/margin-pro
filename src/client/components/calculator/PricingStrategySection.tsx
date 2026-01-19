@@ -1,7 +1,9 @@
-
 import React from 'react';
 import { Store, Target, Wallet, ArrowRight, Zap, ShieldCheck } from 'lucide-react';
 import { Project, ProductionConfig } from '@shared/types';
+import { GradientCard } from '../ui/design-system/GradientCard';
+import { BentoCard } from '../ui/design-system/BentoCard';
+import { DashboardSectionHeader } from '../ui/design-system/SectionHeader';
 
 interface PricingStrategySectionProps {
   activeProject: Project;
@@ -25,17 +27,16 @@ export const PricingStrategySection: React.FC<PricingStrategySectionProps> = ({
       : (activeProject.targetNet || 0) * prodConfig.targetUnits;
 
   return (
-    <div className="bg-white rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-8 border border-slate-200 shadow-sm space-y-6">
+    <BentoCard className="space-y-6">
         
         {/* Strategy Toggle */}
         <div className="flex flex-col gap-4">
-           <div className="flex items-center justify-between">
-              <div>
-                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 flex items-center gap-2">
-                    <Store className="w-4 h-4 text-indigo-500" /> Strategi Dasar
-                 </h3>
-              </div>
-           </div>
+           <DashboardSectionHeader 
+               title="Strategi Dasar" 
+               variant="default"
+               action={<Store className="w-4 h-4 text-indigo-500" />}
+               className="px-0 mb-0"
+           />
            
            <div className="flex bg-slate-100 p-1.5 rounded-2xl">
               <button 
@@ -56,7 +57,7 @@ export const PricingStrategySection: React.FC<PricingStrategySectionProps> = ({
         {/* Input & Result Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-stretch">
             {/* INPUT SIDE - High Visiblity */}
-            <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-[2rem] p-6 lg:p-8 text-white shadow-xl shadow-indigo-600/20 relative overflow-hidden flex flex-col justify-center min-h-[180px] group transition-all hover:scale-[1.01]">
+            <GradientCard noPadding className="p-6 lg:p-8 flex flex-col justify-center min-h-[180px] group transition-all hover:scale-[1.01]">
                <div className="relative z-10 space-y-2">
                   <div className="flex items-center gap-2 mb-2">
                      <div className="p-1.5 bg-white/10 rounded-lg backdrop-blur-md">
@@ -86,7 +87,7 @@ export const PricingStrategySection: React.FC<PricingStrategySectionProps> = ({
                
                {/* Glow Effect */}
                <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-3xl pointer-events-none group-hover:bg-white/20 transition-all"></div>
-            </div>
+            </GradientCard>
 
             {/* PREVIEW SIDE - Contrast Card */}
             <div className={`rounded-[2rem] p-6 lg:p-8 border shadow-sm relative overflow-hidden flex flex-col justify-center min-h-[180px] transition-colors ${strategy === 'competitor' ? (baseProfitCompetitor > 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100') : 'bg-slate-50 border-slate-200'}`}>
@@ -175,6 +176,6 @@ export const PricingStrategySection: React.FC<PricingStrategySectionProps> = ({
                 )}
             </div>
         </div>
-      </div>
+      </BentoCard>
   );
 };

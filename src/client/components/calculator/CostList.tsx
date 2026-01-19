@@ -1,10 +1,11 @@
-
 import React, { useState } from 'react';
 import { Calculator, PlusCircle, Trash2, Loader2, Package, Sparkles, CheckCircle2, ArrowRightLeft, Scale, Layers, Ruler, Plus, Info, CalendarClock, PieChart as PieChartIcon, Hammer, Box } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Project, ProductionConfig, CostItem } from '@shared/types';
 import { calculateEffectiveCost, calculateOperationalBurnRate } from '../../lib/utils';
 import { useAIEstimator } from '../../hooks/useAIEstimator';
+import { BentoCard } from '../ui/design-system/BentoCard';
+import { DashboardSectionHeader } from '../ui/design-system/SectionHeader';
 
 interface CostListProps {
   activeProject: Project;
@@ -27,8 +28,9 @@ const CostItemRow: React.FC<{
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div 
-        className="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm hover:shadow-md transition-all group relative animate-in slide-in-from-bottom-2 fade-in duration-500 fill-mode-backwards"
+    <BentoCard 
+        noPadding
+        className="p-4 border border-slate-100 shadow-sm hover:shadow-md transition-all group relative animate-in slide-in-from-bottom-2 fade-in duration-500 fill-mode-backwards"
         style={{ animationDelay: `${index * 75}ms` }}
     >
       <div className="flex items-start gap-3 mb-3">
@@ -198,25 +200,25 @@ const CostItemRow: React.FC<{
             </div>
          </div>
       )}
-    </div>
+    </BentoCard>
   );
 };
 
 const CostSection: React.FC<{
   title: string;
   icon: React.ElementType;
-  colorClass: string;
+  className?: string; // Replaced colorClass with text-based classes or handle inside
+  variant?: 'default' | 'accent';
   items: CostItem[];
   children: React.ReactNode;
-}> = ({ title, icon: Icon, colorClass, items, children }) => (
+}> = ({ title, icon: Icon, variant = 'default', items, children }) => (
   <div className="space-y-3">
-    <div className={`flex items-center gap-2 px-1 ${items.length === 0 ? 'opacity-50' : ''}`}>
-       <div className={`p-1.5 rounded-lg ${colorClass} bg-opacity-10`}>
-          <Icon className={`w-3.5 h-3.5 ${colorClass.replace('bg-', 'text-')}`} />
-       </div>
-       <h4 className={`text-[10px] font-black uppercase tracking-widest ${colorClass.replace('bg-', 'text-')}`}>{title}</h4>
-       <span className="text-[9px] font-bold text-slate-300 ml-auto">{items.length} Item</span>
-    </div>
+    <DashboardSectionHeader 
+       title={title} 
+       subtitle={`${items.length} Item`}
+       variant={variant}
+       action={<Icon className="w-4 h-4 text-slate-400" />}
+    />
     <div className="space-y-3">
        {children}
     </div>
@@ -233,7 +235,7 @@ const OperationalBurnRate: React.FC<{
   const { totalPurchase, dailyBurnRate, cycleBurnRate } = calculateOperationalBurnRate(bulkCosts, prodConfig);
 
   return (
-    <div className="mt-8 bg-slate-900 rounded-[2rem] p-6 lg:p-8 text-white relative overflow-hidden shadow-xl">
+    <BentoCard noPadding className="mt-8 bg-slate-900 border-slate-800 p-6 lg:p-8 text-white relative overflow-hidden shadow-xl">
        <div className="relative z-10">
           <div className="flex items-center gap-2 mb-6 opacity-80">
              <CalendarClock className="w-4 h-4 text-emerald-400" />
@@ -266,7 +268,7 @@ const OperationalBurnRate: React.FC<{
           </div>
        </div>
        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
-    </div>
+    </BentoCard>
   );
 };
 
@@ -302,27 +304,25 @@ export const CostList: React.FC<CostListProps> = ({
   const bulkCosts = activeProject.costs.filter(c => c.allocation === 'bulk');
 
   return (
-    <div className="bg-white rounded-[2rem] lg:rounded-[2.5rem] border border-slate-200 shadow-sm p-5 lg:p-10 space-y-8 relative overflow-hidden">
+    <BentoCard className="space-y-8 relative overflow-hidden p-5 lg:p-10" noPadding>
         
-        <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="text-xs lg:text-sm font-black uppercase tracking-widest text-slate-800 flex items-center gap-2">
-                <Calculator className="w-4 h-4 text-indigo-500" /> Komponen Biaya (HPP)
-              </h3>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Input modal langsung & tidak langsung.</p>
-            </div>
-            
-            <button 
-              onClick={handleMagicEstimate} 
-              disabled={isGenerating || !activeProject.name.trim()}
-              className={`px-4 py-2 rounded-xl border flex items-center gap-2 transition-all shadow-sm ${isGenerating ? 'bg-slate-50' : 'bg-indigo-50 hover:bg-indigo-100 border-indigo-100'}`}
-            >
-              {isGenerating ? <Loader2 className="w-4 h-4 animate-spin text-indigo-600" /> : <Sparkles className="w-4 h-4 text-indigo-600" />}
-              <span className="hidden lg:inline text-[10px] font-black text-indigo-600 uppercase tracking-widest">
-                {isGenerating ? 'Analyzing...' : 'Auto-Estimate'}
-              </span>
-            </button>
-        </div>
+        <DashboardSectionHeader 
+            title="Komponen Biaya (HPP)" 
+            subtitle="Input modal langsung & tidak langsung."
+            variant="default"
+            action={
+                <button 
+                  onClick={handleMagicEstimate} 
+                  disabled={isGenerating || !activeProject.name.trim()}
+                  className={`px-4 py-2 rounded-xl border flex items-center gap-2 transition-all shadow-sm ${isGenerating ? 'bg-slate-50' : 'bg-indigo-50 hover:bg-indigo-100 border-indigo-100'}`}
+                >
+                  {isGenerating ? <Loader2 className="w-4 h-4 animate-spin text-indigo-600" /> : <Sparkles className="w-4 h-4 text-indigo-600" />}
+                  <span className="hidden lg:inline text-[10px] font-black text-indigo-600 uppercase tracking-widest">
+                    {isGenerating ? 'Analyzing...' : 'Auto-Estimate'}
+                  </span>
+                </button>
+            }
+        />
 
         {activeProject.costs.length === 0 && (
           <button onClick={() => updateProject({ costs: [{ id: '1', name: '', amount: 0, allocation: 'unit' }] })} className="w-full py-16 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 hover:border-indigo-300 transition-all group">
@@ -373,7 +373,7 @@ export const CostList: React.FC<CostListProps> = ({
         )}
 
         {directCosts.length > 0 && (
-          <CostSection title="Biaya Langsung (Per Unit)" icon={Box} colorClass="bg-indigo-500" items={directCosts}>
+          <CostSection title="Biaya Langsung (Per Unit)" icon={Box} items={directCosts}>
              {directCosts.map((cost, idx) => (
                 <CostItemRow 
                   key={cost.id} 
@@ -389,7 +389,7 @@ export const CostList: React.FC<CostListProps> = ({
         )}
 
         {bulkCosts.length > 0 && (
-          <CostSection title="Operasional & Overhead (Bulk)" icon={Hammer} colorClass="bg-emerald-500" items={bulkCosts}>
+          <CostSection title="Operasional & Overhead (Bulk)" icon={Hammer} variant="accent" items={bulkCosts}>
              {bulkCosts.map((cost, idx) => (
                 <CostItemRow 
                   key={cost.id} 
@@ -430,6 +430,6 @@ export const CostList: React.FC<CostListProps> = ({
                </div>
             )}
         </div>
-    </div>
+    </BentoCard>
   );
 };

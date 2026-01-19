@@ -1,7 +1,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/client';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../context/toast-context';
 
 export const useMarketplace = () => {
   const queryClient = useQueryClient();
@@ -11,7 +11,7 @@ export const useMarketplace = () => {
   const { data } = useQuery({
     queryKey: ['marketplace-balance'],
     queryFn: async () => {
-      const res = await (api as any).marketplace.balance.$get();
+      const res = await api.marketplace.balance.$get();
       if (!res.ok) throw new Error("Failed to fetch balance");
       return await res.json();
     },
@@ -22,12 +22,13 @@ export const useMarketplace = () => {
   // --- MUTATIONS ---
   const spendMutation = useMutation({
     mutationFn: async ({ amount, itemName }: { amount: number, itemName: string }) => {
-      const res = await (api as any).marketplace.spend.$post({
+      const res = await api.marketplace.spend.$post({
         json: { amount, itemName }
       });
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.message || err.error || "Transaction failed");
+        const msg = (err as any).error || (err as any).message || "Transaction failed";
+        throw new Error(msg);
       }
       return await res.json();
     },
@@ -52,7 +53,7 @@ export const useMarketplace = () => {
 
   const topUpMutation = useMutation({
     mutationFn: async (amount: number) => {
-      const res = await (api as any).marketplace.topup.$post({ json: { amount } });
+      const res = await api.marketplace.topup.$post({ json: { amount } });
       if (!res.ok) throw new Error("Topup Failed");
       return await res.json();
     },

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Settings, Bell, ChevronRight, LogOut, History, ShoppingBag, 
@@ -13,7 +12,9 @@ import { ProfileIdentity } from './ProfileIdentity';
 import { ProfileFinancials } from './ProfileFinancials';
 import { NotificationModal } from '../../modals/NotificationModal';
 import { TabNavigation, TabItem } from '../../ui/TabNavigation';
-import { useToast } from '../../../context/ToastContext';
+
+import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 
 interface MerchantProfileProps {
   credits: number;
@@ -46,7 +47,7 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
   const [editForm, setEditForm] = useState<Partial<BusinessProfile>>({});
   const [isSaved, setIsSaved] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const { showToast } = useToast();
+
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -142,8 +143,8 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
   if (isEditingProfile) {
     return (
       <div className="max-w-2xl mx-auto space-y-6 animate-in slide-in-from-right duration-300 pb-32">
-         {/* ... Existing Edit Form UI ... */}
-         <div className="bg-white rounded-[2rem] p-6 sm:p-10 border border-slate-200 shadow-xl space-y-8">
+         {/* ... Existing Edit Form UI - Using BentoCard for consistency ... */}
+         <BentoCard className="space-y-8 p-6 sm:p-10 shadow-xl">
             <div className="space-y-6">
                 <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Nama Warung / Brand</label>
@@ -170,9 +171,9 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
                     </div>
                 </div>
             </div>
-         </div>
+         </BentoCard>
 
-         <div className="bg-white rounded-[2rem] p-6 sm:p-10 border border-slate-200 shadow-xl space-y-6">
+         <BentoCard className="space-y-6 p-6 sm:p-10 shadow-xl">
             <div className="flex items-center gap-3 mb-2">
                 <MapPin className="w-5 h-5 text-indigo-600" />
                 <h4 className="text-xs font-black uppercase text-indigo-900 tracking-widest">Lokasi Operasional</h4>
@@ -190,7 +191,7 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
                    </div>
                 </div>
             </div>
-         </div>
+         </BentoCard>
 
          <div className="px-2 pt-4">
             <button onClick={handleSaveBusiness} className={`w-full py-5 rounded-3xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl flex items-center justify-center gap-3 transition-all active:scale-95 ${isSaved ? 'bg-emerald-500 text-white' : 'bg-slate-950 text-white hover:bg-indigo-600'}`}>
@@ -214,36 +215,37 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
   }
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-700 pb-32">
+    <div className="space-y-10 animate-in fade-in duration-700">
       
-      <header className="relative overflow-hidden rounded-[2.5rem] bg-slate-950 shadow-2xl border border-white/5">
+      {/* Header wrapped in BentoCard style but dark */}
+      <BentoCard noPadding className="bg-slate-950 shadow-2xl border-white/5 relative">
          <div className="p-8 sm:p-12 lg:p-16 text-white relative z-10 flex flex-col lg:flex-row justify-between items-center gap-10">
             <ProfileIdentity business={activeBusiness} ownerName={accountForm.ownerName} />
             <ProfileFinancials credits={credits} onTopUp={onTopUpClick || (() => {})} />
          </div>
          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none"></div>
-      </header>
+      </BentoCard>
 
       <section aria-label="Business Statistics" className="grid grid-cols-2 lg:grid-cols-4 gap-4 px-1">
-         <dl className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col justify-between h-32">
+         <BentoCard className="flex flex-col justify-between h-32 p-6">
             <dt className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
                <Building2 className="w-4 h-4 text-indigo-500" /> Total Outlets
             </dt>
             <dd className="text-3xl font-black text-slate-900">{businesses.length}</dd>
-         </dl>
-         <dl className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col justify-between h-32">
+         </BentoCard>
+         <BentoCard className="flex flex-col justify-between h-32 p-6">
             <dt className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
                <TrendingUp className="w-4 h-4 text-emerald-500" /> Asset Value
             </dt>
             <dd className="text-3xl font-black text-slate-900 tracking-tight">{formatIDR(totalAssets)}</dd>
-         </dl>
-         <dl className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col justify-between h-32">
+         </BentoCard>
+         <BentoCard className="flex flex-col justify-between h-32 p-6">
             <dt className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
                <Wallet className="w-4 h-4 text-rose-500" /> Liquid Cash
             </dt>
             <dd className="text-3xl font-black text-slate-900 tracking-tight">{formatIDR(totalCash)}</dd>
-         </dl>
-         <div className="bg-indigo-600 p-6 rounded-[2rem] shadow-lg text-white flex flex-col justify-between h-32 relative overflow-hidden group cursor-pointer" onClick={toggleLanguage}>
+         </BentoCard>
+         <BentoCard noPadding className="bg-indigo-600 p-6 shadow-lg text-white flex flex-col justify-between h-32 relative overflow-hidden group cursor-pointer" onClick={toggleLanguage}>
             <div className="relative z-10 space-y-1">
                <span className="text-[9px] font-black uppercase tracking-widest opacity-70">System Mode</span>
                <p className="text-lg font-black leading-tight">
@@ -254,7 +256,7 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
                <Settings className="w-3 h-3" /> Switch
             </div>
             <Gem className="absolute -bottom-4 -right-4 w-24 h-24 text-white/10 rotate-12 group-hover:rotate-0 transition-transform duration-700" />
-         </div>
+         </BentoCard>
       </section>
 
       {/* Modular Tab Navigation */}
@@ -276,10 +278,11 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
              </div>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {businesses.map(b => (
-                  <article 
+                  <BentoCard 
                     key={b.id} 
                     onClick={() => switchBusiness(b.id)} 
-                    className={`bg-white rounded-[2.5rem] p-7 border-2 transition-all cursor-pointer group relative overflow-hidden active:scale-[0.98]
+                    noPadding
+                    className={`p-7 border-2 transition-all cursor-pointer group relative overflow-hidden active:scale-[0.98]
                     ${activeBusinessId === b.id 
                       ? 'border-indigo-600 ring-4 ring-indigo-500/10 shadow-2xl' 
                       : 'border-slate-100 hover:border-indigo-200 hover:shadow-lg'}`}
@@ -314,7 +317,7 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
                           <Settings className="w-5 h-5" />
                        </button>
                     )}
-                  </article>
+                  </BentoCard>
                 ))}
              </div>
           </section>
@@ -323,7 +326,7 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
         {activeTab === 'account' && (
           <div className="flex flex-col lg:flex-row gap-8">
              {/* LEFT SIDE: ACCOUNT INFO */}
-             <section className="bg-white rounded-[3rem] p-8 lg:p-12 border border-slate-200 shadow-sm w-full">
+             <BentoCard className="p-8 lg:p-12 w-full">
                 <div className="flex items-center gap-4 mb-8 pb-8 border-b border-slate-100">
                    <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
                       <Briefcase className="w-8 h-8" />
@@ -356,12 +359,12 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
                       </button>
                    </div>
                 </div>
-             </section>
+             </BentoCard>
 
              {/* RIGHT SIDE: ACTIONS */}
              <aside className="w-full lg:w-80 space-y-4">
-                <div className="bg-white rounded-[2.5rem] border border-slate-200 p-6 shadow-sm">
-                   <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-4">Quick Actions</h4>
+                <BentoCard className="p-6">
+                   <DashboardSectionHeader title="Quick Actions" className="mb-4 px-0" />
                    <div className="space-y-2">
                       <button 
                         onClick={() => setShowNotifications(true)}
@@ -390,13 +393,13 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
                         </div>
                       </button>
                    </div>
-                </div>
+                </BentoCard>
              </aside>
           </div>
         )}
 
         {activeTab === 'ledger' && (
-          <section className="bg-white rounded-[3rem] border border-slate-200 shadow-sm overflow-hidden min-h-[60vh]">
+          <BentoCard noPadding className="border-slate-200 shadow-sm overflow-hidden min-h-[60vh]">
              <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-800 flex items-center gap-3">
                    <History className="w-4 h-4 text-indigo-500" /> Transaction Ledger
@@ -434,7 +437,7 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
                   ))
                )}
              </div>
-          </section>
+          </BentoCard>
         )}
 
       </div>

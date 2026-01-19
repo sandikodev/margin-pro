@@ -8,6 +8,8 @@ import { Modal } from '../../ui/Modal';
 import { TabNavigation, TabItem } from '../../ui/TabNavigation';
 import { Carousel, CarouselItem } from '../../ui/Carousel';
 import { useConfig } from '../../../hooks/useConfig';
+import { BentoCard } from '../../ui/design-system/BentoCard';
+import { DashboardSectionHeader } from '../../ui/design-system/SectionHeader';
 
 export interface ChartDataItem {
   name: string;
@@ -35,7 +37,6 @@ interface ProfitSimulatorProps {
   updateProject: (updates: Partial<Project>) => void;
   overrides: Record<Platform, PlatformOverrides>;
   setOverrides: React.Dispatch<React.SetStateAction<Record<Platform, PlatformOverrides>>>;
-  // onBack removed as unused
   onOpenSidebar: () => void;
   t: (key: string) => string;
 }
@@ -78,7 +79,6 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
     return results.filter(r => platformData[r.platform]?.category === activeCategory);
   }, [results, activeCategory, platformData]);
 
-  // Updated to match TabItem interface (using LucideIcon type implicitly)
   const categories: TabItem[] = [
     { id: 'food', label: 'Aplikasi Food', icon: Utensils },
     { id: 'marketplace', label: 'Toko Online', icon: Store },
@@ -93,7 +93,6 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
     }));
   };
 
-  // Helper to get active result for modal
   const activeResult = useMemo(() => {
     if (!expandedPlatform) return null;
     return results.find(r => r.platform === expandedPlatform);
@@ -105,27 +104,24 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
     return isCompetitorStrategy ? (activeResult.competitorProtection || activeResult.recommended) : activeResult.recommended;
   }, [activeResult, effectiveStrategy]);
 
-  // Define Tabs Data for Modal
   const modalTabsData: TabItem[] = [
     { id: 'settings', label: 'Atur Biaya', icon: Sliders },
     { id: 'breakdown', label: 'Komposisi Harga', icon: PieChart }
   ];
 
-  // Safe Percentage helper
   const safePercent = (numerator: number | undefined, denominator: number | undefined) => {
     if (!numerator || !denominator || denominator === 0 || isNaN(numerator) || isNaN(denominator)) return '0.0';
     return ((numerator / denominator) * 100).toFixed(1);
   };
 
-  // Safe toFixed helper
-
-
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       
       {/* 1. RINGKASAN STRATEGI */}
-      <div className={`rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl transition-all duration-500 ${isPreviewing ? 'bg-slate-800 scale-[0.99]' : 'bg-slate-900'}`}>
-         {/* ... (Existing Summary Content) ... */}
+      <BentoCard 
+        noPadding 
+        className={`p-8 text-white relative overflow-hidden shadow-2xl transition-all duration-500 ${isPreviewing ? 'bg-slate-800 scale-[0.99] border-slate-700' : 'bg-slate-900 border-slate-800'}`}
+      >
          <div className="relative z-10 flex flex-col lg:flex-row justify-between gap-8">
             <div className="space-y-4 w-full">
                <div className="flex flex-wrap items-center gap-2">
@@ -208,9 +204,9 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
             </div>
          </div>
          <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/5 rounded-full blur-[80px] -mr-40 -mt-40 pointer-events-none"></div>
-      </div>
+      </BentoCard>
 
-      {/* 2. PILIH CHANNEL JUALAN (MODULAR TAB NAVIGATION) */}
+      {/* 2. PILIH CHANNEL JUALAN */}
       <TabNavigation 
         variant="sticky" 
         tabs={categories} 
@@ -219,7 +215,7 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
       />
 
       {/* 3. SIMULASI DISKON */}
-      <div className="bg-slate-50 rounded-[2rem] p-8 border border-slate-100 flex flex-col md:flex-row items-center gap-10">
+      <BentoCard noPadding className="p-8 flex flex-col md:flex-row items-center gap-10 bg-slate-50 border-slate-200">
          <div className="flex items-center gap-4 bg-white px-6 py-4 rounded-2xl border border-slate-200 shadow-sm w-full md:w-auto">
             <Flame className="w-7 h-7 text-orange-500" />
             <div className="flex-grow">
@@ -239,17 +235,18 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
                <span>Promo Besar (50%)</span>
             </div>
          </div>
-      </div>
+      </BentoCard>
 
-      <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-8 lg:p-10 relative overflow-hidden">
+      <BentoCard className="relative overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 relative z-10">
           <div className="lg:col-span-8 space-y-6">
-            <div className="space-y-1">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-800 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-indigo-500" /> Komparasi Profitabilitas
-              </h3>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Urutan platform dari yang paling menguntungkan.</p>
-            </div>
+            <DashboardSectionHeader 
+               title="Komparasi Profitabilitas" 
+               subtitle="Urutan platform dari yang paling menguntungkan."
+               variant="default"
+               action={<TrendingUp className="w-4 h-4 text-slate-400" />}
+            />
+            
             <div className="h-[250px] lg:h-[300px] w-full mt-4">
               <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <BarChart data={chartData} margin={{ top: 20, right: 30, left: -20, bottom: 0 }} layout="vertical">
@@ -292,22 +289,21 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
             </div>
           </div>
         </div>
-      </div>
+      </BentoCard>
 
-      <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-8 lg:p-10 relative overflow-hidden">
+      <BentoCard className="relative overflow-hidden">
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-800 flex items-center gap-2">
-                <Scissors className="w-4 h-4 text-rose-500" /> Komparasi Beban Biaya (Fees)
-              </h3>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Perbandingan total potongan di setiap platform.</p>
-            </div>
-            <div className="hidden lg:flex items-center gap-2 bg-rose-50 px-4 py-2 rounded-xl border border-rose-100">
-              <AlertCircle className="w-4 h-4 text-rose-500" />
-              <span className="text-[10px] font-black uppercase text-rose-700 tracking-tight">Cek Potongan Terbesar</span>
-            </div>
-          </div>
+          <DashboardSectionHeader 
+             title="Komparasi Beban Biaya (Fees)" 
+             subtitle="Perbandingan total potongan di setiap platform."
+             variant="default"
+             action={
+                <div className="hidden lg:flex items-center gap-2 bg-rose-50 px-4 py-2 rounded-xl border border-rose-100">
+                  <AlertCircle className="w-4 h-4 text-rose-500" />
+                  <span className="text-[10px] font-black uppercase text-rose-700 tracking-tight">Cek Potongan Terbesar</span>
+                </div>
+             }
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
               <div className="lg:col-span-7 h-[250px] lg:h-[300px]">
@@ -364,111 +360,111 @@ export const ProfitSimulator: React.FC<ProfitSimulatorProps> = ({
                 </div>
             </div>
           </div>
-        </div>
+      </BentoCard>
  
-        <div className="grid grid-cols-1 gap-6">
-          {filteredResults.map(res => {
-            const isCompetitorStrategy = effectiveStrategy === 'competitor';
-            const cardScenario = isCompetitorStrategy ? (res.competitorProtection || res.recommended) : res.recommended;
-  
-            const displayPrice = cardScenario.price;
-            const displayProfit = cardScenario.netProfit;
-            
-            return (
-              <div key={res.platform} className={`bg-white rounded-[2.5rem] border-2 transition-all shadow-sm flex flex-col relative overflow-hidden ${expandedPlatform === res.platform ? 'border-indigo-600 ring-4 ring-indigo-500/5' : 'border-slate-100'}`}>
-                <div className="absolute top-0 left-0 w-full h-1.5" style={{backgroundColor: platformData[res.platform]?.color}}></div>
-                
-                <div className="p-8 flex flex-col md:flex-row md:items-center justify-between gap-8">
-                  <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg" style={{backgroundColor: platformData[res.platform]?.color}}>
-                         {res.platform.charAt(0)}
-                      </div>
-                      <div>
-                          <h3 className="text-xl font-black text-slate-900 leading-none">{res.platform}</h3>
-                          <p className={`text-[10px] font-bold uppercase tracking-widest mt-1.5 ${cardScenario.isBleeding ? 'text-rose-500' : 'text-emerald-500'}`}>
-                             {cardScenario.isBleeding ? 'Status: Kurang Untung / Rugi' : 'Status: Keuntungan Aman'}
-                          </p>
-                      </div>
+      <div className="grid grid-cols-1 gap-6">
+        {filteredResults.map(res => {
+          const isCompetitorStrategy = effectiveStrategy === 'competitor';
+          const cardScenario = isCompetitorStrategy ? (res.competitorProtection || res.recommended) : res.recommended;
+ 
+          const displayPrice = cardScenario.price;
+          const displayProfit = cardScenario.netProfit;
+          
+          return (
+            <BentoCard noPadding key={res.platform} className={`bg-white border-2 transition-all shadow-sm flex flex-col relative overflow-hidden ${expandedPlatform === res.platform ? 'border-indigo-600 ring-4 ring-indigo-500/5' : 'border-slate-100'}`}>
+              <div className="absolute top-0 left-0 w-full h-1.5" style={{backgroundColor: platformData[res.platform]?.color}}></div>
+              
+              <div className="p-8 flex flex-col md:flex-row md:items-center justify-between gap-8">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg" style={{backgroundColor: platformData[res.platform]?.color}}>
+                       {res.platform.charAt(0)}
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Harga Jual Yang Disarankan</p>
-                      <p className="text-4xl lg:text-5xl font-black tracking-tighter" style={{color: platformData[res.platform]?.color}}>
-                         {formatValue(displayPrice)}
-                      </p>
+                        <h3 className="text-xl font-black text-slate-900 leading-none">{res.platform}</h3>
+                        <p className={`text-[10px] font-bold uppercase tracking-widest mt-1.5 ${cardScenario.isBleeding ? 'text-rose-500' : 'text-emerald-500'}`}>
+                           {cardScenario.isBleeding ? 'Status: Kurang Untung / Rugi' : 'Status: Keuntungan Aman'}
+                        </p>
                     </div>
                   </div>
-
-                <div className="flex gap-4">
-                  <div className={`rounded-[2rem] p-7 text-white shadow-xl flex flex-col justify-center min-w-[180px] bg-emerald-500 shadow-emerald-500/20`}>
-                    <span className="text-[10px] font-black uppercase opacity-80 tracking-widest mb-1">{t('netProfit')}</span>
-                    <span className="text-2xl font-black leading-none">{formatValue(displayProfit)}</span>
-                    <span className="text-[10px] font-black mt-2 opacity-80 italic">Profit {safePercent(displayProfit, totalHPP)}% dari Modal</span>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Harga Jual Yang Disarankan</p>
+                    <p className="text-4xl lg:text-5xl font-black tracking-tighter" style={{color: platformData[res.platform]?.color}}>
+                       {formatValue(displayPrice)}
+                    </p>
                   </div>
-                  <button 
-                    onClick={() => {
-                        setExpandedPlatform(res.platform);
-                        setModalTab('settings'); // Default tab
-                    }} 
-                    className="p-7 rounded-[1.8rem] transition-all flex flex-col items-center justify-center gap-2 border bg-slate-50 text-slate-400 border-slate-200 hover:text-indigo-600 hover:border-indigo-200"
-                  >
-                      <Settings2 className="w-6 h-6" />
-                      <span className="text-[10px] font-black uppercase tracking-widest">Detail</span>
-                  </button>
                 </div>
+
+              <div className="flex gap-4">
+                <div className={`rounded-[2rem] p-7 text-white shadow-xl flex flex-col justify-center min-w-[180px] bg-emerald-500 shadow-emerald-500/20`}>
+                  <span className="text-[10px] font-black uppercase opacity-80 tracking-widest mb-1">{t('netProfit')}</span>
+                  <span className="text-2xl font-black leading-none">{formatValue(displayProfit)}</span>
+                  <span className="text-[10px] font-black mt-2 opacity-80 italic">Profit {safePercent(displayProfit, totalHPP)}% dari Modal</span>
+                </div>
+                <button 
+                  onClick={() => {
+                      setExpandedPlatform(res.platform);
+                      setModalTab('settings'); // Default tab
+                  }} 
+                  className="p-7 rounded-[1.8rem] transition-all flex flex-col items-center justify-center gap-2 border bg-slate-50 text-slate-400 border-slate-200 hover:text-indigo-600 hover:border-indigo-200"
+                >
+                    <Settings2 className="w-6 h-6" />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Detail</span>
+                </button>
               </div>
-
-              {/* DUAL MODE BOXES - CAROUSEL MODE */}
-              <Carousel className="px-4 pb-10 lg:px-8">
-                  <CarouselItem className="rounded-3xl p-6 bg-slate-50 border-2 border-slate-100 space-y-5">
-                     <div className="flex flex-col">
-                        <span className="text-xs font-black text-slate-800 uppercase tracking-widest mb-1">{t('simulate')}</span>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase">Ubah angka ini untuk tes cuan anda</p>
-                     </div>
-                     <div className="flex items-center gap-2 bg-white px-4 py-4 rounded-2xl border border-slate-200">
-                        <span className="text-sm font-black text-slate-400">Rp</span>
-                        <input 
-                           type="number" 
-                           value={activeProject.competitorPrice || ''}
-                           onChange={(e) => updateProject({ competitorPrice: Number(e.target.value) })}
-                           className="w-full text-2xl font-black text-slate-900 outline-none"
-                           placeholder="Tes harga jual..."
-                        />
-                     </div>
-                     {res.market && (
-                        <div className={`p-5 rounded-2xl flex justify-between items-center ${res.market.isBleeding ? 'bg-rose-100 text-rose-700' : 'bg-white border border-slate-200'}`}>
-                           <div className="flex flex-col">
-                              <span className="text-[10px] font-black uppercase tracking-widest">Cuan Di Harga Ini</span>
-                              {res.market.isBleeding && <span className="text-[8px] font-bold">Resiko Rugi Terdeteksi</span>}
-                           </div>
-                           <span className="text-xl font-black">{formatValue(res.market.netProfit)}</span>
-                        </div>
-                     )}
-                  </CarouselItem>
-
-                  <CarouselItem className="rounded-3xl p-6 bg-indigo-50 border-2 border-indigo-100 space-y-5">
-                     <div className="flex flex-col">
-                        <span className="text-xs font-black text-indigo-900 uppercase tracking-widest mb-1">{t('recommendation')}</span>
-                        <p className="text-[10px] text-indigo-400 font-bold uppercase">Harga paling pas agar {t('profitTarget')} Aman</p>
-                     </div>
-                     <div className="flex items-center justify-between py-2">
-                        <span className="text-3xl font-black text-indigo-700">{formatValue(cardScenario.price)}</span>
-                        <div className="p-3 bg-white rounded-xl shadow-sm border border-indigo-200"><ShieldCheck className="w-6 h-6 text-indigo-600" /></div>
-                     </div>
-                     <div className="p-5 bg-indigo-600 rounded-2xl flex justify-between items-center text-white shadow-lg shadow-indigo-600/20">
-                        <div className="flex flex-col">
-                           <span className="text-[10px] font-black uppercase tracking-widest">Cuan Yang Dijaga</span>
-                           <span className="text-[8px] font-bold opacity-70">Sesuai Target Laba Anda</span>
-                        </div>
-                        <span className="text-xl font-black">{formatValue(cardScenario.netProfit)}</span>
-                     </div>
-                  </CarouselItem>
-              </Carousel>
             </div>
-        )})}
-      </div>
 
-      {/* DETAIL MODAL (Replaces Accordion) */}
+            {/* DUAL MODE BOXES - CAROUSEL MODE */}
+            <Carousel className="px-4 pb-10 lg:px-8">
+                <CarouselItem className="rounded-3xl p-6 bg-slate-50 border-2 border-slate-100 space-y-5">
+                   <div className="flex flex-col">
+                      <span className="text-xs font-black text-slate-800 uppercase tracking-widest mb-1">{t('simulate')}</span>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase">Ubah angka ini untuk tes cuan anda</p>
+                   </div>
+                   <div className="flex items-center gap-2 bg-white px-4 py-4 rounded-2xl border border-slate-200">
+                      <span className="text-sm font-black text-slate-400">Rp</span>
+                      <input 
+                         type="number" 
+                         value={activeProject.competitorPrice || ''}
+                         onChange={(e) => updateProject({ competitorPrice: Number(e.target.value) })}
+                         className="w-full text-2xl font-black text-slate-900 outline-none"
+                         placeholder="Tes harga jual..."
+                      />
+                   </div>
+                   {res.market && (
+                      <div className={`p-5 rounded-2xl flex justify-between items-center ${res.market.isBleeding ? 'bg-rose-100 text-rose-700' : 'bg-white border border-slate-200'}`}>
+                         <div className="flex flex-col">
+                            <span className="text-[10px] font-black uppercase tracking-widest">Cuan Di Harga Ini</span>
+                            {res.market.isBleeding && <span className="text-[8px] font-bold">Resiko Rugi Terdeteksi</span>}
+                         </div>
+                         <span className="text-xl font-black">{formatValue(res.market.netProfit)}</span>
+                      </div>
+                   )}
+                </CarouselItem>
+
+                <CarouselItem className="rounded-3xl p-6 bg-indigo-50 border-2 border-indigo-100 space-y-5">
+                   <div className="flex flex-col">
+                      <span className="text-xs font-black text-indigo-900 uppercase tracking-widest mb-1">{t('recommendation')}</span>
+                      <p className="text-[10px] text-indigo-400 font-bold uppercase">Harga paling pas agar {t('profitTarget')} Aman</p>
+                   </div>
+                   <div className="flex items-center justify-between py-2">
+                      <span className="text-3xl font-black text-indigo-700">{formatValue(cardScenario.price)}</span>
+                      <div className="p-3 bg-white rounded-xl shadow-sm border border-indigo-200"><ShieldCheck className="w-6 h-6 text-indigo-600" /></div>
+                   </div>
+                   <div className="p-5 bg-indigo-600 rounded-2xl flex justify-between items-center text-white shadow-lg shadow-indigo-600/20">
+                      <div className="flex flex-col">
+                         <span className="text-[10px] font-black uppercase tracking-widest">Cuan Yang Dijaga</span>
+                         <span className="text-[8px] font-bold opacity-70">Sesuai Target Laba Anda</span>
+                      </div>
+                      <span className="text-xl font-black">{formatValue(cardScenario.netProfit)}</span>
+                   </div>
+                </CarouselItem>
+            </Carousel>
+          </BentoCard>
+      )})}
+    </div>
+
+      {/* DETAIL MODAL */}
       <Modal
         isOpen={!!expandedPlatform && !!activeResult}
         onClose={() => setExpandedPlatform(null)}

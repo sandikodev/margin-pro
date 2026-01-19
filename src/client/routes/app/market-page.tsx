@@ -3,10 +3,9 @@ import { MarketplaceView } from './market';
 import { useMarketplace } from '../../hooks/useMarketplace';
 import { useCurrency } from '../../hooks/useCurrency';
 import { INITIAL_MARKETPLACE } from '../../lib/constants';
-import { useProjects } from '../../hooks/useProjects'; // Need addProject logic? No, handleBuyItem logic.
 // We need to pass handleBuyItem down or implement it here.
 import { Project, MarketplaceItem } from '@shared/types';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../context/toast-context';
 
 interface MarketPageProps {
     addProject: (p: Project) => void;

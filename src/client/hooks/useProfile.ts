@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { BusinessProfile } from '@shared/types';
 import { STORAGE_KEYS } from '@shared/constants';
 import { api } from '../lib/client';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../context/toast-context';
 
 export const useProfile = () => {
   const queryClient = useQueryClient();
@@ -22,10 +22,10 @@ export const useProfile = () => {
   const { data: businesses = [], isLoading } = useQuery({
     queryKey: ['businesses'],
     queryFn: async () => {
-      const res = await (api as any).businesses.$get();
+      const res = await api.businesses.$get();
       if (!res.ok) throw new Error("Failed to fetch businesses");
       const data = await res.json();
-      return data as unknown as BusinessProfile[];
+      return (data as any).data || data as unknown as BusinessProfile[];
     },
     staleTime: 1000 * 60 * 5, // 5 min
   });
@@ -54,7 +54,7 @@ export const useProfile = () => {
 
   const addMutation = useMutation({
     mutationFn: async (newBiz: BusinessProfile) => {
-      const res = await (api as any).businesses.$post({
+      const res = await api.businesses.$post({
         json: newBiz
       });
       if (!res.ok) throw new Error("Failed to create business");
@@ -94,9 +94,20 @@ export const useProfile = () => {
 
   const updateMutation = useMutation({
     mutationFn: async (updates: Partial<BusinessProfile> & { id: string }) => {
+      // Fetch current to merge (PUT requires full object usually, or we fix server to PATCH)
+      // For now, client-side merge is safest without changing server.
+      const currentRes = await (api as any).businesses[':id'].$get({ param: { id: updates.id } });
+      if (!currentRes.ok) throw new Error("Failed to fetch current business for update");
+      const currentData = await currentRes.json();
+
+      const fullPayload = {
+        ...currentData,
+        ...updates
+      } as BusinessProfile;
+
       const res = await (api as any).businesses[':id'].$put({
         param: { id: updates.id },
-        json: updates
+        json: fullPayload
       });
       if (!res.ok) throw new Error("Failed to update");
       return await res.json();
@@ -128,7 +139,7 @@ export const useProfile = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await (api as any).businesses[':id'].$delete({ param: { id } });
+      const res = await api.businesses[':id'].$delete({ param: { id } });
       if (!res.ok) throw new Error("Failed to delete");
       return await res.json();
     },

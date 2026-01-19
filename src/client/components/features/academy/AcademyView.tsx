@@ -1,8 +1,10 @@
-
 import React from 'react';
 import { GraduationCap, Lightbulb, Calculator, Target, ShieldCheck, BookOpen, ExternalLink, Globe } from 'lucide-react';
 import { Platform, PlatformConfig } from '@shared/types';
 import { useConfig } from '../../../hooks/useConfig';
+import { GradientCard } from '../../ui/design-system/GradientCard';
+import { BentoCard } from '../../ui/design-system/BentoCard';
+import { DashboardSectionHeader } from '../../ui/design-system/SectionHeader';
 
 interface AcademyViewProps {
   onOpenAbout?: () => void;
@@ -41,20 +43,23 @@ export const AcademyView: React.FC<AcademyViewProps> = ({ onOpenAbout }) => {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
-      <section className="bg-indigo-600 rounded-[2.5rem] lg:rounded-[3.5rem] p-10 lg:p-14 text-white relative overflow-hidden shadow-2xl flex flex-col md:flex-row items-center gap-10">
+      <GradientCard className="p-10 lg:p-14 flex flex-col md:flex-row items-center gap-10">
           <div className="p-8 bg-white/10 rounded-[2.5rem] backdrop-blur-md shadow-2xl border border-white/10 ring-8 ring-white/5 shrink-0">
             <GraduationCap className="w-16 h-16 text-indigo-200" />
           </div>
           <div className="text-center md:text-left space-y-4">
-            <h3 className="text-3xl lg:text-4xl font-black tracking-tighter uppercase italic leading-none">Academy Central</h3>
+            <h3 className="text-3xl lg:text-4xl font-black tracking-tighter uppercase italic leading-none text-white">Academy Central</h3>
             <p className="text-indigo-100 text-sm max-w-sm leading-relaxed opacity-80 font-medium">Bimbingan strategis agar jualan di marketplace tetap profit meskipun biaya layanan naik.</p>
           </div>
-      </section>
+      </GradientCard>
 
-      <div className="bg-white rounded-[2.5rem] border border-slate-200 p-8 lg:p-10 shadow-sm relative overflow-hidden">
-          <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-800 mb-6 flex items-center gap-2">
-            <Lightbulb className="w-4 h-4 text-indigo-500" /> Cara Kerja Simulator
-          </h4>
+      <BentoCard>
+          <DashboardSectionHeader 
+             title="Cara Kerja Simulator" 
+             variant="default" 
+             action={<Lightbulb className="w-4 h-4 text-indigo-500" />}
+             className="px-0 mb-6"
+          />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-3">
                 <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center">
@@ -78,13 +83,16 @@ export const AcademyView: React.FC<AcademyViewProps> = ({ onOpenAbout }) => {
                 <p className="text-[11px] text-slate-500 leading-relaxed font-medium">Sistem menghitung markup harga jual yang aman untuk menutup komisi dan pajak platform.</p>
             </div>
           </div>
-      </div>
+      </BentoCard>
 
-      <div className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-sm">
+      <BentoCard noPadding className="overflow-hidden">
         <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-800 flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-indigo-500" /> Knowledge Hub & Terms
-          </h4>
+          <DashboardSectionHeader 
+             title="Knowledge Hub & Terms" 
+             variant="default"
+             action={<BookOpen className="w-4 h-4 text-indigo-500" />}
+             className="px-0 mb-0 w-full"
+          />
         </div>
         <div className="divide-y divide-slate-100">
           {Object.entries(platforms).map(([p, data]: [string, PlatformConfig]) => (
@@ -112,7 +120,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({ onOpenAbout }) => {
             </div>
           ))}
         </div>
-      </div>
+      </BentoCard>
 
       <div className="flex flex-col items-center justify-center py-8 text-center space-y-2 opacity-60">
           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Developed by</p>

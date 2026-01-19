@@ -12,8 +12,10 @@ import { calculateLoanPayment } from '../../../lib/utils';
 import { Modal } from '../../ui/Modal';
 import { FloatingActionMenu, FloatingActionItem } from '../../ui/FloatingActionMenu';
 import { TabNavigation, TabItem } from '../../ui/TabNavigation';
-import { useToast } from '../../../context/ToastContext';
+import { useToast } from '../../../context/toast-context';
 import { useFinanceAnalytics } from '../../../hooks/useFinanceAnalytics';
+import { BentoCard } from '../../ui/design-system/BentoCard';
+import { DashboardSectionHeader } from '../../ui/design-system/SectionHeader';
 
 interface FinanceManagerProps {
   liabilities: Liability[];
@@ -211,17 +213,16 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
       }
   };
 
-  // Helper to safely display toFixed
   const safeToFixed = (val: number | undefined, digits: number = 0) => {
     if (val === undefined || val === null || isNaN(val)) return '0';
     return val.toFixed(digits);
   };
 
   return (
-    <div className="space-y-6 pb-24 relative max-w-xl mx-auto lg:max-w-none">
+    <div className="space-y-6 pb-24 relative max-w-xl mx-auto lg:max-w-none animate-in fade-in slide-in-from-bottom-6 duration-700">
       
       {/* 1. NATIVE APP HEADER CARD */}
-      <section className="bg-slate-900 rounded-[2.5rem] p-6 lg:p-8 text-white relative overflow-hidden shadow-2xl">
+      <BentoCard noPadding className="bg-slate-900 border-slate-800 p-6 lg:p-8 text-white shadow-2xl">
          <div className="relative z-10">
             <div className="flex justify-between items-start mb-6">
                 <div>
@@ -273,7 +274,7 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
                 </div>
             </div>
          </div>
-      </section>
+      </BentoCard>
 
       {/* 2. MODULAR TABS */}
       <TabNavigation 
@@ -288,11 +289,11 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
            
            {/* List View */}
            {Object.keys(groupedCashflow).length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center opacity-50">
-                 <Wallet className="w-16 h-16 text-slate-300 mb-4" />
+              <BentoCard className="flex flex-col items-center justify-center py-20 text-center opacity-70">
+                 <Wallet className="w-16 h-16 text-slate-200 mb-4" />
                  <p className="text-sm font-bold text-slate-500">Belum ada transaksi bulan ini.</p>
                  <button onClick={() => openInput('IN')} className="mt-4 text-indigo-600 font-black text-xs uppercase tracking-widest underline">Catat Transaksi Pertama</button>
-              </div>
+              </BentoCard>
            ) : (
               Object.entries(groupedCashflow)
                 .sort(([, recordsA], [, recordsB]) => {
@@ -301,10 +302,9 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
                    return timeB - timeA;
                 })
                 .map(([date, records]: [string, CashflowRecord[]]) => (
-                 <div key={date} className="space-y-2 px-1">
-                    <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest sticky top-10 bg-slate-50/95 backdrop-blur-sm py-3 z-10 px-4 rounded-xl shadow-sm flex items-center">
-                       {date}
-                    </h4>
+                 <div key={date} className="space-y-2">
+                    <DashboardSectionHeader title={date} variant="default" className="sticky top-16 bg-slate-50/95 backdrop-blur-md py-2 z-10 px-0 -mx-1" />
+                    
                     <div className="space-y-2">
                        {records.map(record => {
                           const isIncome = record.revenue > 0;
@@ -312,7 +312,7 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
                           const catColor = getCategoryColor(record.category);
                           
                           return (
-                             <div key={record.id} className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between active:scale-[0.98] transition-transform">
+                             <BentoCard noPadding key={record.id} className="p-4 flex items-center justify-between active:scale-[0.99] hover:shadow-md transition-all">
                                 <div className="flex items-center gap-4">
                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${catColor}`}>
                                       {getCategoryIcon(record.category)}
@@ -328,7 +328,7 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
                                    </span>
                                    <button onClick={() => deleteCashflow(record.id)} className="text-[9px] text-slate-300 hover:text-rose-500 transition-colors">Hapus</button>
                                 </div>
-                             </div>
+                             </BentoCard>
                           )
                        })}
                     </div>
@@ -427,46 +427,52 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
       {activeSubTab === 'debt' && (
         <div className="space-y-6 animate-in slide-in-from-right duration-500">
            {/* LOAN CALCULATOR CARD */}
-           <div className="bg-white border border-slate-200 rounded-[2.5rem] p-6 shadow-sm">
-              <h4 className="text-xs font-black uppercase text-slate-800 tracking-widest mb-4 flex items-center gap-2">
-                 <Calculator className="w-4 h-4 text-indigo-500" /> Quick Loan Sim
-              </h4>
-              <div className="space-y-3">
-                 <input type="number" value={simPlafon} onChange={(e) => setSimPlafon(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none" placeholder="Jumlah Pinjaman (Rp)" />
-                 <div className="flex gap-3">
-                    <input type="number" value={simRate} onChange={(e) => setSimRate(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none" placeholder="Bunga %" />
-                    <input type="number" value={simTenor} onChange={(e) => setSimTenor(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none" placeholder="Bulan" />
-                 </div>
-                 <div className="flex items-center justify-between bg-indigo-50 p-3 rounded-xl border border-indigo-100">
-                    <span className="text-[10px] font-black uppercase text-indigo-400">Cicilan/Bulan</span>
-                    <span className="text-lg font-black text-indigo-700">{simResult ? formatValue(simResult) : '-'}</span>
-                 </div>
-                 <div className="flex gap-2">
-                    <button onClick={calculateLoan} className="flex-1 py-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase text-slate-600">Hitung</button>
-                    {simResult && <button onClick={saveLoanToLiability} className="flex-1 py-3 bg-indigo-600 rounded-xl text-[10px] font-black uppercase text-white shadow-lg">Simpan</button>}
-                 </div>
-              </div>
-           </div>
+           <BentoCard className="space-y-4">
+               <DashboardSectionHeader title="Quick Loan Sim" variant="accent" action={<Calculator className="w-4 h-4 text-indigo-500" />} className="px-0 mb-0" />
+               <div className="space-y-3">
+                  <input type="number" value={simPlafon} onChange={(e) => setSimPlafon(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none" placeholder="Jumlah Pinjaman (Rp)" />
+                  <div className="flex gap-3">
+                     <input type="number" value={simRate} onChange={(e) => setSimRate(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none" placeholder="Bunga %" />
+                     <input type="number" value={simTenor} onChange={(e) => setSimTenor(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none" placeholder="Bulan" />
+                  </div>
+                  <div className="flex items-center justify-between bg-indigo-50 p-3 rounded-xl border border-indigo-100">
+                     <span className="text-[10px] font-black uppercase text-indigo-400">Cicilan/Bulan</span>
+                     <span className="text-lg font-black text-indigo-700">{simResult ? formatValue(simResult) : '-'}</span>
+                  </div>
+                  <div className="flex gap-2">
+                     <button onClick={calculateLoan} className="flex-1 py-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black uppercase text-slate-600">Hitung</button>
+                     {simResult && <button onClick={saveLoanToLiability} className="flex-1 py-3 bg-indigo-600 rounded-xl text-[10px] font-black uppercase text-white shadow-lg">Simpan</button>}
+                  </div>
+               </div>
+           </BentoCard>
 
            {/* LIABILITY LIST */}
            <div className="space-y-3">
-              {liabilities.map(l => (
-                 <div key={l.id} className={`bg-white rounded-2xl p-5 border shadow-sm flex items-center justify-between ${l.isPaidThisMonth ? 'border-emerald-200 opacity-60' : 'border-slate-100'}`}>
-                     <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-xl ${l.isPaidThisMonth ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-50 text-rose-500'}`}>
-                           <Banknote className="w-5 h-5" />
+              <DashboardSectionHeader title="Active Liabilities" variant="default" className="px-0" />
+              {liabilities.length === 0 ? (
+                  <div className="text-center py-10 opacity-50">
+                      <ShieldCheck className="w-12 h-12 mx-auto text-slate-300 mb-2" />
+                      <p className="text-xs font-bold text-slate-400">Tidak ada kewajiban aktif.</p>
+                  </div>
+              ) : (
+                  liabilities.map(l => (
+                    <BentoCard noPadding key={l.id} className={`p-5 flex items-center justify-between ${l.isPaidThisMonth ? 'border-emerald-200 opacity-60' : ''}`}>
+                        <div className="flex items-center gap-4">
+                            <div className={`p-3 rounded-xl ${l.isPaidThisMonth ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-50 text-rose-500'}`}>
+                                <Banknote className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h5 className="font-black text-slate-800 text-sm">{l.name}</h5>
+                                <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Due: Tgl {l.dueDate}</p>
+                            </div>
                         </div>
-                        <div>
-                           <h5 className="font-black text-slate-800 text-sm">{l.name}</h5>
-                           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Due: Tgl {l.dueDate}</p>
+                        <div className="text-right">
+                            <p className={`text-sm font-black ${l.isPaidThisMonth ? 'text-emerald-600' : 'text-slate-900'}`}>{formatValue(l.amount)}</p>
+                            <button onClick={() => toggleLiabilityPaid(l.id)} className="text-[9px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded mt-1">{l.isPaidThisMonth ? 'Lunas' : 'Bayar'}</button>
                         </div>
-                     </div>
-                     <div className="text-right">
-                        <p className={`text-sm font-black ${l.isPaidThisMonth ? 'text-emerald-600' : 'text-slate-900'}`}>{formatValue(l.amount)}</p>
-                        <button onClick={() => toggleLiabilityPaid(l.id)} className="text-[9px] font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded mt-1">{l.isPaidThisMonth ? 'Lunas' : 'Bayar'}</button>
-                     </div>
-                 </div>
-              ))}
+                    </BentoCard>
+                  ))
+              )}
            </div>
         </div>
       )}
@@ -474,7 +480,7 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
       {activeSubTab === 'strategy' && (
         <div className="space-y-6 animate-in slide-in-from-right duration-500">
            {/* SLIDERS */}
-           <div className="bg-white rounded-[2.5rem] border border-slate-200 p-6 shadow-sm space-y-6">
+           <BentoCard className="space-y-6">
               <div>
                  <div className="flex justify-between items-center mb-2">
                     <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Target Jual Harian</span>
@@ -487,7 +493,7 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
                  <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1 block">Biaya Tetap (Gaji+Listrik)</span>
                  <input type="number" value={monthlyFixedCost} onChange={(e) => setMonthlyFixedCost(Number(e.target.value))} className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none" />
               </div>
-           </div>
+           </BentoCard>
 
            {/* RESULT CARDS */}
            <div className="grid grid-cols-2 gap-4">

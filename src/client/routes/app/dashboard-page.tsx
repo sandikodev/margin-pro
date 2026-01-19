@@ -1,6 +1,6 @@
 import React from 'react';
 import { DashboardView } from './index';
-import { useProjects } from '../../hooks/useProjects';
+
 import { useMarketplace } from '../../hooks/useMarketplace';
 import { useCurrency } from '../../hooks/useCurrency';
 import { INITIAL_MARKETPLACE } from '../../lib/constants';

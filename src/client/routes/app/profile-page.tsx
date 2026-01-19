@@ -3,7 +3,7 @@ import { MerchantProfile } from './profile';
 import { useMarketplace } from '../../hooks/useMarketplace';
 import { useSettings } from '../../hooks/useSettings';
 import { useAuth } from '../../hooks/useAuth';
-import { useToast } from '../../context/ToastContext';
+import { useToast } from '../../context/toast-context';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../lib/client';
 import { BusinessProfile } from '@shared/types';

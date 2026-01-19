@@ -1,9 +1,9 @@
 
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Liability, CashflowRecord } from '@shared/types';
 import { FINANCIAL_DEFAULTS } from '@shared/constants';
 import { api } from '../lib/client';
-import { useToast } from '../context/ToastContext';
 
 export const useFinance = (activeBusinessId?: string) => {
   const queryClient = useQueryClient();
@@ -19,8 +19,7 @@ export const useFinance = (activeBusinessId?: string) => {
       const res = await (api as any).finance.liabilities.$get({ query: { businessId } });
       if (!res.ok) return [];
       const data = await res.json();
-      // Convert dates/types if needed (server sends number timestamp)
-      return data.map((l: any) => ({ ...l, amount: Number(l.amount) })) as unknown as Liability[];
+      return (data as unknown as any[]).map((l) => ({ ...l, amount: Number(l.amount) })) as Liability[];
     },
     enabled: !!businessId
   });
@@ -36,17 +35,6 @@ export const useFinance = (activeBusinessId?: string) => {
     enabled: !!businessId
   });
 
-  // Settings come from Business Profile directly now?
-  // We can fetch business data optionally or assume it's passed down?
-  // Ideally, useProfile handles business data. 
-  // But useFinance exposes `setMonthlyFixedCost`.
-  // Let's implement setMonthlyFixedCost to update the Business via api.businesses.
-
-  // NOTE: We don't fetch business data here to avoid duplication.
-  // The consumer should likely pass `monthlyFixedCost` from `useProfile`.
-  // BUT for backward compatibility, we can expose generic state or fetch it.
-  // Let's rely on the consumer (DashboardPage) to pass these if needed, OR fetch business here.
-  // Fetching here is safer for isolation.
   const { data: financeSettings } = useQuery({
     queryKey: ['business', businessId, 'finance-settings'],
     queryFn: async () => {
@@ -70,7 +58,6 @@ export const useFinance = (activeBusinessId?: string) => {
     staleTime: 1000 * 60 * 5
   });
 
-
   // --- MUTATIONS ---
 
   const createLiabilityMutation = useMutation({
@@ -81,7 +68,7 @@ export const useFinance = (activeBusinessId?: string) => {
     onMutate: async (newItem) => {
       await queryClient.cancelQueries({ queryKey: ['liabilities', businessId] });
       const prev = queryClient.getQueryData(['liabilities', businessId]);
-      queryClient.setQueryData(['liabilities', businessId], (old: any) => [...(old || []), newItem]);
+      queryClient.setQueryData(['liabilities', businessId], (old: Liability[] | undefined) => [...(old || []), newItem]);
       return { prev };
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['liabilities', businessId] })
@@ -98,8 +85,8 @@ export const useFinance = (activeBusinessId?: string) => {
     onMutate: async (item) => {
       await queryClient.cancelQueries({ queryKey: ['liabilities', businessId] });
       const prev = queryClient.getQueryData(['liabilities', businessId]);
-      queryClient.setQueryData(['liabilities', businessId], (old: any) =>
-        old?.map((x: Liability) => x.id === item.id ? item : x)
+      queryClient.setQueryData(['liabilities', businessId], (old: Liability[] | undefined) =>
+        old?.map((x) => x.id === item.id ? item : x)
       );
       return { prev };
     },
@@ -121,7 +108,7 @@ export const useFinance = (activeBusinessId?: string) => {
     onMutate: async (newItem) => {
       await queryClient.cancelQueries({ queryKey: ['cashflow', businessId] });
       const prev = queryClient.getQueryData(['cashflow', businessId]);
-      queryClient.setQueryData(['cashflow', businessId], (old: any) => [...(old || []), newItem]);
+      queryClient.setQueryData(['cashflow', businessId], (old: CashflowRecord[] | undefined) => [...(old || []), newItem]);
       return { prev };
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['cashflow', businessId] })
@@ -137,26 +124,16 @@ export const useFinance = (activeBusinessId?: string) => {
   // Settings Mutation (Updates Business Data)
   const updateSettingsMutation = useMutation({
     mutationFn: async (settings: { monthlyFixedCost?: number, currentSavings?: number }) => {
-      // We need to fetch current business data first to merge? 
-      // Or server handles merge? Server usually replaces 'data' JSON if we send it.
-      // Ideally we need a specific endpoint for PATCHing data, or we ensure we send full data.
-      // Hono RPC for business update expects FULL data or partial?
-      // Our route was: ...set({ ...body.data ... })
-      // So if we send only { monthlyFixedCost: 100 }, we might wipe address!
-      // CRITICAL: We need to merge on client or server.
-      // Since we don't have partial JSON update on server (SQLite limitation often, but Drizzle can do it if logic exists),
-      // We should fetch, merge, update.
-
       const currentBizRes = await (api as any).businesses[':id'].$get({ param: { id: businessId } });
       const currentBiz = await currentBizRes.json();
+      const existingData = currentBiz.data;
 
-      // We must send a full valid payload or a partial that matches schema?
-      // The schema has required fields (name, type).
-      // So we must merge with currentBiz.
+      // Ensure we have data before merging
+      if (!existingData) throw new Error("Business not found");
 
       const payload = {
-        ...currentBiz, // Spread root fields (name, type, etc)
-        ...settings // Overwrite finance settings (monthlyFixedCost) directly at root (zod schema expects them at root now)
+        ...existingData,
+        ...settings
       };
 
       await (api as any).businesses[':id'].$put({
@@ -176,7 +153,7 @@ export const useFinance = (activeBusinessId?: string) => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['business', businessId, 'finance-settings'] });
-      queryClient.invalidateQueries({ queryKey: ['businesses'] }); // Invalidate profile too
+      queryClient.invalidateQueries({ queryKey: ['businesses'] });
     }
   });
 
@@ -196,16 +173,11 @@ export const useFinance = (activeBusinessId?: string) => {
     }
   };
 
-  const setLiabilities = (_newData: Liability[] | ((prev: Liability[]) => Liability[])) => {
-    // Compatibility shim for direct set state. 
-    // Ideally we shouldn't use this anymore, but if code relies on it:
-    // We can't really support functional updates for generic bulk set easily.
-    // Assuming it's used for adding/updating?
-    // If code calls setLiabilities([...prev, new]), we should use AddMutation.
+  const setLiabilities = () => {
     console.warn("setLiabilities called - use specific add/update methods instead.");
   };
 
-  const setCashflow = (_newData: any) => {
+  const setCashflow = () => {
     console.warn("setCashflow called - use addCashflow instead");
   };
 

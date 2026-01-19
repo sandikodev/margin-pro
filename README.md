@@ -1,5 +1,5 @@
 # 🚀 Margins Pro
-### Intelligence Pricing SaaS untuk UMKM Kuliner
+### Intelligence Pricing System untuk UMKM Kuliner
 
 <div align="center">
   <img src="https://placehold.co/1200x400/4f46e5/white?text=MARGINS+PRO+Codebase" alt="Margins Pro Banner" width="100%" />

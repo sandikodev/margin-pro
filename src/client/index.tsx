@@ -3,9 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { queryClient, persister } from './lib/query-client';
-import { ToastProvider } from './components/ui/Toast';
 import { ConfigProvider } from './context/ConfigProvider';
-import { AuthProvider } from './context/AuthProvider';
 import './index.css';
 import App from './App';
 
@@ -22,11 +20,7 @@ root.render(
       persistOptions={{ persister }}
     >
       <ConfigProvider>
-        <AuthProvider>
-          <ToastProvider>
-            <App />
-          </ToastProvider>
-        </AuthProvider>
+        <App />
       </ConfigProvider>
     </PersistQueryClientProvider>
   </React.StrictMode>

@@ -6,7 +6,7 @@ import { cleanAIJSON } from '../lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/client';
 import { STORAGE_KEYS } from '@shared/constants';
-import { useToast } from '../context/ToastContext';
+import { useToast } from '../context/toast-context';
 
 const DEFAULT_PROJECT_STATE: Project = {
   id: 'temp-fallback',
@@ -129,7 +129,7 @@ export const useProjects = (activeBusinessId?: string) => {
       const res = await api.projects[':id'].$put({
         param: { id },
         json: toApiPayload(json)
-      });
+      } as any);
       if (!res.ok) throw new Error("Failed to update");
       return await res.json();
     },

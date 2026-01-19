@@ -1,6 +1,7 @@
 import React from 'react';
 import { BarChart3, Target, CalendarDays, Scale, ShieldCheck, Clock } from 'lucide-react';
 import { Project, ProductionConfig, PeriodType } from '@shared/types';
+import { BentoCard } from '../ui/design-system/BentoCard';
 
 interface OperationalContextProps {
   activeProject: Project;
@@ -11,7 +12,10 @@ interface OperationalContextProps {
 
 export const OperationalContext: React.FC<OperationalContextProps> = ({ activeProject, updateProject, prodConfig, style }) => {
   return (
-    <div style={style} className="bg-slate-900 rounded-[2rem] lg:rounded-[2.5rem] p-5 lg:p-8 text-white shadow-2xl relative overflow-hidden group">
+    <BentoCard 
+        style={style} 
+        className="bg-slate-900 border-slate-800 text-white shadow-2xl group"
+    >
         <div className="relative z-10 flex flex-col gap-5 lg:gap-6">
           
           {/* Header Section (Simplified) */}
@@ -94,6 +98,6 @@ export const OperationalContext: React.FC<OperationalContextProps> = ({ activePr
         
         {/* Background Decor */}
         <Scale className="absolute -bottom-12 -right-12 w-48 h-48 lg:w-64 lg:h-64 text-white/5 rotate-12 pointer-events-none group-hover:rotate-6 transition-transform duration-700" />
-      </div>
+      </BentoCard>
   );
 };

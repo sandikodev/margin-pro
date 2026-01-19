@@ -1,7 +1,7 @@
-
 import React from 'react';
 import { Coffee, Utensils, Star, Heart, BadgeCheck, Download, TrendingUp, Zap, Coins } from 'lucide-react';
 import { MarketplaceItem } from '@shared/types';
+import { BentoCard } from '@/components/ui/design-system/BentoCard';
 
 interface MarketItemCardProps {
   item: MarketplaceItem;
@@ -15,7 +15,7 @@ export const MarketItemCard: React.FC<MarketItemCardProps> = ({
   item, handleBuyItem, formatValue, isWishlisted, toggleWishlist 
 }) => {
   return (
-    <div className="bg-white rounded-[2.2rem] border border-slate-100 p-5 shadow-sm hover:shadow-xl transition-all duration-300 group relative overflow-hidden active:scale-[0.98] hover:-translate-y-1">
+    <BentoCard noPadding className="p-5 hover:shadow-xl transition-all duration-300 group relative active:scale-[0.98] hover:-translate-y-1">
       <div className="flex gap-4">
         {/* Visual Thumbnail */}
         <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-slate-50 border border-slate-100 flex items-center justify-center relative shrink-0 overflow-hidden group-hover:border-indigo-200 transition-colors">
@@ -82,6 +82,6 @@ export const MarketItemCard: React.FC<MarketItemCardProps> = ({
           Unlock <Zap className="w-3 h-3 fill-yellow-400 stroke-yellow-400" />
         </button>
       </div>
-    </div>
+    </BentoCard>
   );
 };
