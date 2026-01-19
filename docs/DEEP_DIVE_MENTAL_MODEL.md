@@ -196,7 +196,40 @@ Berikut adalah panduan lengkap istilah teknis, bisnis, dan desain yang dikelompo
 
 ---
 
-### 🛠️ Dunia DevOps & Tooling (Dapur Produksi)
+### �️ Dunia Data & Keamanan (Fortress)
+*Istilah tentang bagaimana data disimpan dan dilindungi dari orang jahat.*
+
+| Istilah | Definisi dalam Konteks Keamanan |
+| :--- | :--- |
+| **ACID** | Prinsip Transaksi Database (Atomic, Consistent, Isolated, Durable). Jaminan kalau beli barang gagal, saldo gak boleh kepotong. "Semua sukses atau batal sama sekali". |
+| **ORM (Object-Relational Mapping)** | Penerjemah Bahasa. Mengubah kode JavaScript (objek) menjadi bahasa Alien Database (SQL) secara otomatis (cth: Drizzle). |
+| **N+1 Problem** | Masalah Performa Klasik. Niat ambil 10 user beserta alamatnya, malah database ditembak 11 kali (1x list user + 10x masing-masing user). |
+| **JWT (JSON Web Token)** | Kartu Identitas Digital. User membawa "surat jalan" ini kemana-mana. Server tidak perlu mencatat (Stateless), cukup verifikasi tanda tangannya. |
+| **Session** | Buku Tamu. Server mencatat siapa saja yang sedang login di memori/database. Kalau server restart, semua orang logout. |
+| **Encryption vs Hashing** | Enkripsi = Mengunci pesan (bisa dibuka lagi pakai kunci). Hashing = Memblender pesan (tidak bisa dikembalikan ke bentuk asal, cth: password). |
+| **Zero Trust** | "Jangan Percaya Siapapun". Filosofi keamanan yang menganggap semua orang (bahkan karyawan dalam kantor) adalah potensi ancaman sampai terbukti tidak. |
+| **SQL Injection** | Trik Hacker. Menyisipkan perintah database berbahaya lewat kolom inputan form (cth: isi username dengan kode penghapus tabel). |
+| **DDOS** | Serangan Zombie. Membanjiri server dengan jutaan trafik palsu secara bersamaan sampai servernya tewas (down). |
+
+---
+
+### 🤖 Dunia AI & Kecerdasan Buatan (The Brain)
+*Istilah seputar teknologi masa depan yang sedang kita integrasikan.*
+
+| Istilah | Definisi dalam Konteks AI |
+| :--- | :--- |
+| **LLM (Large Language Model)** | Otak Raksasa. Model AI yang dilatih dengan "membaca" hampir seluruh internet, sehingga bisa memprediksi kata selanjutnya dengan fasih (cth: GPT-4). |
+| **RAG (Retrieval-Augmented Generation)** | "Mencontek Buku". Teknik memberi LLM data tambahan (dokumen PDF/Database kita) sebelum dia menjawab, agar jawabannya akurat dan tidak mengarang. |
+| **Hallucination** | Halusinasi. Momen ketika AI menjawab dengan sangat percaya diri, padahal jawabannya salah total atau ngawur. |
+| **Embeddings** | Penerjemah Makna. Mengubah teks "Kucing" menjadi deretan angka [0.1, 0.9, ...] agar komputer mengerti konsepnya (bahwa Kucing dekat dengan Anjing, jauh dari Mobil). |
+| **Vector Database** | Perpustakaan Makna. Database khusus (spt Pinecone) untuk menyimpan angka-angka Embeddings tadi. Dipakai untuk fitur "Pencarian Semantik". |
+| **Prompt Engineering** | Seni Berbisik. Keahlian merangkai kata-kata perintah yang tepat agar AI menghasilkan output sesuai keinginan kita. |
+| **Token** | Potongan Kata. Cara AI menghitung biaya. Kira-kira 100 kata bahasa Inggris = 75 token. |
+| **Fine-tuning** | Sekolah Khusus. Melatih ulang model AI umum (Generalis) dengan data spesifik kita agar dia jadi Spesialis di bidang tertentu. |
+
+---
+
+### �🛠️ Dunia DevOps & Tooling (Dapur Produksi)
 *Istilah tentang alat-alat dan proses membuat software.*
 
 | Istilah | Definisi dalam Konteks Development |
