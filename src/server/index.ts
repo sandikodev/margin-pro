@@ -101,23 +101,13 @@ app.get("*", async (c, next) => {
             html = "<html><body>Error loading app (Edge Fetch)</body></html>";
         }
     } else if (process.env.NODE_ENV === "production") {
-        // Local Production (Node/Bun)
-        try {
-            // @ts-ignore
-            html = await Bun.file("./dist/index.html").text();
-        } catch {
-            const fs = await import("fs/promises");
-            html = await fs.readFile("./dist/index.html", "utf-8");
-        }
+        // Local Production (Bun)
+        // @ts-ignore
+        html = await Bun.file("./dist/index.html").text();
     } else {
-        // Local Development
-        try {
-            // @ts-ignore
-            html = await Bun.file("index.html").text();
-        } catch {
-            const fs = await import("fs/promises");
-            html = await fs.readFile("index.html", "utf-8");
-        }
+        // Local Development (Bun)
+        // @ts-ignore
+        html = await Bun.file("index.html").text();
 
         // Inject Vite Client & React Preamble
         html = html.replace(
