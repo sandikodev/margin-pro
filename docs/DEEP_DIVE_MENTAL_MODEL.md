@@ -124,11 +124,17 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 ### C. Backend & Arsitektur Sistem
 | Istilah | Penjelasan Sederhana |
 | :--- | :--- |
-| **Monorepo** | Strategi menyimpan kode backend dan frontend dalam satu folder besar agar mudah dikelola bersama. |
+| **Monolith (Monolitik)** | Arsitektur di mana seluruh aplikasi (database, backend, frontend) digabung jadi satu bongkahan raksasa. Mudah di awal, susah dipecah nanti. |
+| **Microservices** | Memecah aplikasi raksasa menjadi layanan-layanan kecil yang saling bicara (misal: Service User, Service Pembayaran). Kompleks tapi scalable. |
+| **Serverless** | Model di mana Anda hanya upload kode fungsi, dan cloud provider yang mengurus servernya (hidup saat dipanggil, mati saat sepi). |
+| **Edge Computing** | Menjalankan kode backend di server yang secara fisik paling dekat dengan lokasi user (misal: user Jakarta dilayani server Singapura, bukan AS). |
+| **Monorepo** | Strategi menyimpan kode backend dan frontend dalam satu folder besar agar mudah dikelola bersama (seperti yang kita lakukan sekarang). |
 | **Agnostik** | Sifat aplikasi yang tidak "pilih-pilih" tempat tinggal; bisa jalan di server mana pun tanpa banyak ubahan. |
 | **RPC (Remote Procedure Call)** | Cara frontend memanggil fungsi backend seolah-olah fungsi itu ada di komputer lokalnya. |
 | **Idempotent** | Operasi yang jika dilakukan berkali-kali memberikan hasil yang tetap sama (misal: tombol save yang tidak membuat data ganda). |
 | **Single Source of Truth** | Prinsip di mana data hanya disimpan di satu tempat, sehingga semua orang merujuk ke data yang pasti valid. |
+| **CQRS (Command Query Responsibility Segregation)** | Memisahkan jalur "Baca Data" dan "Tulis Data" menjadi dua sistem berbeda untuk performa maksimal. |
+| **Event-Driven** | Arsitektur di mana komponen saling berkomunikasi dengan cara meneriakkan "Kejadian" (Event) tanpa peduli siapa yang mendengarkan. |
 | **Race Condition** | Bug yang terjadi ketika hasil akhir tergantung pada urutan/waktu eksekusi yang tidak terduga dari dua proses cepat. |
 
 ### D. Frontend Modern (Beyond React)
