@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { User } from '@shared/types';
 import { api } from '../lib/client';
 import { AuthContext } from './auth-context';
+import { queryClient } from '../lib/query-client';
+import { STORAGE_KEYS } from '@shared/constants';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -14,11 +16,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const res = await (api as any).auth.me.$get();
         if (res.ok) {
-           const data = await res.json();
-           if (data.user) {
-             setUser(data.user as unknown as User);
-             setIsAuthenticated(true);
-           }
+          const data = await res.json();
+          if (data.user) {
+            setUser(data.user as unknown as User);
+            setIsAuthenticated(true);
+          }
         }
       } catch (e) {
         console.error("Session check failed", e);
@@ -26,32 +28,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(false);
       }
     };
-    
+
     checkSession();
   }, []);
 
   const login = (token: string, newUser: User) => {
+    // Clear any previous session data from cache
+    queryClient.clear();
+
+    // Clear all session-specific local storage
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('margin_pro_')) {
+        localStorage.removeItem(key);
+      }
+    });
+
     setUser(newUser);
     setIsAuthenticated(true);
   };
 
   const logout = async () => {
     try {
-        await (api as any).auth.logout.$post();
-    } catch(e) { console.error("Logout API failed", e); }
-    
+      await (api as any).auth.logout.$post();
+    } catch (e) { console.error("Logout API failed", e); }
+
+    // Reset Client State
+    queryClient.clear();
+
+    // Clear all session-specific local storage
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith('margin_pro_')) {
+        localStorage.removeItem(key);
+      }
+    });
+
     setUser(null);
     setIsAuthenticated(false);
-    
-    localStorage.removeItem('margin_pro_auth'); 
-    localStorage.removeItem('margin_pro_is_demo');
-    
+
     window.location.href = '/auth';
   };
 
   const hasRole = (requiredRole: User['role']) => {
     if (!user || !user.role) return false;
-    if (user.role === 'admin' || user.role === 'super_admin') return true; 
+    if (user.role === 'admin' || user.role === 'super_admin') return true;
     return user.role === requiredRole;
   };
 
