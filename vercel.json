@@ -1,13 +1,13 @@
-
 {
+  "version": 2,
   "rewrites": [
     {
-      "source": "/api/:match*",
-      "destination": "http://localhost:8000/api/:match*"
+      "source": "/(assets|public|favicon.ico)/(.*)",
+      "destination": "/$1/$2"
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/api/index.ts"
     }
   ],
   "headers": [

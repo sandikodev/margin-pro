@@ -9,6 +9,7 @@ import { paymentRoutes } from "./routes/payment";
 import { financeRoutes } from "./routes/finance";
 import { marketplaceRoutes } from "./routes/marketplace";
 import { getSession } from "./middleware/session";
+import { serveStatic } from "@hono/node-server/serve-static";
 
 import { securityHeaders, requestLogger, apiLimiter } from "./middleware/security";
 
@@ -44,65 +45,72 @@ export const api = app.basePath("/api")
     .route("/admin", adminRoutes)
     .route("/midtrans", paymentRoutes);
 
-// --- SEO & Static File Serving ---
+// --- Static File Serving & SEO ---
+
+// Serve static assets from public/assets in production
+if (process.env.NODE_ENV === "production") {
+    app.use("/assets/*", serveStatic({ root: "./dist" }));
+    app.use("*", serveStatic({ root: "./public" }));
+}
 
 // Middleware to inject SEO tags & Handle Auth Replacements
-app.use("*", async (c, next) => {
+app.get("*", async (c, next) => {
     const url = new URL(c.req.url);
 
-    // Skip API routes (handled above)
+    // Skip API routes
     if (url.pathname.startsWith("/api")) {
-        await next();
-        return;
+        return next();
     }
 
-    // --- NEW: Next.js-like Middleware Gatekeeper ---
-    // Protected Routes: /app*, /system*
+    // Protected Routes Gatekeeper
     if (url.pathname.startsWith("/app") || url.pathname.startsWith("/system")) {
         const session = await getSession(c);
         if (!session) {
-            // Server-Side Redirect!
             return c.redirect("/auth");
         }
-
-        // Additional: Protect /system for admins/super_admins only
-        if (url.pathname.startsWith("/system") && session.role !== "super_admin") {
-            return c.redirect("/app"); // Fallback to user app
+        if (url.pathname.startsWith("/system") && session.role !== "admin" && session.role !== "super_admin") {
+            return c.redirect("/app");
         }
     }
-    // -----------------------------------------------
 
-    // Define default SEO tags
-    const title = "Margin Pro - Intelligence Pricing SaaS";
+    // Default SEO tags
+    const title = "Margin Pro - Intelligence Pricing System";
     const description = "Hitung profit margin, simulasi harga, dan atur keuangan bisnis kuliner & retail anda.";
-    const image = "https://placehold.co/1200x630/4f46e5/white?text=Margin+Pro"; // Placeholder
+    const image = "https://placehold.co/1200x630/4f46e5/white?text=Margin+Pro";
 
     let html = "";
 
     if (process.env.NODE_ENV === "production") {
-        // In production, read from dist/index.html
-        // implementation pending deployment setup
         try {
+            // Priority 1: Check if we are running from dist/server/ (bundled)
+            // In a bundle, ./index.html usually refers to the root relative to the CWD
             html = await Bun.file("./dist/index.html").text();
         } catch {
-            // Fallback for containerized envs if needed
-            return c.text("Production build not found", 404);
+            try {
+                // If running in Node-like enviroment (Vercel)
+                const fs = await import("fs/promises");
+                const path = await import("path");
+                // Attempt to resolve based on common Vercel/Node structures
+                const indexPath = path.resolve(process.cwd(), "dist/index.html");
+                html = await fs.readFile(indexPath, "utf-8");
+            } catch {
+                return c.text("Production build index.html not found", 404);
+            }
         }
     } else {
-        // In Dev, fetch from Vite Server
+        // In Dev mode, Vite dev server is on the same port thanks to @hono/vite-dev-server
+        // But Hono itself handles the request. We don't need to fetch from localhost:5173
+        // Actually, @hono/vite-dev-server injects its own logic, but for custom HTML
+        // we might still need the base template.
         try {
-            const viteUrl = "http://localhost:5173" + url.pathname;
-            const res = await fetch(viteUrl);
-            if (!res.ok) return c.text("Vite dev server not running or page not found", 404);
-            html = await res.text();
+            html = await Bun.file("index.html").text();
         } catch {
-            return c.text("Failed to connect to Vite dev server", 500);
+            const fs = await import("fs/promises");
+            html = await fs.readFile("index.html", "utf-8");
         }
     }
 
-
     // Inject Tags
-    // Simple regex replacement for better performance than parsing DOM
     html = html.replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
         .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="${description}">`)
         .replace(/<meta property="og:title" content=".*?">/, `<meta property="og:title" content="${title}">`)

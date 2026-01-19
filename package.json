@@ -4,14 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"bun run dev:frontend\" \"bun run dev:api\"",
-    "dev:frontend": "vite",
-    "dev:api": "bun run --watch --port 8000 src/server/index.ts",
-    "build": "vite build",
+    "dev": "vite",
+    "build": "bun run build:client && bun run build:server",
+    "build:client": "vite build",
+    "build:server": "tsdown src/server/index.ts --format esm --out-dir dist/server --clean --platform node",
     "lint": "eslint .",
     "validate": "bun run lint && bun x tsc --noEmit && bun run build",
     "test": "npx playwright test",
-    "preview": "vite preview"
+    "preview": "NODE_ENV=production bun dist/server/index.mjs"
   },
   "dependencies": {
     "@google/genai": "^1.35.0",
@@ -21,6 +21,8 @@
     "@tanstack/query-sync-storage-persister": "^5.90.21",
     "@tanstack/react-query": "^5.90.16",
     "@tanstack/react-query-persist-client": "^5.90.21",
+    "@types/canvas-confetti": "^1.9.0",
+    "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.1",
     "framer-motion": "^12.26.2",
@@ -43,6 +45,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
+    "@hono/node-server": "^1.19.9",
+    "@hono/vite-dev-server": "^0.24.1",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.0.0",
     "@testing-library/dom": "^10.4.1",
@@ -60,6 +64,7 @@
     "globals": "^17.0.0",
     "jsdom": "^27.4.0",
     "tailwindcss": "^4.0.0",
+    "tsdown": "^0.20.0-beta.3",
     "typescript": "~5.8.2",
     "typescript-eslint": "^8.53.0",
     "vite": "^6.2.0",
