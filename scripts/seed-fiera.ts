@@ -1,4 +1,4 @@
-
+import { hash } from "bcrypt-ts";
 import { db } from "../src/server/db";
 import { users, businesses, projects } from "../src/server/db/schema";
 import { eq } from "drizzle-orm";
@@ -18,11 +18,11 @@ async function seedFiera() {
 
     if (!user) {
         console.log(`User ${TARGET_EMAIL} not found. Creating...`);
-        const passwordHash = await Bun.password.hash("password123");
-        
+        const passwordHash = await hash("password123", 10);
+
         // Generate a simple ID
         const userId = `user-${Date.now()}`;
-        
+
         await db.insert(users).values({
             id: userId,
             email: TARGET_EMAIL,
@@ -32,11 +32,11 @@ async function seedFiera() {
             referralCode: TARGET_REF_CODE,
             permissions: [],
         });
-        
+
         user = await db.query.users.findFirst({
             where: eq(users.email, TARGET_EMAIL)
         });
-        
+
         if (!user) throw new Error("Failed to create user");
         console.log(`✅ User created: ${user.id}`);
     } else {
@@ -54,7 +54,7 @@ async function seedFiera() {
     if (!business) {
         console.log(`Business '${BUSINESS_NAME}' not found. Creating...`);
         const businessId = `biz-${Date.now()}`;
-        
+
         await db.insert(businesses).values({
             id: businessId,
             userId: user.id,
@@ -86,10 +86,10 @@ async function seedFiera() {
         costs: [
             // Protein (Ayam)
             { id: '1', name: 'Ayam Broiler (Range Fluktuatif)', amount: 68000, minAmount: 66000, maxAmount: 70000, isRange: true, allocation: 'bulk', batchYield: 40, bulkUnit: 'units' }, // portions -> units
-            
+
             // Carbohydrate
             { id: '2', name: 'Beras (Weekly Usage)', amount: 42000, allocation: 'bulk', batchYield: 40, bulkUnit: 'units' },
-            
+
             // Packaging Complex
             { id: '9', name: 'Bowl + Tutup (Pack 20pcs)', amount: 12500, minAmount: 10000, maxAmount: 15000, isRange: true, allocation: 'bulk', batchYield: 20, bulkUnit: 'units' },
             { id: '10', name: 'Cup 22oz (50pcs)', amount: 15000, allocation: 'bulk', batchYield: 50, bulkUnit: 'units' },
@@ -100,7 +100,7 @@ async function seedFiera() {
             { id: '4', name: 'Tepung Terigu (1kg)', amount: 10000, allocation: 'bulk', batchYield: 40, bulkUnit: 'units' },
             { id: '5', name: 'Saus & Bumbu', amount: 20000, allocation: 'bulk', batchYield: 40, bulkUnit: 'units' },
             { id: '6', name: 'Sayur & Pelengkap', amount: 25000, allocation: 'bulk', batchYield: 40, bulkUnit: 'units' },
-            
+
             // Operational using 'DAYS' unit
             { id: '7', name: 'Gas LPG (Habis 5 Hari)', amount: 22000, allocation: 'bulk', batchYield: 5, bulkUnit: 'days' },
             { id: '8', name: 'Bensin Ops (Habis 5 Hari)', amount: 25000, allocation: 'bulk', batchYield: 5, bulkUnit: 'days' },

@@ -1,4 +1,4 @@
-
+import { hash } from "bcrypt-ts";
 import { db } from "../src/server/db";
 import { users, businesses, projects, liabilities, cashflow } from "../src/server/db/schema";
 import { eq, and } from "drizzle-orm";
@@ -14,17 +14,22 @@ async function seedDemoOnboarding() {
         where: eq(users.email, TARGET_EMAIL)
     });
 
+    const passwordHash = await hash("demo_access_2025", 10);
+
     if (!user) {
         console.log("Creating user...");
         await db.insert(users).values({
             id: USER_ID,
             email: TARGET_EMAIL,
             name: "Lumina Owner",
-            password: "demo_access_2025",
+            password: passwordHash,
             role: "user",
             referralCode: "LUMINA2025",
             permissions: ["demo_mode"]
         });
+    } else {
+        // Update password if user exists to ensure it's hashed
+        await db.update(users).set({ password: passwordHash }).where(eq(users.id, USER_ID));
     }
 
     const businessScenarios = [
