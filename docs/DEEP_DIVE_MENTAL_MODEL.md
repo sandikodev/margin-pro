@@ -236,6 +236,14 @@ Berikut adalah panduan lengkap istilah teknis, bisnis, dan desain yang dikelompo
 | **Zero Trust** | "Jangan Percaya Siapapun". Filosofi keamanan yang menganggap semua orang (bahkan karyawan dalam kantor) adalah potensi ancaman sampai terbukti tidak. |
 | **SQL Injection** | Trik Hacker. Menyisipkan perintah database berbahaya lewat kolom inputan form (cth: isi username dengan kode penghapus tabel). |
 | **DDOS** | Serangan Zombie. Membanjiri server dengan jutaan trafik palsu secara bersamaan sampai servernya tewas (down). |
+| **Hardening** | Pengerasan Benteng. Proses mengunci semua celah keamanan yang tidak perlu, update software, dan memasang firewall. "Sedia payung sebelum hujan". |
+| **Penetration Testing (Pentest)** | Simulasi Maling. Menyewa hacker baik (White Hat) untuk mencoba membobol sistem kita demi menemukan lubang sebelum maling beneran datang. |
+| **Vulnerability** | Celah Kelemahan. Lubang di pagar sistem yang bisa dimasuki tikus atau maling. |
+| **Exploit** | Alat Pembobol. Kode/Script khusus yang dibuat memanfaakan *Vulnerability* untuk masuk paksa ke sistem. |
+| **Payload** | Muatan Berbahaya. Kode jahat (virus/malware) yang dibawa oleh *Exploit* untuk diledakkan di dalam server korban. |
+| **CVE (Common Vulnerabilities and Exposures)** | Daftar Buronan. Database global yang mencatat kode-kode cacat di software populer. Hacker dan Sysadmin sama-sama membacanya. |
+| **Firewall / WAF** | Tembok Api. Satpam digital yang memfilter trafik masuk. Kalau ada request aneh (misal dari negara antah berantah), langsung diblokir. |
+| **XSS (Cross-Site Scripting)** | Racun Makanan. Hacker menyisipkan script jahat di halaman web kita, yang kemudian dimakan (dijalankan) oleh browser user lain. |
 
 ---
 
@@ -268,6 +276,13 @@ Berikut adalah panduan lengkap istilah teknis, bisnis, dan desain yang dikelompo
 | **Linting** | Polisi Tata Bahasa. Tool otomatis yang memarahi developer kalau salah ketik atau kodenya berantakan. |
 | **HMR (Hot Module Replacement)** | Edit Langsung Jadi. Ubah kode di editor -> Browser update instan tanpa refresh halaman. |
 | **Cold Start** | Pemanasan Mesin. Jeda waktu yang dibutuhkan server (Function) untuk bangun dari tidur saat pertama kali dipanggil. |
+| **Deployment** | Peluncuran Roket. Proses memindahkan kode dari laptop developer (Lokal) ke server internet (Production) agar bisa diakses dunia. |
+| **Hosting** | Tempat Kost Aplikasi. Layanan penyewaan komputer di internet untuk menaruh file aplikasi kita (cth: Vercel, AWS, DigitalOcean). |
+| **DNS (Domain Name System)** | Buku Telepon Internet. Menerjemahkan nama domain cantik (`marginspro.com`) menjadi alamat IP angka (`192.168.1.1`) agar browser tahu tujuannya. |
+| **Load Balancer** | Polisi Lalu Lintas. Alat yang membagi-bagi trafik pengunjung ke banyak server sekaligus agar tidak ada satu server yang meledak kepenuhan. |
+| **Uptime / SLA** | Janji Layanan. Jaminan seberapa sering server "hidup". 99.9% Uptime artinya server cuma boleh mati 8 jam setahun. |
+| **Latency** | Jeda Waktu (Lag). Waktu yang dibutuhkan data untuk perjalanan dari HP user ke server dan balik lagi. Makin kecil makin bagus. |
+| **Reverse Proxy** | Resepsionis Hotel. Server depan (seperti Nginx/Vercel) yang menerima tamu, lalu mengantarkannya ke kamar (Backend) yang tepat. |
 
 ---
 
