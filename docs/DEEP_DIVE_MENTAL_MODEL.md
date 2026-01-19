@@ -163,6 +163,7 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 | **Mobile First** | Filosofi mendesain tampilan untuk layar HP dulu (ruang sempit), baru diperluas untuk Desktop. |
 | **Responsive vs Adaptive** | Responsive (cair mengikuti lebar layar) vs Adaptive (punya layout fix beda-beda untuk setiap ukuran layar). |
 | **Micro-interactions** | Animasi kecil dan halus (seperti tombol 'like' yang membal) untuk memberikan feedback rasa puas ke user. |
+| **Playful** | Pendekatan desain yang menggunakan warna cerah, animasi membal (bouncy), dan bahasa santai untuk membuat aplikasi terasa "hidup" dan tidak kaku seperti software korporat tua. |
 
 ### F. Developer Culture & Jargon "Nerd"
 | Istilah | Penjelasan Sederhana |
