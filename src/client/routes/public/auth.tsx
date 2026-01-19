@@ -61,8 +61,8 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   // Form State
   const [formData, setFormData] = useState({
     name: '',
-    email: initialEmail || '',
-    password: initialPassword || '',
+    email: initialEmail || (isDemo ? 'owner@lumina.bistro' : ''),
+    password: initialPassword || (isDemo ? 'demo_access_2025' : ''),
     referralCode: initialReferralCode || ''
   });
 
