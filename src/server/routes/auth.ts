@@ -148,7 +148,7 @@ export const auth = new Hono()
             email: demoEmail,
             password: "demo-password-hash-placeholder", // No login possible via password
             role: "user",
-            referralCode: "DEMO123",
+            referralCode: `DEMO-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
             permissions: ["demo_mode"]
         });
 
