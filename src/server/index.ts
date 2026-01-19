@@ -55,7 +55,8 @@ export const api = apiApp;
 // --- Static File Serving & SEO ---
 
 // Serve static assets from public/assets in production
-if (process.env.NODE_ENV === "production") {
+// Skip on Vercel as Vercel handles static assets via vercel.json rewrites more efficiently
+if (process.env.NODE_ENV === "production" && !process.env.VERCEL) {
     app.use("/assets/*", serveStatic({ root: "./dist" }));
     app.use("*", serveStatic({ root: "./public" }));
 }
