@@ -97,11 +97,9 @@ margins-pro/
 ## 🤝 Kontribusi
 
 Kami mengundang developer Indonesia dan komunitas open-source untuk berkontribusi!
-1.  Fork repository ini.
-2.  Buat branch fitur baru (`git checkout -b fitur-keren`).
-3.  Commit perubahan (`git commit -m 'feat: tambah fitur keren'`).
-4.  Push ke branch (`git push origin fitur-keren`).
-5.  Buat Pull Request.
+
+- **[Architecture Guide](docs/ARCHITECTURE.md)**: Blueprint teknis dan struktur folder.
+- **[Mental Model & Glossary](docs/DEEP_DIVE_MENTAL_MODEL.md)**: Kamus istilah dan konsep fundamental.
 
 ---
 

@@ -104,6 +104,18 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 
 Berikut adalah panduan lengkap istilah teknis, bisnis, dan desain yang dikelompokkan berdasarkan "Dunia" masing-masing. Jika ada istilah yang muncul di dua dunia berbeda, itu disengaja karena konteksnya memang berbeda.
 
+### 🌐 Konsep Universal & Pola Pikir (Mindset)
+*Istilah lintas-dimensi yang berlaku di coding, bisnis, desain, maupun kehidupan nyata.*
+
+| Istilah | Definisi Universal |
+| :--- | :--- |
+| **Mental Model** | Peta pikiran sederhana untuk memahami realitas yang rumit. Contoh: Kita membayangkan "listrik" seperti "air yang mengalir" agar mudah dimengerti, meskipun fisika aslinya jauh lebih kompleks. |
+| **Lifecycle (Siklus Hidup)** | Pola "Lahir -> Hidup -> Mati" yang ada di semua hal. Di React: `Mount > Update > Unmount`. Di Bisnis: `Startup > Growth > Exit`. Di User: `Visitor > Customer > Churn`. |
+| **Abstraction** | Seni menyembunyikan kerumitan detail di balik satu tombol sederhana. Kita tidak perlu tahu cara kerja mesin injeksi bensin untuk bisa menyetir mobil (cukup injak gas). |
+| **Feedback Loop** | Putaran aksi-reaksi. Kita melakukan sesuatu -> melihat hasilnya -> belajar/koreksi -> ulangi. Dasar dari semua pembelajaran mesin dan manusia. |
+
+---
+
 ### 🏢 Dunia Bisnis, Produk & Marketing
 *Istilah yang sering didengar di ruangan meeting direksi atau tim growth.*
 
