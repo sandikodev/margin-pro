@@ -51,15 +51,7 @@ app.route("/", apiApp);
 // Export only the API part for RPC Client to infer types from
 export const api = apiApp;
 
-// --- Static File Serving & SEO ---
-
-// Serve static assets from public/assets in production
-// Skip on Vercel as Vercel handles static assets via vercel.json rewrites more efficiently
-if (process.env.NODE_ENV === "production" && !process.env.VERCEL) {
-    const { serveStatic } = await import("@hono/node-server/serve-static");
-    app.use("/assets/*", serveStatic({ root: "./dist" }));
-    app.use("*", serveStatic({ root: "./public" }));
-}
+// --- SEO & Auth Replacement Logic ---
 
 // Middleware to inject SEO tags & Handle Auth Replacements
 app.get("*", async (c, next) => {

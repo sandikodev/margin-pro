@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "bun run build:client && bun run build:server",
+    "build": "bun run build:client && (test -z \"$VERCEL\" && bun run build:server || echo 'Skipping server build on Vercel')",
     "build:client": "vite build",
     "build:server": "tsdown src/server/index.ts --format esm --out-dir dist/server --clean --platform node",
     "lint": "eslint .",
