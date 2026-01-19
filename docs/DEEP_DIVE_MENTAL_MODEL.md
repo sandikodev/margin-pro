@@ -257,15 +257,8 @@ Berikut adalah panduan lengkap istilah teknis, bisnis, dan desain yang dikelompo
 | **Syntactic Sugar** | Pemanis Buatan. Fitur bahasa pemrograman yang fungsinya sama saja, cuma biar kodenya terlihat lebih manis/pendek. |
 | **Rubber Ducking** | Ngomong sama Bebek Karet. Cara debugging dengan menjelaskan masalah baris demi baris ke benda mati sampai solusinya ketemu sendiri. |
 | **Foo / Bar / Baz** | Nama Variabel Asal. Kata-kata nonsense yang dipakai programmer saat memberi contoh kode (variabel X, Y, Z nya programmer). |
-| Istilah | Penjelasan Sederhana |
-| :--- | :--- |
-| **Yak Shaving** | Aktivitas teknis kecil yang tampaknya tidak relevan tapi harus dilakukan sebelum tugas utama bisa selesai (e.g., fix config sebelum coding fitur). |
-| **Bikeshedding** | Membuang waktu mendiskusikan hal sepele (warna tombol) daripada arsitektur berat, karena hal sepele lebih mudah dipahami semua orang. |
-| **Over-engineering** | Membuat solusi super rumit untuk masalah yang sebenarnya sederhana (membunuh nyamuk dengan bazooka). |
-| **Tech Debt** | "Hutang" kode buruk yang kita tulis hari ini demi kecepatan, yang harus "dibayar" (di-refactor) nanti dengan bunga mahal. |
-| **Syntactic Sugar** | Fitur bahasa pemrograman yang dibuat agar kode lebih indah ditulis manusia, padahal fungsinya sama saja. |
-| **Side Effect** | Ketika sebuah fungsi mengubah sesuatu di luar dirinya (e.g., mengubah database, console.log) selain hanya mengembalikan nilai. |
-| **Deterministic** | Sifat sistem yang jika diberi input sama, pasti menghasilkan output sama persis tanpa kejutan (tidak random). |
+| **Side Effect** | Efek Samping. Ketika sebuah fungsi mengubah sesuatu di luar dirinya (e.g., mengubah database, console.log) selain hanya mengembalikan nilai. |
+| **Deterministic** | Pasti & Konsisten. Sifat sistem yang jika diberi input sama, pasti menghasilkan output sama persis tanpa kejutan (tidak random). |
 
 ---
 *Dokumen ini diperbarui terakhir pada: 19 Jan 2026*
