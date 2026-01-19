@@ -102,6 +102,9 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 
 | Istilah | Penjelasan Sederhana |
 | :--- | :--- |
+| **End-to-End (E2E)** | Sistem yang terhubung dari ujung (Database/Backend) sampai ke ujung lainnya (Browser/User) secara utuh tanpa terputus. |
+| **Type Safety** | Jaminan bahwa data yang mengalir dalam aplikasi selalu sesuai dengan tipe yang ditentukan, mencegah error "data tidak dikenal" saat aplikasi jalan. |
+| **DX (Developer Experience)** | Seberapa nyaman dan cepat seorang pengembang saat bekerja dengan sebuah codebase (seperti UX tapi untuk programmer). |
 | **Compiling** | Proses mengubah kode dari bahasa yang dipahami manusia ke bahasa yang dipahami mesin (biasanya biner atau bahasa yang lebih rendah). |
 | **Transpiling** | Mirip kompilasi, tapi mengubah satu bahasa pemrograman ke bahasa lain yang levelnya setara (misal: TypeScript ke JavaScript). |
 | **Linting** | Proses pengecekan kode secara otomatis untuk mencari potensi kesalahan penulisan atau gaya bahasa yang buruk (seperti asisten editor buku). |
@@ -119,6 +122,15 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 | **Agnostik** | Sifat aplikasi yang tidak "pilih-pilih" tempat tinggal; bisa jalan di server mana pun tanpa banyak ubahan. |
 | **RPC** | Cara frontend memanggil fungsi di backend seolah-olah fungsi itu ada di komputernya sendiri (sangat aman dan cepat). |
 | **Hydration** | Proses "menghidupkan" HTML mati dari server menjadi aplikasi React yang interaktif di browser. |
+| **Idempotent** | Operasi yang jika dilakukan satu kali atau berkali-kali memberikan hasil yang tetap sama (misal: tombol save yang tidak membuat data ganda). |
+| **Yak Shaving** | Aktivitas teknis kecil yang tampaknya tidak relevan tapi harus dilakukan sebelum Anda bisa menyelesaikan tugas utama yang sebenarnya. |
+| **Bikeshedding** | Kecenderungan tim untuk menghabiskan terlalu banyak waktu mendiskusikan hal-hal sepele (seperti warna tombol) daripada arsitektur yang berat. |
+| **Over-engineering** | Membuat solusi yang terlalu rumit untuk masalah yang sebenarnya sangat sederhana. |
+| **Syntactic Sugar** | Fitur bahasa pemrograman yang dibuat agar kode lebih mudah/indah ditulis manusia, padahal fungsinya tetap sama saja. |
+| **Race Condition** | Bug yang terjadi ketika hasil akhir tergantung pada urutan atau waktu eksekusi yang tidak terduga dari dua proses yang berjalan bersamaan. |
+| **Side Effect** | Ketika sebuah fungsi mengubah sesuatu di luar dirinya (seperti mengubah database atau variabel global) selain hanya mengembalikan data. |
+| **Deterministic** | Sifat sistem yang jika diberi input yang sama, pasti akan selalu menghasilkan output yang sama persis tanpa kejutan. |
+| **Single Source of Truth** | Prinsip di mana sebuah data hanya disimpan di satu tempat, sehingga semua orang merujuk ke data yang pasti valid dan tidak ada duplikasi. |
 
 ---
 *Dokumen ini diperbarui terakhir pada: 19 Jan 2026*
