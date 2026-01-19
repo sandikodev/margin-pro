@@ -168,16 +168,7 @@ export const auth = new Hono()
             });
         }
 
-        // Insert ephemeral demo user
-        await db.insert(users).values({
-            id: demoId,
-            name: "Demo Merchant",
-            email: demoEmail,
-            password: "demo-password-hash-placeholder", // No login possible via password
-            role: "user",
-            referralCode: `DEMO-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
-            permissions: ["demo_mode"]
-        });
+
 
         const token = await sign({
             id: demoUserId,
