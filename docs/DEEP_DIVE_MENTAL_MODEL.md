@@ -131,6 +131,11 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 | **Monorepo** | Strategi menyimpan kode backend dan frontend dalam satu folder besar agar mudah dikelola bersama (seperti yang kita lakukan sekarang). |
 | **Agnostik** | Sifat aplikasi yang tidak "pilih-pilih" tempat tinggal; bisa jalan di server mana pun tanpa banyak ubahan. |
 | **RPC (Remote Procedure Call)** | Cara frontend memanggil fungsi backend seolah-olah fungsi itu ada di komputer lokalnya. |
+| **Load Balancing** | Teknik membagi beban trafik ke banyak server agar tidak ada satu server yang jebol sendirian. |
+| **Rate Limiting** | Membatasi jumlah request dari satu user dalam waktu tertentu (misal: max 100 hit/menit) untuk mencegah abuse. |
+| **Middleware** | "Pos Satpam" yang berdiri di tengah-tengah antara request user dan backend (bisa untuk cek login, log data, dll). |
+| **Webhook** | Mekanisme "Saya hubungi kamu": Server A mengirim data ke Server B secara otomatis saat ada kejadian tertentu (push, bukan pull). |
+| **WebSocket** | Jalur komunikasi dua arah yang terus terbuka (seperti telepon) untuk data realtime, beda dengan HTTP (seperti surat) yang putus-nyambung. |
 | **Idempotent** | Operasi yang jika dilakukan berkali-kali memberikan hasil yang tetap sama (misal: tombol save yang tidak membuat data ganda). |
 | **Single Source of Truth** | Prinsip di mana data hanya disimpan di satu tempat, sehingga semua orang merujuk ke data yang pasti valid. |
 | **CQRS (Command Query Responsibility Segregation)** | Memisahkan jalur "Baca Data" dan "Tulis Data" menjadi dua sistem berbeda untuk performa maksimal. |
@@ -151,6 +156,12 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 | **Lazy Loading** | Strategi menunda pemuatan gambar atau kode berat sampai user benar-benar menggulir layar ke area tersebut (hemat kuota). |
 | **Code Splitting** | Memecah satu paket JS besar menjadi potongan-potongan kecil yang hanya didownload saat halaman spesifik dibuka. |
 | **Streaming SSR** | Mengirim HTML dari server sepotong demi sepotong (bukan nunggu selesai semua), sehingga user bisa melihat konten lebih cepat. |
+| **Debounce** | Teknik menunda eksekusi fungsi sampai user berhenti beraktivitas (misal: search baru jalan setelah user stop ngetik 300ms). |
+| **Throttle** | Membatasi fungsi agar hanya jalan maksimal X kali per detik, tidak peduli seberapa cepat user melakukan aksi (misal: saat scroll). |
+| **Polyfill** | Kode "penambal" yang disuntikkan agar browser jadul bisa menjalankan fitur modern yang sebenarnya belum mereka dukung. |
+| **Minification** | Proses menghapus spasi, baris baru, dan komentar dari kode agar ukuran filenya sekecil mungkin saat didownload user. |
+| **Obfuscation** | Mengacak-acak kode agar sulit dibaca manusia/hacker, tapi tetap bisa dijalankan mesin (untuk keamanan properti intelektual). |
+| **Critical Rendering Path** | Langkah-langkah kritis yang harus dilalui browser dari menerima HTML sampai pixel pertama muncul di layar. |
 | **Hydration** | Proses "menghidupkan" HTML mati dari server menjadi aplikasi React interaktif di browser. |
 | **Virtual DOM** | Salinan data struktur halaman di memori JavaScript untuk menghitung perubahan minimal sebelum menyentuh layar asli. |
 | **Reconciliation** | Proses membandingkan Virtual DOM lama vs baru untuk menentukan bagian mana yang perlu diganti. |
@@ -169,6 +180,18 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 | **Mobile First** | Filosofi mendesain tampilan untuk layar HP dulu (ruang sempit), baru diperluas untuk Desktop. |
 | **Responsive vs Adaptive** | Responsive (cair mengikuti lebar layar) vs Adaptive (punya layout fix beda-beda untuk setiap ukuran layar). |
 | **Micro-interactions** | Animasi kecil dan halus (seperti tombol 'like' yang membal) untuk memberikan feedback rasa puas ke user. |
+| **Intuitif (Intuitive)** | Desain yang bisa langsung dimengerti cara pakainya tanpa perlu mikir atau baca manual (cth: cubit layar untuk zoom). |
+| **Imersif (Immersive)** | Pengalaman yang membuat user merasa "tenggelam" atau masuk sepenuhnya ke dalam dunia aplikasi (bebas gangguan). |
+| **Affordance** | Petunjuk visual yang memberi tahu user bahwa benda itu bisa diapakan (cth: tombol yang tampak timbul "minta" ditekan). |
+| **Skeuomorphism** | Gaya desain yang meniru benda dunia nyata (cth: ikon sampah bentuk tong sampah besi, atau aplikasi kalkulator tekstur plastik). |
+| **Glassmorphism** | Gaya desain yang meniru estetika kaca buram (frosted glass) untuk memberikan kesan modern dan kedalaman (depth). |
+| **Dark Pattern** | Trik desain jahat yang memanipulasi user untuk melakukan hal yang tidak mereka inginkan (cth: tombol unsubscribe tersembunyi). |
+| **Gamification** | Memasukkan elemen game (skor, level, badge) ke aplikasi non-game untuk meningkatkan motivasi dan adiksi user. |
+| **Above the Fold** | Area layar yang langsung terlihat saat website dibuka tanpa perlu scroll ke bawah (posisi paling mahal/penting). |
+| **Breadcrumbs** | Navigasi "remah roti" (Home > Kategori > Produk) agar user tahu posisinya dan bisa mundur dengan mudah. |
+| **CTA (Call to Action)** | Elemen utama (biasanya tombol besar) yang menjadi tujuan akhir halaman (cth: "Beli Sekarang", "Daftar Gratis"). |
+| **Whitespace** | Ruang kosong (negatif) di antara elemen desain agar tampilan tidak sumpek dan mata user bisa "bernapas". |
+| **Grid System** | Sistem pembagian layar menjadi kolom-kolom imajiner untuk menjaga kerapihan dan konsistensi tata letak. |
 | **Playful** | Pendekatan desain yang menggunakan warna cerah, animasi membal (bouncy), dan bahasa santai untuk membuat aplikasi terasa "hidup" dan tidak kaku seperti software korporat tua. |
 
 ### F. Developer Culture & Jargon "Nerd"
