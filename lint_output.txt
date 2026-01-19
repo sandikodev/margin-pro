@@ -1,74 +1,45 @@
 
-/home/dev/project/margins-pro/src/client/components/content/MarkdownRenderer.tsx
-  18:35  error    Error: Cannot call impure function during render
+/home/dev/project/margins-pro/src/client/App.tsx
+  2:57  warning  'Outlet' is defined but never used         @typescript-eslint/no-unused-vars
+  6:10  warning  'AuthProvider' is defined but never used   @typescript-eslint/no-unused-vars
+  8:10  warning  'ToastProvider' is defined but never used  @typescript-eslint/no-unused-vars
 
-`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+/home/dev/project/margins-pro/src/client/components/layout/DashboardShell.tsx
+   3:10  warning  'Platform' is defined but never used      @typescript-eslint/no-unused-vars
+  45:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/home/dev/project/margins-pro/src/client/components/content/MarkdownRenderer.tsx:18:35
-  16 |   const [svg, setSvg] = useState<string>('');
-  17 |   const [error, setError] = useState<string | null>(null);
-> 18 |   const idRef = useRef(`mermaid-${Math.random().toString(36).substr(2, 9)}`);
-     |                                   ^^^^^^^^^^^^^ Cannot call impure function
-  19 |
-  20 |   useEffect(() => {
-  21 |     mermaid.initialize({   react-hooks/purity
-  32:21  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
-  72:18  warning  'node' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
-  72:65  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+/home/dev/project/margins-pro/src/client/context/AuthProvider.tsx
+  15:14  warning  Fast refresh only works when a file only exports components. Move your React context(s) to a separate file  react-refresh/only-export-components
 
-/home/dev/project/margins-pro/src/client/components/features/academy/AcademyView.tsx
-  90:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+/home/dev/project/margins-pro/src/client/context/ToastContext.tsx
+   2:67  warning  'useRef' is defined but never used                                                                                              @typescript-eslint/no-unused-vars
+   2:75  warning  'useEffect' is defined but never used                                                                                           @typescript-eslint/no-unused-vars
+  17:14  warning  Fast refresh only works when a file only exports components. Move your React context(s) to a separate file                      react-refresh/only-export-components
+  19:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
 
-/home/dev/project/margins-pro/src/client/components/features/admin/AdminDashboard.tsx
-     3:32   warning  'Save' is defined but never used                      @typescript-eslint/no-unused-vars
-     4:46   warning  'DollarSign' is defined but never used                @typescript-eslint/no-unused-vars
-     5:47   warning  'Database' is defined but never used                  @typescript-eslint/no-unused-vars
-     7:3    warning  'BarChart2' is defined but never used                 @typescript-eslint/no-unused-vars
-     9:3    warning  'Globe' is defined but never used                     @typescript-eslint/no-unused-vars
-     9:10   warning  'Moon' is defined but never used                      @typescript-eslint/no-unused-vars
-     9:21   warning  'Monitor' is defined but never used                   @typescript-eslint/no-unused-vars
-     9:41   warning  'Box' is defined but never used                       @typescript-eslint/no-unused-vars
-    13:32   warning  'CartesianGrid' is defined but never used             @typescript-eslint/no-unused-vars
-    41:58   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-    48:12   warning  'terminalLogs' is assigned a value but never used     @typescript-eslint/no-unused-vars
-    48:26   warning  'setTerminalLogs' is assigned a value but never used  @typescript-eslint/no-unused-vars
-    53:46   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-    64:24   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-    69:57   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-    69:62   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-    88:59   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-    88:64   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-   110:50   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-   117:18   warning  'error' is defined but never used                     @typescript-eslint/no-unused-vars
-   128:50   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-   136:18   warning  'error' is defined but never used                     @typescript-eslint/no-unused-vars
-   147:54   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-   154:18   warning  'error' is defined but never used                     @typescript-eslint/no-unused-vars
-   210:72   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-   210:77   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-   211:54   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-   211:59   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-   212:48   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-   223:74   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-   280:71   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-   298:76   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-   575:100  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-   605:79   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-   620:136  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
-  1001:89   warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+/home/dev/project/margins-pro/src/client/hooks/useFinance.ts
+   10:11  warning  'showToast' is assigned a value but never used                             @typescript-eslint/no-unused-vars
+   79:67  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+   96:67  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  104:9   warning  'deleteLiabilityMutation' is assigned a value but never used               @typescript-eslint/no-unused-vars
+  119:64  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  166:84  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  194:27  warning  'newData' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  203:24  warning  'newData' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  203:33  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
 
-/home/dev/project/margins-pro/src/client/components/layout/Sidebar.tsx
-  98:27  warning  'e' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+/home/dev/project/margins-pro/src/client/hooks/useFinanceAnalytics.test.ts
+  3:32  warning  'vi' is defined but never used  @typescript-eslint/no-unused-vars
 
-/home/dev/project/margins-pro/src/client/context/ConfigContext.tsx
-  17:88  warning  Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
-  30:40  warning  Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
-  37:45  warning  Unexpected any. Specify a different type                                                                                        @typescript-eslint/no-explicit-any
-  71:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+/home/dev/project/margins-pro/src/client/hooks/useMarketplace.ts
+  14:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  39:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  55:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/home/dev/project/margins-pro/src/client/hooks/useMidtrans.ts
-   6:15   warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-explicit-any
-  21:13   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+/home/dev/project/margins-pro/src/client/hooks/useProfile.ts
+  21:45  warning  'error' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  43:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
 
 Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
 * Update external systems with the latest state from React.
@@ -76,79 +47,41 @@ Effects are intended to synchronize state between React and external systems suc
 
 Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
 
-/home/dev/project/margins-pro/src/client/hooks/useMidtrans.ts:21:13
-  19 |
-  20 |         if (existingScript) {
-> 21 |             setIsLoaded(true);
-     |             ^^^^^^^^^^^ Avoid calling setState() directly within an effect
-  22 |             return;
-  23 |         }
-  24 |  react-hooks/set-state-in-effect
-  39:57   warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-explicit-any
-  39:91   warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-explicit-any
-  39:123  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-explicit-any
+/home/dev/project/margins-pro/src/client/hooks/useProfile.ts:43:7
+  41 |     // Auto-select first if none active
+  42 |     if (!activeBusinessId && businesses.length > 0) {
+> 43 |       setActiveBusinessId(businesses[0].id);
+     |       ^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  44 |     }
+  45 |   }, [activeBusinessId, businesses]);
+  46 |  react-hooks/set-state-in-effect
+  95:26  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-explicit-any
 
-/home/dev/project/margins-pro/src/client/hooks/usePricingEngine.ts
-  16:89  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-explicit-any
-  29:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+/home/dev/project/margins-pro/src/client/routes/app/dashboard-page.tsx
+  3:10  warning  'useProjects' is defined but never used  @typescript-eslint/no-unused-vars
 
-Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
-* Update external systems with the latest state from React.
-* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+/home/dev/project/margins-pro/src/client/routes/app/market-page.tsx
+  6:10  warning  'useProjects' is defined but never used  @typescript-eslint/no-unused-vars
 
-Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+/home/dev/project/margins-pro/src/server/db/seed-users.ts
+  54:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  82:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/home/dev/project/margins-pro/src/client/hooks/usePricingEngine.ts:29:7
-  27 |         };
-  28 |       });
-> 29 |       setOverrides(initial as Record<Platform, PlatformOverrides>);
-     |       ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
-  30 |     }
-  31 |   }, [platformData, isLoading]);
-  32 |                                                                                                                                                                                                                                                                                                                              react-hooks/set-state-in-effect
-  34:27  error    Compilation Skipped: Existing memoization could not be preserved
+/home/dev/project/margins-pro/src/server/routes/businesses.ts
+  21:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `taxRate`, but the source dependencies were [activeProject, promoPercent, overrides]. Inferred different dependency than source.
+/home/dev/project/margins-pro/src/server/routes/finance.ts
+  134:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
 
-/home/dev/project/margins-pro/src/client/hooks/usePricingEngine.ts:34:27
-  32 |
-  33 |   // Core Calculation
-> 34 |   const results = useMemo(() => {
-     |                           ^^^^^^^
-> 35 |     if (!activeProject || !activeProject.costs) return [];
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 36 |     if (Object.keys(overrides).length === 0) return [];
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 37 |     return calculatePricingStrategies(activeProject, overrides, promoPercent, taxRate);
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> 38 |   }, [activeProject, promoPercent, overrides]);
-     | ^^^^ Could not preserve existing manual memoization
-  39 |
-  40 |   // Derived Data for Charts
-  41 |   const chartData = useMemo(() => results.map(r => ({  react-hooks/preserve-manual-memoization
-  38:6   warning  React Hook useMemo has a missing dependency: 'taxRate'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       react-hooks/exhaustive-deps
+/home/dev/project/margins-pro/src/server/routes/projects.ts
+   47:31   warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+   67:27   warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+   87:68   warning  '_lastModified' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   87:87   warning  '_id' is assigned a value but never used            @typescript-eslint/no-unused-vars
+  128:42   warning  '_businessId' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  128:81   warning  '_lastModified' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  128:100  warning  '_id' is assigned a value but never used            @typescript-eslint/no-unused-vars
 
-/home/dev/project/margins-pro/src/client/layouts/SystemLayout.tsx
-  4:18  warning  'Zap' is defined but never used  @typescript-eslint/no-unused-vars
-
-/home/dev/project/margins-pro/src/client/lib/blog.ts
-  2:10  warning  'Newspaper' is defined but never used   @typescript-eslint/no-unused-vars
-  2:21  warning  'Calculator' is defined but never used  @typescript-eslint/no-unused-vars
-  2:33  warning  'Zap' is defined but never used         @typescript-eslint/no-unused-vars
-
-/home/dev/project/margins-pro/src/client/routes/blog/index.tsx
-  4:38  warning  'Tag' is defined but never used  @typescript-eslint/no-unused-vars
-
-/home/dev/project/margins-pro/src/client/routes/blog/post.tsx
-  4:21  warning  'Calendar' is defined but never used  @typescript-eslint/no-unused-vars
-  4:31  warning  'User' is defined but never used      @typescript-eslint/no-unused-vars
-  4:37  warning  'Tag' is defined but never used       @typescript-eslint/no-unused-vars
-
-/home/dev/project/margins-pro/src/client/routes/pricing.tsx
-  4:23  warning  'Zap' is defined but never used  @typescript-eslint/no-unused-vars
-
-/home/dev/project/margins-pro/src/server/routes/payment.ts
-  129:66  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
-
-✖ 65 problems (4 errors, 61 warnings)
+✖ 41 problems (1 error, 40 warnings)
 
