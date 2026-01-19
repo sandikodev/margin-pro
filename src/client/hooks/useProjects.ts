@@ -245,7 +245,7 @@ export const useProjects = (activeBusinessId?: string) => {
     setIsImporting(true);
     try {
       const rawData = JSON.parse(jsonString);
-      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
       // NOTE: Using import.meta.env for CLIENT SIDE access. 
       // process.env.GEMINI_API_KEY might be hidden in vite unless prefixed.
       // But server has it. Client might not. 
