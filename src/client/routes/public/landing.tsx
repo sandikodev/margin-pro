@@ -77,13 +77,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
              </a>
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
-             <button onClick={onLogin} className="text-sm font-bold text-slate-300 hover:text-white transition-colors">
+          <div className="hidden md:flex items-center gap-4 min-w-[240px] justify-end">
+             <button onClick={onLogin} className="text-sm font-bold text-slate-300 hover:text-white transition-colors w-20 text-right">
                Log In
              </button>
              <button 
                 onClick={onGetStarted}
-                className={`whitespace-nowrap bg-white text-slate-950 px-6 py-2.5 rounded-xl font-black text-sm hover:bg-indigo-50 transition-all shadow-lg shadow-white/5 hover:-translate-y-0.5 ${isScrolled ? 'block' : 'hidden'}`}
+                className={`w-[140px] whitespace-nowrap bg-white text-slate-950 px-6 py-2.5 rounded-xl font-black text-sm hover:bg-indigo-50 transition-all shadow-lg shadow-white/5 hover:-translate-y-0.5 duration-300 ${isScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'}`}
              >
                 Start for Free
              </button>
