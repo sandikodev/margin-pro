@@ -197,7 +197,7 @@ Berikut adalah panduan lengkap istilah teknis, bisnis, dan desain yang dikelompo
 | :--- | :--- |
 | **Monolith** | Satu Raksasa. Backend, Frontend, Database, semua logikanya jadi satu bongkahan kode. Mudah develop, susah scaling. |
 | **Microservices** | Pasukan Semut. Aplikasi dipecah jadi layanan kecil-kecil yang saling ngobrol. Rumit manage-nya, tapi kuat scale-nya. |
-| **Serverless** | "Server Hantu". Tidak ada server yang nyala 24 jam. Fungsi backend cuma hidup saat dipanggil user, lalu mati lagi. Hemat biaya. |
+| **Serverless** | "Server Uber/Gojek". Kita tidak punya mobil (Server) sendiri di garasi yang harus dipanaskan tiap pagi. Kita cuma panggil saat butuh tumpangan (Request), bayar sesuai jarak (Durasi), lalu mobilnya pergi. Tidak ada expenses saat tidur. |
 | **Edge Computing** | Server di Ujung Gang. Menaruh logika backend di server yang lokasi fisiknya nempel dengan user (Jakarta), bukan di pusat (Amerika). |
 | **RPC (Remote Procedure Call)** | Telepati Antar Server. Frontend memanggil fungsi Backend seolah-olah fungsi itu ada di laptopnya sendiri. |
 | **Idempotent** | Anti-Double. Sifat operasi yang biar ditekan 100x, hasilnya tetap sama (Contoh: Tombol 'Bayar' yang gak bikin saldo kepotong 2x). |
