@@ -76,22 +76,21 @@ Buka browser di `http://localhost:5173`.
 
 ## 📂 Struktur Project
 
-```
 margins-pro/
 ├── api/                # Vercel Serverless Entry point
 ├── dist/               # Production Build Artifacts (Client & Server)
 ├── docs/               # 📘 Documentation (Mental Model, Architecture)
-├── db/                 # Database Configuration
-│   ├── schema.ts       # Drizzle Schema Definition
-│   └── index.ts        # DB Connection Info
-├── hooks/              # React Hooks (Business Logic)
-│   └── useProjects.ts  # Logic Hybrid (RPC + LocalStorage)
-├── lib/                # Shared Utilities
-│   ├── client.ts       # Hono RPC Client setup
-│   └── demo-data.ts    # Mock data untuk mode demo
-├── server/             # Backend Code (Hono)
-│   └── index.ts        # Main Server & API Routes
-├── src/                # (Standard Vite Assets)
+├── drizzle/            # Drizzle Migration Files
+├── src/
+│   ├── client/         # 🎨 Frontend Source
+│   │   ├── components/ # UI Components
+│   │   ├── hooks/      # Business Logic (useProjects)
+│   │   └── routes/     # App Pages
+│   ├── server/         # ⚙️ Backend Source
+│   │   ├── db/         # Schema & Logic
+│   │   └── routes/     # API Endpoints
+│   └── shared/         # Shared Types
+├── tests/              # End-to-End Tests & Reports
 ├── App.tsx             # Main Frontend Entry
 ├── index.html          # Entry HTML
 └── vercel.json         # Deployment Config
