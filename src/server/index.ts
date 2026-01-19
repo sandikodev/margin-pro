@@ -105,16 +105,28 @@ app.get("*", async (c, next) => {
             }
         }
     } else {
-        // In Dev mode, Vite dev server is on the same port thanks to @hono/vite-dev-server
-        // But Hono itself handles the request. We don't need to fetch from localhost:5173
-        // Actually, @hono/vite-dev-server injects its own logic, but for custom HTML
-        // we might still need the base template.
+        // In Dev mode, we must inject Vite's client and React Refresh preamble
+        // because Hono is serving the raw index.html bypassing Vite's transformIndexHtml
         try {
             html = await Bun.file("index.html").text();
         } catch {
             const fs = await import("fs/promises");
             html = await fs.readFile("index.html", "utf-8");
         }
+
+        // Inject Vite Client & React Preamble
+        html = html.replace(
+            "<head>",
+            `<head>
+    <script type="module">
+      import RefreshRuntime from "/@react-refresh"
+      RefreshRuntime.injectIntoGlobalHook(window)
+      window.$RefreshReg$ = () => {}
+      window.$RefreshSig$ = () => (type) => type
+      window.__vite_plugin_react_preamble_installed__ = true
+    </script>
+    <script type="module" src="/@vite/client"></script>`
+        );
     }
 
     // Inject Tags
