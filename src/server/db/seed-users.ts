@@ -1,4 +1,4 @@
-
+import { hash } from "bcrypt-ts";
 import { db } from "./index";
 import { users } from "./schema";
 import { eq } from "drizzle-orm";
@@ -6,7 +6,7 @@ import { eq } from "drizzle-orm";
 async function seedUsers() {
     console.log("🌱 Seeding Users...");
 
-    const passwordHash = await Bun.password.hash("password123");
+    const passwordHash = await hash("password123", 10);
 
     const usersToSeed = [
         {

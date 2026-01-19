@@ -1,4 +1,4 @@
-
+import { hash, compare } from "bcrypt-ts";
 import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
@@ -33,7 +33,7 @@ export const auth = new Hono()
         if (!user) return c.json({ error: "Invalid credentials" }, 401);
 
         // Verify Password
-        const isMatch = await Bun.password.verify(password, user.password);
+        const isMatch = await compare(password, user.password);
         if (!isMatch) return c.json({ error: "Invalid credentials" }, 401);
 
         // Create JWT
@@ -87,7 +87,7 @@ export const auth = new Hono()
         // 3. Generate IDs & Hash Password
         const newUserId = Math.random().toString(36).substring(2, 9);
         const newReferralCode = name.substring(0, 3).toUpperCase() + Math.floor(1000 + Math.random() * 9000);
-        const hashedPassword = await Bun.password.hash(password);
+        const hashedPassword = await hash(password, 10);
 
         // 4. Create User
         await db.insert(users).values({
