@@ -58,6 +58,18 @@ export const AuthPage: React.FC<AuthPageProps> = ({
       });
   };
 
+  // Sync Demo Credentials
+  useEffect(() => {
+    if (isDemo) {
+        setFormData(prev => ({
+            ...prev,
+            email: 'owner@lumina.bistro',
+            password: 'demo_access_2025'
+        }));
+    }
+  }, [isDemo]);
+
+
   // Form State
   const [formData, setFormData] = useState({
     name: '',
