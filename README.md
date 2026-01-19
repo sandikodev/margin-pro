@@ -7,7 +7,7 @@
 
 <br/>
 
-**Margins Pro** adalah platform open-source yang membantu pengusaha kuliner (UMKM) menghitung HPP (Harga Pokok Penjualan), mensimulasikan profit margin di aplikasi pesan antar (GoFood, GrabFood, ShopeeFood), dan mencegah kerugian ("boncos") akibat salah penetapan harga.
+**Margins Pro** adalah platform SaaS profesional yang membantu pengusaha kuliner (UMKM) menghitung HPP (Harga Pokok Penjualan), mensimulasikan profit margin di aplikasi pesan antar (GoFood, GrabFood, ShopeeFood), dan mencegah kerugian ("boncos") akibat salah penetapan harga.
 
 Built with performance and developer experience in mind.
 
@@ -106,15 +106,22 @@ margins-pro/
 └── vercel.json         # Deployment Config
 ```
 
-## 🤝 Kontribusi
-
-Kami mengundang developer Indonesia dan komunitas open-source untuk berkontribusi!
-
 - **[Architecture Guide](docs/ARCHITECTURE.md)**: Blueprint teknis dan struktur folder.
 - **[Mental Model & Glossary](docs/DEEP_DIVE_MENTAL_MODEL.md)**: Kamus istilah dan konsep fundamental.
 
 ---
 
-## 📄 Lisensi
+## ⚖️ Peringatan Hukum & Hak Cipta
 
-MIT License - Bebas digunakan dan dimodifikasi untuk memajukan UMKM Indonesia.
+**© Copyright 2025 sandikodev. All Rights Reserved.**
+
+Project ini dikelola penuh oleh **PT Koneksi Jaringan Indonesia** sebagai produk SaaS Komersial.
+
+### ⚠️ PERINGATAN KERAS
+Source code ini dipublikasikan **HANYA** untuk tujuan transparansi teknis dan portofolio development.
+
+1.  **DILARANG KERAS** melakukan *forking*, menduplikasi, memodifikasi, atau mendistribusikan ulang source code ini dalam bentuk apapun tanpa izin tertulis.
+2.  **DILARANG KERAS** menggunakan sebagian atau seluruh kode ini untuk kepentingan komersial, bisnis, atau produk saingan.
+3.  Segala bentuk pelanggaran hak cipta akan diproses secara hukum sesuai dengan **Undang-Undang Hak Cipta** dan regulasi perlindungan kekayaan intelektual yang berlaku di Republik Indonesia.
+
+Pelanggaran akan dikenakan sanksi pidana dan tuntutan perdata. Kami memantau penggunaan repositori ini secara aktif.
