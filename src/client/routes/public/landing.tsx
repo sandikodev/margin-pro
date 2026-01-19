@@ -59,7 +59,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
 
       {/* Navbar */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'bg-slate-950/80 backdrop-blur-xl border-b border-white/5 py-0 shadow-2xl shadow-indigo-500/5' : 'bg-transparent border-transparent py-4'}`}>
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between relative">
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.scrollTo(0, 0)}>
             <div className="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/30 group-hover:scale-110 transition-transform">
               <Activity className="w-6 h-6 text-white" />
@@ -68,7 +68,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
           </div>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-10">
+          <div className="hidden md:flex items-center gap-10 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
              <a href="#features" className="text-sm font-bold text-slate-300 hover:text-white transition-colors">Features</a>
              <a href="/pricing" className="text-sm font-bold text-slate-300 hover:text-white transition-colors">Pricing</a>
              <a href="/blog" className="text-sm font-bold text-slate-300 hover:text-white transition-colors">Resources</a>
@@ -77,19 +77,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
              </a>
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center justify-center min-w-[240px] gap-4">
              <button onClick={onLogin} className="text-sm font-bold text-slate-300 hover:text-white transition-colors w-20 text-right">
                Log In
              </button>
-             {/* Wrapper preserves space even when button is hidden */}
-             <div className="w-[140px] flex justify-end">
                 <button 
                     onClick={onGetStarted}
                     className={`w-full whitespace-nowrap bg-white text-slate-950 px-6 py-2.5 rounded-xl font-black text-sm hover:bg-indigo-50 transition-all shadow-lg shadow-white/5 hover:-translate-y-0.5 ${isScrolled ? 'block' : 'hidden'}`}
                 >
                     Start for Free
                 </button>
-             </div>
           </div>
 
           {/* Mobile Menu Toggle */}
