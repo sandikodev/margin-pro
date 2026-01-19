@@ -183,8 +183,6 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 | **Intuitif (Intuitive)** | Desain yang bisa langsung dimengerti cara pakainya tanpa perlu mikir atau baca manual (cth: cubit layar untuk zoom). |
 | **Imersif (Immersive)** | Pengalaman yang membuat user merasa "tenggelam" atau masuk sepenuhnya ke dalam dunia aplikasi (bebas gangguan). |
 | **Affordance** | Petunjuk visual yang memberi tahu user bahwa benda itu bisa diapakan (cth: tombol yang tampak timbul "minta" ditekan). |
-| **Skeuomorphism** | Gaya desain yang meniru benda dunia nyata (cth: ikon sampah bentuk tong sampah besi, atau aplikasi kalkulator tekstur plastik). |
-| **Glassmorphism** | Gaya desain yang meniru estetika kaca buram (frosted glass) untuk memberikan kesan modern dan kedalaman (depth). |
 | **Dark Pattern** | Trik desain jahat yang memanipulasi user untuk melakukan hal yang tidak mereka inginkan (cth: tombol unsubscribe tersembunyi). |
 | **Gamification** | Memasukkan elemen game (skor, level, badge) ke aplikasi non-game untuk meningkatkan motivasi dan adiksi user. |
 | **Above the Fold** | Area layar yang langsung terlihat saat website dibuka tanpa perlu scroll ke bawah (posisi paling mahal/penting). |
@@ -192,9 +190,20 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 | **CTA (Call to Action)** | Elemen utama (biasanya tombol besar) yang menjadi tujuan akhir halaman (cth: "Beli Sekarang", "Daftar Gratis"). |
 | **Whitespace** | Ruang kosong (negatif) di antara elemen desain agar tampilan tidak sumpek dan mata user bisa "bernapas". |
 | **Grid System** | Sistem pembagian layar menjadi kolom-kolom imajiner untuk menjaga kerapihan dan konsistensi tata letak. |
-| **Playful** | Pendekatan desain yang menggunakan warna cerah, animasi membal (bouncy), dan bahasa santai untuk membuat aplikasi terasa "hidup" dan tidak kaku seperti software korporat tua. |
 
-### F. Developer Culture & Jargon "Nerd"
+### F. Aliran & Gaya Desain Visual (Aesthetics)
+| Istilah | Penjelasan Sederhana |
+| :--- | :--- |
+| **Flat Design** | Gaya desain yang super minimalis, menghilangkan semua efek 3D, bayangan, dan tekstur. Fokus pada warna solid dan tipografi bersih (cth: Windows 8, iOS 7). |
+| **Material Design** | Bahasa desain Google yang seperti "kertas digital"; datar tapi memiliki bayangan halus untuk menunjukkan tumpukan (elevasi) dan animasi fisika. |
+| **Skeuomorphism** | Gaya desain yang meniru benda dunia nyata secara detail (cth: ikon sampah bentuk tong sampah besi, atau aplikasi kalkulator tekstur plastik). |
+| **Neumorphism** | Evolusi dari Skeuomorphism bedanya lebih halus; elemen terlihat menyatu dengan background seperti timbul dari lempung yang ditekan (Soft UI). |
+| **Glassmorphism** | Gaya desain yang meniru estetika kaca buram (frosted glass) untuk memberikan kesan modern, futuristik, dan kedalaman (depth). |
+| **Brutalism (Neo-Brutalism)** | Gaya desain yang "kasar", jujur, dan anti-mainstream. Menggunakan font tabrak, garis tebal, warna kontras tinggi, dan layout yang seolah "rusak" tapi estetik. |
+| **Metro Design** | Gaya klasik Microsoft yang berbasis kotak-kotak (grid), tipografi besar, dan fokus pada konten daripada hiasan (sebelum Flat Design populer). |
+| **Playful** | Pendekatan desain yang menggunakan warna cerah, animasi membal (bouncy), dan bahasa santai untuk membuat aplikasi terasa "hidup" (ini gaya Margin Pro!). |
+
+### G. Developer Culture & Jargon "Nerd"
 | Istilah | Penjelasan Sederhana |
 | :--- | :--- |
 | **Yak Shaving** | Aktivitas teknis kecil yang tampaknya tidak relevan tapi harus dilakukan sebelum tugas utama bisa selesai (e.g., fix config sebelum coding fitur). |
