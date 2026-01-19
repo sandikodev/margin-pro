@@ -40,7 +40,9 @@ async function seedFiera() {
         if (!user) throw new Error("Failed to create user");
         console.log(`✅ User created: ${user.id}`);
     } else {
-        console.log(`ℹ️ User found: ${user.id}`);
+        console.log(`ℹ️ User found: ${user.id}. Updating password to BCrypt...`);
+        const passwordHash = await hash("password123", 10);
+        await db.update(users).set({ password: passwordHash }).where(eq(users.id, user.id));
     }
 
     // 2. Ensure Business Exists
