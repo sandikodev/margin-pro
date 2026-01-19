@@ -22,7 +22,8 @@ Project ini dibangun ulang dari *Single Page Application* menjadi **Fullstack Ap
 - **Backend**: [Hono](https://hono.dev) (Standard Web Framework)
 - **Database**: [Turso](https://turso.tech) (LibSQL - Edge SQLite)
 - **ORM**: [Drizzle ORM](https://orm.drizzle.team)
-- **Styling**: TailwindCSS + Lucide Icons
+- **Styling**: TailwindCSS + Lucide Icons (Premium Design System)
+- **Bundler**: [tsdown](https://github.com/honojs/tsdown) (Rust-powered Backend Bundler)
 - **AI**: Google Gemini Flash 2.0 (via Vercel AI SDK compatible logic)
 
 ## ✨ Fitur Unggulan Codebase
@@ -78,6 +79,8 @@ Buka browser di `http://localhost:5173`.
 ```
 margins-pro/
 ├── api/                # Vercel Serverless Entry point
+├── dist/               # Production Build Artifacts (Client & Server)
+├── docs/               # 📘 Documentation (Mental Model, Architecture)
 ├── db/                 # Database Configuration
 │   ├── schema.ts       # Drizzle Schema Definition
 │   └── index.ts        # DB Connection Info
