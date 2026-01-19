@@ -91,7 +91,7 @@ Mungkin Anda pernah mendengar **gRPC** (milik Google). Secara esensial, terminol
 Anda mungkin bertanya: *"Kenapa di JS/TS kita seolah-olah gila akan tipe data, sedangkan di PHP kita lebih santai?"*
 
 1.  **Shift Left Errors**: Di PHP (terutama gaya lama), kesalahan seringkali baru terlihat saat aplikasi dijalankan (Runtime). Anda tahu ada error setelah user melihat halaman putih atau error log. Di TS, kita ingin kesalahan itu terlihat **saat Anda mengetik** (Compile-time).
-2.  **Kontrak Otomatis**: PHP seringkali bersifat monolitik (Server dan UI di satu tempat). Di aplikasi SaaS modern, Frontend dan Backend seringkali terpisah. **RPC adalah "Kontrak Otomatis"** yang menjamin bahwa jika Backend mengubah satu baris kode, Frontend akan langsung tahu tanpa perlu cek manual atau plugin IDE tambahan.
+2.  **Kontrak Otomatis**: PHP seringkali bersifat monolitik (Server dan UI di satu tempat), sedangkan di aplikasi SaaS modern, Frontend dan Backend seringkali terpisah. **RPC adalah "Kontrak Otomatis"** yang menjamin bahwa jika Backend mengubah satu baris kode, Frontend akan langsung tahu tanpa perlu cek manual atau plugin IDE tambahan.
 3.  **Skalabilitas Mental**: Dengan tipe data yang ketat, otak kita tidak perlu mengingat ribuan struktur data. Biarkan **IDE dan Compiler** yang melakukan tugas administratif itu, sehingga kita (manusia) bisa fokus pada logika bisnis.
 
 ---
@@ -100,37 +100,64 @@ Anda mungkin bertanya: *"Kenapa di JS/TS kita seolah-olah gila akan tipe data, s
 
 Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana untuk istilah-istilah "keren" yang kita gunakan:
 
+### A. Konsep Fundamental (General)
 | Istilah | Penjelasan Sederhana |
 | :--- | :--- |
-| **End-to-End (E2E)** | Sistem yang terhubung dari ujung (Database/Backend) sampai ke ujung lainnya (Browser/User) secara utuh tanpa terputus. |
-| **Type Safety** | Jaminan bahwa data yang mengalir dalam aplikasi selalu sesuai dengan tipe yang ditentukan, mencegah error "data tidak dikenal" saat aplikasi jalan. |
+| **Runtime** | Lingkungan tempat kode dijalankan (seperti sistem operasi mini khusus untuk JavaScript, e.g., Node.js, Bun, Browser). |
+| **End-to-End (E2E)** | Sistem yang terhubung dari ujung (Database/Backend) sampai ke ujung lainnya (Browser/User) secara utuh. |
+| **Type Safety** | Jaminan bahwa data yang mengalir dalam aplikasi selalu sesuai dengan tipe yang ditentukan, mencegah error "data tidak dikenal". |
 | **DX (Developer Experience)** | Seberapa nyaman dan cepat seorang pengembang saat bekerja dengan sebuah codebase (seperti UX tapi untuk programmer). |
-| **Compiling** | Proses mengubah kode dari bahasa yang dipahami manusia ke bahasa yang dipahami mesin (biasanya biner atau bahasa yang lebih rendah). |
-| **Transpiling** | Mirip kompilasi, tapi mengubah satu bahasa pemrograman ke bahasa lain yang levelnya setara (misal: TypeScript ke JavaScript). |
-| **Linting** | Proses pengecekan kode secara otomatis untuk mencari potensi kesalahan penulisan atau gaya bahasa yang buruk (seperti asisten editor buku). |
-| **Formatting** | Proses merapikan susunan teks kode (spasi, baris baru, tanda kurung) agar enak dibaca manusia tanpa mengubah fungsi kodenya. |
-| **Type Checking** | Proses memvalidasi apakah "tipe" data yang digunakan sudah benar (misal: memastikan kita tidak mencoba menjumlahkan Nama dengan Angka). |
 | **CI/CD** | Sistem otomatis yang melakukan tes, build, dan deployment setiap kali pengembang menyimpan kode baru. |
-| **Runtime** | Lingkungan tempat kode dijalankan (seperti sistem operasi mini khusus untuk JavaScript). |
-| **Bundler** | Alat yang mengumpulkan ratusan file kode Anda menjadi satu atau beberapa file kecil yang siap dikirim ke user. |
+
+### B. Proses & Tooling (Build System)
+| Istilah | Penjelasan Sederhana |
+| :--- | :--- |
+| **Compiling** | Proses mengubah kode dari bahasa yang dipahami manusia ke bahasa yang dipahami mesin (biner/bytecode). |
+| **Transpiling** | Mirip kompilasi, tapi mengubah satu bahasa pemrograman ke bahasa lain yang levelnya setara (misal: TypeScript ke JavaScript). |
+| **Bundler** | Alat yang mengumpulkan ratusan file kode menjadi satu file kecil yang siap dikirim ke user (e.g., Vite, Webpack, Rolldown). |
 | **Tree-shaking** | Proses otomatis membuang kode yang tidak pernah dipanggil/dipakai (seperti menggoyangkan pohon untuk menjatuhkan daun kering). |
-| **Dead Code** | Bagian kode yang ada di project tapi tidak pernah dipanggil atau dijalankan (hanya menambah beban). |
-| **Cold Start** | Waktu yang dibutuhkan server "tidur" (serverless) untuk bangun dan merespons saat ada tamu (user) berkunjung. |
+| **Linting** | Proses pengecekan kode otomatis untuk mencari potensi kesalahan penulisan atau gaya bahasa yang buruk. |
+| **Formatting** | Proses merapikan susunan teks kode (spasi, baris baru) agar enak dibaca manusia. |
+| **HMR (Hot Module Replacement)** | Fitur yang membuat layar browser update instan saat kode diubah tanpa perlu refresh manual. |
+| **Cold Start** | Waktu yang dibutuhkan server "tidur" (serverless) untuk bangun dan merespons tamu pertama. |
+
+### C. Backend & Arsitektur Sistem
+| Istilah | Penjelasan Sederhana |
+| :--- | :--- |
 | **Monorepo** | Strategi menyimpan kode backend dan frontend dalam satu folder besar agar mudah dikelola bersama. |
-| **ESM (ES Modules)** | Standar modern cara file JavaScript saling berbagi kode menggunakan `import` dan `export`. |
-| **HMR** | Fitur yang membuat layar browser Anda update secara instan saat Anda mengubah kode, tanpa perlu refresh manual. |
 | **Agnostik** | Sifat aplikasi yang tidak "pilih-pilih" tempat tinggal; bisa jalan di server mana pun tanpa banyak ubahan. |
-| **RPC** | Cara frontend memanggil fungsi di backend seolah-olah fungsi itu ada di komputernya sendiri (sangat aman dan cepat). |
-| **Hydration** | Proses "menghidupkan" HTML mati dari server menjadi aplikasi React yang interaktif di browser. |
-| **Idempotent** | Operasi yang jika dilakukan satu kali atau berkali-kali memberikan hasil yang tetap sama (misal: tombol save yang tidak membuat data ganda). |
-| **Yak Shaving** | Aktivitas teknis kecil yang tampaknya tidak relevan tapi harus dilakukan sebelum Anda bisa menyelesaikan tugas utama yang sebenarnya. |
-| **Bikeshedding** | Kecenderungan tim untuk menghabiskan terlalu banyak waktu mendiskusikan hal-hal sepele (seperti warna tombol) daripada arsitektur yang berat. |
-| **Over-engineering** | Membuat solusi yang terlalu rumit untuk masalah yang sebenarnya sangat sederhana. |
-| **Syntactic Sugar** | Fitur bahasa pemrograman yang dibuat agar kode lebih mudah/indah ditulis manusia, padahal fungsinya tetap sama saja. |
-| **Race Condition** | Bug yang terjadi ketika hasil akhir tergantung pada urutan atau waktu eksekusi yang tidak terduga dari dua proses yang berjalan bersamaan. |
-| **Side Effect** | Ketika sebuah fungsi mengubah sesuatu di luar dirinya (seperti mengubah database atau variabel global) selain hanya mengembalikan data. |
-| **Deterministic** | Sifat sistem yang jika diberi input yang sama, pasti akan selalu menghasilkan output yang sama persis tanpa kejutan. |
-| **Single Source of Truth** | Prinsip di mana sebuah data hanya disimpan di satu tempat, sehingga semua orang merujuk ke data yang pasti valid dan tidak ada duplikasi. |
+| **RPC (Remote Procedure Call)** | Cara frontend memanggil fungsi backend seolah-olah fungsi itu ada di komputer lokalnya. |
+| **Idempotent** | Operasi yang jika dilakukan berkali-kali memberikan hasil yang tetap sama (misal: tombol save yang tidak membuat data ganda). |
+| **Single Source of Truth** | Prinsip di mana data hanya disimpan di satu tempat, sehingga semua orang merujuk ke data yang pasti valid. |
+| **Race Condition** | Bug yang terjadi ketika hasil akhir tergantung pada urutan/waktu eksekusi yang tidak terduga dari dua proses cepat. |
+
+### D. Frontend Modern (React & UI)
+| Istilah | Penjelasan Sederhana |
+| :--- | :--- |
+| **SPA (Single Page Application)** | Website yang hanya memuat satu file HTML kosong di awal, lalu sisanya diurus oleh JavaScript (seperti aplikasi HP). |
+| **CSR (Client-Side Rendering)** | Browser user yang bekerja keras menyusun HTML dari data JSON (beban di HP user). |
+| **SSR (Server-Side Rendering)** | Server yang menyusun HTML lengkap sebelum dikirim ke user (beban di server, tapi SEO bagus). |
+| **SSG (Static Site Generation)** | HTML disusun sekali saat "Build Time", lalu disajikan sebagai file statis selamanya (sangat cepat). |
+| **ISR (Incremental Static Regeneration)** | Gabungan SSG + update otomatis. Halaman statis bisa diperbarui di background setiap X detik. |
+| **Hydration** | Proses "menghidupkan" HTML mati dari server menjadi aplikasi React interaktif di browser. |
+| **Virtual DOM** | Salinan data struktur halaman di memori JavaScript untuk menghitung perubahan minimal sebelum menyentuh layar asli. |
+| **Reconciliation** | Proses membandingkan Virtual DOM lama vs baru untuk menentukan bagian mana yang perlu diganti. |
+| **Hooks** | Fungsi spesial React (seperti `useState`, `useEffect`) yang memungkinkan kita "mengaitkan" logika ke dalam komponen UI. |
+| **Props Drilling** | Masalah saat kita harus mengoper data melewati 5 lapis komponen yang sebenarnya tidak butuh data itu, hanya untuk sampai ke anak terbawah. |
+| **State Management** | Cara mengelola "memori" aplikasi (data user, tema, keranjang belanja) agar tersinkronisasi di semua halaman. |
+| **Optimistic UI** | Teknik menampilkan sukses duluan di layar (fake success) sebelum server benar-benar selesai memproses, agar aplikasi terasa instan. |
+| **Atomic Design** | Metodologi memecah UI menjadi Atom (Tombol), Molekul (Form Search), dan Organisme (Header) untuk reusabilitas. |
+
+### E. Developer Culture & Jargon "Nerd"
+| Istilah | Penjelasan Sederhana |
+| :--- | :--- |
+| **Yak Shaving** | Aktivitas teknis kecil yang tampaknya tidak relevan tapi harus dilakukan sebelum tugas utama bisa selesai (e.g., fix config sebelum coding fitur). |
+| **Bikeshedding** | Membuang waktu mendiskusikan hal sepele (warna tombol) daripada arsitektur berat, karena hal sepele lebih mudah dipahami semua orang. |
+| **Over-engineering** | Membuat solusi super rumit untuk masalah yang sebenarnya sederhana (membunuh nyamuk dengan bazooka). |
+| **Tech Debt** | "Hutang" kode buruk yang kita tulis hari ini demi kecepatan, yang harus "dibayar" (di-refactor) nanti dengan bunga mahal. |
+| **Syntactic Sugar** | Fitur bahasa pemrograman yang dibuat agar kode lebih indah ditulis manusia, padahal fungsinya sama saja. |
+| **Side Effect** | Ketika sebuah fungsi mengubah sesuatu di luar dirinya (e.g., mengubah database, console.log) selain hanya mengembalikan nilai. |
+| **Deterministic** | Sifat sistem yang jika diberi input sama, pasti menghasilkan output sama persis tanpa kejutan (tidak random). |
 
 ---
 *Dokumen ini diperbarui terakhir pada: 19 Jan 2026*
