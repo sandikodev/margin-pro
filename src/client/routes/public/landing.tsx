@@ -81,7 +81,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
                <div className="hidden md:flex flex-1 items-center justify-end min-w-[240px] gap-4">
                   <button 
                      onClick={onLogin} 
-                     className={`text-sm font-bold transition-all duration-300 ${isScrolled ? 'text-slate-300 hover:text-white w-20 text-right' : 'bg-white/10 text-white px-6 py-2.5 rounded-xl border border-white/10 hover:bg-white/20 hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/10'}`}
+                     className={`text-sm font-bold transition-all duration-300 w-24 h-10 flex items-center justify-center rounded-xl ${isScrolled ? 'text-slate-300 hover:text-white hover:bg-white/5' : 'bg-white/10 text-white border border-white/10 hover:bg-white/20 hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/10'}`}
                   >
                      Log In
                   </button>
