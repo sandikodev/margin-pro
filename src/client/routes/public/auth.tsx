@@ -2,8 +2,10 @@ import { useSearchParams } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, ArrowRight, Loader2, ArrowLeft, Mail, Lock, User as UserIcon, Sparkles } from 'lucide-react';
 import { User } from '@shared/types';
-import { useToast } from '../../context/ToastContext';
-
+import { useToast } from '../../context/toast-context';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { GradientCard } from '@/components/ui/design-system/GradientCard';
 
 // --- FRONTEND AUTH LOGIC ---
 
@@ -13,7 +15,7 @@ interface AuthPageProps {
   initialMode?: 'login' | 'register';
   initialEmail?: string;
   initialPassword?: string;
-  initialReferralCode?: string; // New Prop
+  initialReferralCode?: string;
   isDemo?: boolean; 
 }
 
@@ -43,7 +45,6 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   // Sync Focus on Mode Change
   useEffect(() => {
     if (activeMode === 'register' && nameInputRef.current) {
-        // slight delay to allow layout entry
         setTimeout(() => nameInputRef.current?.focus(), 50);
     } else if (activeMode === 'login' && emailInputRef.current) {
         setTimeout(() => emailInputRef.current?.focus(), 50);
@@ -111,37 +112,46 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen w-full bg-white text-slate-900 flex overflow-hidden">
+    <div className="min-h-screen w-full bg-white text-slate-900 flex overflow-hidden font-sans">
       
       {/* --- DESKTOP LEFT PANEL (LUXURY ARTBOARD) --- */}
-      <div className="hidden lg:flex w-1/2 bg-slate-900 relative items-center justify-center p-12 overflow-hidden">
-         {/* Background Gradients */}
-         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/30 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
-         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-500/20 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
+      <div className="hidden lg:flex w-1/2 bg-slate-950 relative items-center justify-center p-16 overflow-hidden">
+         {/* Dynamic Aurora Background */}
+         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 animate-pulse" />
+         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-violet-600/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2" />
          
+         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-soft-light"></div>
+
          {/* Content */}
-         <div className="relative z-10 text-white max-w-lg space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 backdrop-blur-sm text-indigo-300 text-[10px] font-black uppercase tracking-widest">
-               <Sparkles className="w-3 h-3" /> Intelligence Pricing Engine
-            </div>
-            <h1 className="text-5xl font-black tracking-tight leading-tight">
-               Stop Guessing.<br/>Start <span className="text-indigo-400">Profiting.</span>
+         <div className="relative z-10 text-white max-w-xl space-y-10">
+            <GradientCard className="inline-flex py-2 px-4 !rounded-full !bg-none bg-white/5 border border-white/10 backdrop-blur-md w-auto">
+               <div className="flex items-center gap-2">
+                   <Sparkles className="w-4 h-4 text-indigo-300" />
+                   <span className="text-xs font-black uppercase tracking-widest text-indigo-200">Intelligence Pricing Engine</span>
+               </div>
+            </GradientCard>
+            
+            <h1 className="text-6xl font-black tracking-tighter leading-[1.1]">
+               Stop Guessing.<br/>
+               Start <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">Profiting.</span>
             </h1>
-            <p className="text-lg text-slate-400 leading-relaxed font-medium">
-               "Margin Pro transformed how we view our unit economics. It's not just a calculator, it's a cheat sheet for profitability."
+            
+            <p className="text-xl text-slate-400 leading-relaxed font-medium max-w-md">
+               "Margin Pro transformed our unit economics. It's not just a calculator, it's a cheat sheet for profitability."
             </p>
             
-            {/* Stats/Social Proof (Mock) */}
-            <div className="pt-8 flex items-center gap-4">
-               <div className="flex -space-x-3">
-                  {[1,2,3].map(i => (
-                     <div key={i} className="w-10 h-10 rounded-full bg-slate-800 border-2 border-slate-900 flex items-center justify-center text-[10px] font-bold">
-                        U{i}
+            {/* Stats/Social Proof */}
+            <div className="pt-8 border-t border-white/10 flex items-center gap-6">
+               <div className="flex -space-x-4">
+                  {[1,2,3,4].map(i => (
+                     <div key={i} className="w-12 h-12 rounded-full bg-slate-800 border-2 border-slate-950 flex items-center justify-center text-xs font-bold ring-2 ring-white/5 grayscale opacity-70 hover:opacity-100 hover:grayscale-0 hover:scale-110 transition-all z-0 hover:z-10">
+                        <UserIcon className="w-5 h-5 text-slate-400" />
                      </div>
                   ))}
                </div>
-               <div className="text-sm font-bold text-slate-500">
-                  Trusted by <span className="text-white">500+</span> Founders
+               <div>
+                   <div className="text-lg font-black text-white">500+ Founders</div>
+                   <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Trust Margin Pro</div>
                </div>
             </div>
          </div>
@@ -149,155 +159,176 @@ export const AuthPage: React.FC<AuthPageProps> = ({
 
       {/* --- RIGHT PANEL (DYNAMIC FORM) --- */}
       <div className="w-full lg:w-1/2 flex flex-col h-[100dvh] relative bg-white">
-        {/* Header with Smart Safe Area */}
-        <div className="shrink-0 flex justify-between items-start px-3 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] md:px-8 md:pt-8 relative z-20">
+        {/* Header */}
+        <div className="shrink-0 flex justify-between items-start px-6 pt-6 lg:px-12 lg:pt-12 relative z-20">
             <button 
-            onClick={onBack}
-            className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 transition-colors"
+                onClick={onBack}
+                className="group flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors"
             >
-            <ArrowLeft className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center group-hover:bg-slate-50 transition-colors">
+                    <ArrowLeft className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity -translate-x-2 group-hover:translate-x-0">Back</span>
             </button>
             
             {isDemo && (
-                <div className="px-3 py-1.5 bg-indigo-50 border border-indigo-100 rounded-full flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-700">Demo Mode</span>
+                <div className="px-4 py-2 bg-gradient-to-r from-indigo-50 to-violet-50 border border-indigo-100 rounded-full flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-indigo-600" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-indigo-700">Demo Mode Active</span>
                 </div>
             )}
         </div>
 
-        <div className="flex-1 overflow-y-auto w-full">
-            <div className="flex flex-col justify-center min-h-[calc(100%-80px)] max-w-md mx-auto px-8 py-6 lg:py-12">
-                <div className="mb-10">
-                <h1 className="text-3xl font-black tracking-tight text-slate-900 mb-2">
-                    {isDemo 
-                    ? 'Akses Akun Demo.' 
-                    : (activeMode === 'login' ? 'Selamat Datang Kembali.' : 'Buat Akun Baru.')}
-                </h1>
-                <p className="text-sm text-slate-500 font-medium">
-                    {isDemo
-                    ? 'Masuk sebagai Owner Lumina Bistro untuk simulasi.'
-                    : (activeMode === 'login' 
-                        ? 'Masuk untuk mengelola margin profit Anda.' 
-                        : 'Mulai perjalanan bisnis yang lebih profitable.')
-                    }
-                </p>
+        <div className="flex-1 overflow-y-auto w-full flex flex-col">
+            <div className="w-full max-w-md mx-auto px-8 py-12">
+                <div className="mb-10 space-y-2">
+                    <motion.div
+                        key={activeMode}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-2"
+                    >
+                        <h1 className="text-4xl font-black tracking-tighter text-slate-900">
+                            {isDemo 
+                            ? 'Akses Akun Demo.' 
+                            : (activeMode === 'login' ? 'Welcome Back.' : 'Create Account.')}
+                        </h1>
+                        <p className="text-slate-500 font-medium text-lg">
+                            {isDemo
+                            ? 'Masuk sebagai Owner Lumina Bistro untuk simulasi.'
+                            : (activeMode === 'login' 
+                                ? 'Enter your credentials to access your dashboard.' 
+                                : 'Start your journey to better margins today.')
+                            }
+                        </p>
+                    </motion.div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
-                {activeMode === 'register' && (
-                    <>
-                    <div className="space-y-1.5 animate-in slide-in-from-top-2 fade-in duration-300">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nama Lengkap</label>
-                    <div className="relative group">
-                        <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                        <input 
-                        ref={nameInputRef} 
-                        name="name"
-                        type="text" 
-                        value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-4 py-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all placeholder:font-normal placeholder:text-slate-400"
-                        placeholder="Nama Pemilik Bisnis"
-                        />
-                    </div>
-                    </div>
-                    <div className="space-y-1.5 animate-in slide-in-from-top-2 fade-in duration-300">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Kode Referral (Opsional)</label>
-                    <div className="relative group">
-                        <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                        <input 
-                        name="referralCode"
-                        type="text" 
-                        value={formData.referralCode}
-                        onChange={(e) => setFormData({...formData, referralCode: e.target.value})}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-11 pr-4 py-4 text-sm font-bold text-slate-900 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all placeholder:font-normal placeholder:text-slate-400"
-                        placeholder="Contoh: ANDI88"
-                        />
-                    </div>
-                    </div>
-                    </>
-                )}
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <AnimatePresence mode="popLayout">
+                        {activeMode === 'register' && (
+                            <motion.div 
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="space-y-6 overflow-hidden"
+                            >
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</label>
+                                    <div className="relative group">
+                                        <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                                        <input 
+                                            ref={nameInputRef} 
+                                            name="name"
+                                            type="text" 
+                                            value={formData.name}
+                                            onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                            className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border-2 border-transparent focus:border-indigo-100 rounded-2xl pl-12 pr-4 py-4 font-bold text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:shadow-xl focus:shadow-indigo-500/5 ring-0"
+                                            placeholder="Business Owner Name"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Referral Code <span className="text-slate-200">(Optional)</span></label>
+                                    <div className="relative group">
+                                        <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                                        <input 
+                                            name="referralCode"
+                                            type="text" 
+                                            value={formData.referralCode}
+                                            onChange={(e) => setFormData({...formData, referralCode: e.target.value})}
+                                            className="w-full bg-slate-50 hover:bg-slate-100 focus:bg-white border-2 border-transparent focus:border-indigo-100 rounded-2xl pl-12 pr-4 py-4 font-bold text-slate-900 outline-none transition-all placeholder:text-slate-300 focus:shadow-xl focus:shadow-indigo-500/5 ring-0"
+                                            placeholder="e.g. PARTNER2025"
+                                        />
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
-                    <div className="relative group">
-                    <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${isDemo ? 'text-indigo-500' : 'text-slate-400 group-focus-within:text-indigo-500'}`} />
-                    <input 
-                        ref={emailInputRef} 
-                        name="email"
-                        type="email" 
-                        value={formData.email}
-                        readOnly={isDemo}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
-                        className={`w-full border rounded-2xl pl-11 pr-4 py-4 text-sm font-bold text-slate-900 outline-none transition-all placeholder:font-normal placeholder:text-slate-400
-                        ${isDemo 
-                            ? 'bg-indigo-50/50 border-indigo-200 focus:ring-0 cursor-not-allowed' 
-                            : 'bg-slate-50 border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500'}`}
-                        placeholder="nama@bisnis.com"
-                    />
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
+                        <div className="relative group">
+                            <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${isDemo ? 'text-indigo-500' : 'text-slate-300 group-focus-within:text-indigo-600'}`} />
+                            <input 
+                                ref={emailInputRef} 
+                                name="email"
+                                type="email" 
+                                value={formData.email}
+                                readOnly={isDemo}
+                                onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                className={cn(
+                                    "w-full rounded-2xl pl-12 pr-4 py-4 font-bold outline-none transition-all placeholder:text-slate-300 ring-0",
+                                    isDemo 
+                                        ? "bg-indigo-50 border-2 border-indigo-100 text-indigo-900 cursor-not-allowed" 
+                                        : "bg-slate-50 hover:bg-slate-100 focus:bg-white border-2 border-transparent focus:border-indigo-100 text-slate-900 focus:shadow-xl focus:shadow-indigo-500/5"
+                                )}
+                                placeholder="name@business.com"
+                            />
+                        </div>
                     </div>
-                </div>
 
-                <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Password</label>
-                    <div className="relative group">
-                    <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${isDemo ? 'text-indigo-500' : 'text-slate-400 group-focus-within:text-indigo-500'}`} />
-                    <input 
-                        name="password"
-                        type={showPass ? "text" : "password"} 
-                        value={formData.password}
-                        readOnly={isDemo}
-                        onChange={(e) => setFormData({...formData, password: e.target.value})}
-                        className={`w-full border rounded-2xl pl-11 pr-12 py-4 text-sm font-bold text-slate-900 outline-none transition-all placeholder:font-normal placeholder:text-slate-400
-                        ${isDemo 
-                            ? 'bg-indigo-50/50 border-indigo-200 focus:ring-0 cursor-not-allowed' 
-                            : 'bg-slate-50 border-slate-200 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500'}`}
-                        placeholder="••••••••"
-                    />
-                    {!isDemo && (
-                        <button 
-                        type="button"
-                        onClick={() => setShowPass(!showPass)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                        >
-                        {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
-                    )}
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Password</label>
+                        <div className="relative group">
+                            <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${isDemo ? 'text-indigo-500' : 'text-slate-300 group-focus-within:text-indigo-600'}`} />
+                            <input 
+                                name="password"
+                                type={showPass ? "text" : "password"} 
+                                value={formData.password}
+                                readOnly={isDemo}
+                                onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                className={cn(
+                                    "w-full rounded-2xl pl-12 pr-12 py-4 font-bold outline-none transition-all placeholder:text-slate-300 ring-0",
+                                    isDemo 
+                                        ? "bg-indigo-50 border-2 border-indigo-100 text-indigo-900 cursor-not-allowed" 
+                                        : "bg-slate-50 hover:bg-slate-100 focus:bg-white border-2 border-transparent focus:border-indigo-100 text-slate-900 focus:shadow-xl focus:shadow-indigo-500/5"
+                                )}
+                                placeholder="••••••••"
+                            />
+                            {!isDemo && (
+                                <button 
+                                    type="button"
+                                    onClick={() => setShowPass(!showPass)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                                >
+                                    {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            )}
+                        </div>
                     </div>
-                </div>
 
-                <button 
-                    type="submit"
-                    disabled={loading}
-                    className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-indigo-600/30 hover:bg-indigo-700 hover:shadow-indigo-600/50 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-2 mt-4"
-                >
-                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
-                    <>
-                        {isDemo ? 'Masuk Dashboard Demo' : (activeMode === 'login' ? 'Masuk Sekarang' : 'Daftar Gratis')} 
-                        <ArrowRight className="w-4 h-4" />
-                    </>
-                    )}
-                </button>
+                    <button 
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-slate-900/20 hover:bg-indigo-600 hover:shadow-indigo-600/30 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center justify-center gap-2 mt-6"
+                    >
+                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+                            <>
+                                {isDemo ? 'Access Demo Dashboard' : (activeMode === 'login' ? 'Sign In' : 'Create Account')} 
+                                <ArrowRight className="w-4 h-4" />
+                            </>
+                        )}
+                    </button>
                 </form>
 
-                <div className="mt-8 text-center pb-8">
-                {!isDemo && (
-                    <p className="text-xs text-slate-500 font-medium">
-                    {activeMode === 'login' ? 'Belum punya akun?' : 'Sudah punya akun?'}
-                    <button 
-                        onClick={() => handleModeSwitch(activeMode === 'login' ? 'register' : 'login')}
-                        className="ml-1 text-indigo-600 font-black hover:underline"
-                    >
-                        {activeMode === 'login' ? 'Daftar disini' : 'Login disini'}
-                    </button>
-                    </p>
-                )}
-                {isDemo && (
-                    <p className="text-[10px] text-slate-400 font-medium italic">
-                        Ini adalah simulasi. Data tidak akan disimpan permanen.
-                    </p>
-                )}
+                <div className="mt-8 text-center">
+                    {!isDemo && (
+                        <p className="text-xs text-slate-500 font-medium">
+                            {activeMode === 'login' ? "Don't have an account?" : "Already have an account?"}
+                            <button 
+                                onClick={() => handleModeSwitch(activeMode === 'login' ? 'register' : 'login')}
+                                className="ml-2 text-indigo-600 font-black hover:underline uppercase tracking-wide text-[10px]"
+                            >
+                                {activeMode === 'login' ? 'Register Now' : 'Login Here'}
+                            </button>
+                        </p>
+                    )}
+                    {isDemo && (
+                        <p className="text-[10px] text-slate-400 font-medium italic">
+                            This is a simulation environment. No real data is stored.
+                        </p>
+                    )}
                 </div>
             </div>
         </div>
