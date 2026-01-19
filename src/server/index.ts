@@ -58,19 +58,24 @@ app.get("*", async (c, next) => {
     const url = new URL(c.req.url);
 
     // Skip API routes
-    if (url.pathname.startsWith("/api")) {
+    if (url.pathname.startsWith("/api") || url.pathname.includes(".")) {
         return next();
     }
 
-    // Protected Routes Gatekeeper
-    if (url.pathname.startsWith("/app") || url.pathname.startsWith("/system")) {
-        const session = await getSession(c);
-        if (!session) {
-            return c.redirect("/auth");
-        }
-        if (url.pathname.startsWith("/system") && session.role !== "admin" && session.role !== "super_admin") {
-            return c.redirect("/app");
-        }
+    // Auth redirection logic
+    const session = await getSession(c);
+    const isProtectedPath = url.pathname.startsWith("/app") || url.pathname.startsWith("/system");
+
+    if (isProtectedPath && !session) {
+        return c.redirect("/auth");
+    }
+
+    if (url.pathname === "/auth" && session) {
+        return c.redirect("/app");
+    }
+
+    if (url.pathname.startsWith("/system") && session?.role !== "admin" && session?.role !== "super_admin") {
+        return c.redirect("/app");
     }
 
     // Default SEO tags
@@ -79,28 +84,35 @@ app.get("*", async (c, next) => {
     const image = "https://placehold.co/1200x630/4f46e5/white?text=Margin+Pro";
 
     let html = "";
+    const isVercel = !!process.env.VERCEL;
 
-    if (process.env.NODE_ENV === "production") {
+    if (isVercel) {
+        // Vercel (Edge or Serverless)
+        // Fetch index.html from origin (Vercel static hosting)
+        const baseUrl = new URL(c.req.url).origin;
         try {
-            // Priority 1: Check if we are running from dist/server/ (bundled)
-            // In a bundle, ./index.html usually refers to the root relative to the CWD
+            const res = await fetch(`${baseUrl}/index.html`);
+            if (res.ok) {
+                html = await res.text();
+            } else {
+                html = "<html><body>Error loading app (Vercel)</body></html>";
+            }
+        } catch (e) {
+            html = "<html><body>Error loading app (Edge Fetch)</body></html>";
+        }
+    } else if (process.env.NODE_ENV === "production") {
+        // Local Production (Node/Bun)
+        try {
+            // @ts-ignore
             html = await Bun.file("./dist/index.html").text();
         } catch {
-            try {
-                // If running in Node-like enviroment (Vercel)
-                const fs = await import("fs/promises");
-                const path = await import("path");
-                // Attempt to resolve based on common Vercel/Node structures
-                const indexPath = path.resolve(process.cwd(), "dist/index.html");
-                html = await fs.readFile(indexPath, "utf-8");
-            } catch {
-                return c.text("Production build index.html not found", 404);
-            }
+            const fs = await import("fs/promises");
+            html = await fs.readFile("./dist/index.html", "utf-8");
         }
     } else {
-        // In Dev mode, we must inject Vite's client and React Refresh preamble
-        // because Hono is serving the raw index.html bypassing Vite's transformIndexHtml
+        // Local Development
         try {
+            // @ts-ignore
             html = await Bun.file("index.html").text();
         } catch {
             const fs = await import("fs/promises");
@@ -122,7 +134,7 @@ app.get("*", async (c, next) => {
         );
     }
 
-    // Inject Tags
+    // Inject SEO Tags
     html = html.replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
         .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="${description}">`)
         .replace(/<meta property="og:title" content=".*?">/, `<meta property="og:title" content="${title}">`)
