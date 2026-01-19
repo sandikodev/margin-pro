@@ -41,16 +41,9 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         fetchConfigs();
     }, []);
 
-    if (isLoading) {
-        return (
-            <div className="h-screen w-full flex items-center justify-center bg-slate-50">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Loading System...</p>
-                </div>
-            </div>
-        );
-    }
+    // Non-blocking provider (Public pages render instantly)
+    // Consumers must check `isLoading` if they depend on strict config
+    // if (isLoading) { return <Loading /> } <--- Removed for Performance
 
     return (
         <ConfigContext.Provider value={{ settings, platforms, translations, isLoading, refreshConfigs: fetchConfigs }}>

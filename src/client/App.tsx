@@ -1,26 +1,43 @@
-import React, { useState, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { useToast } from './context/ToastContext';
-import { useAuth } from './hooks/useAuth';
+import React, { Suspense, useState, useEffect, useContext } from 'react';
+import { createBrowserRouter, RouterProvider, Navigate, Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom';
+import { User, BusinessProfile } from '@shared/types';
 
-// Eager Imports (Critical Path)
-// Eager Imports (Critical Path)
+// Auth & Context
+import { AuthProvider, AuthContext } from './context/AuthProvider';
+import { useAuth } from './hooks/useAuth';
+import { ToastProvider, useToast } from './context/ToastContext';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { useProfile } from './hooks/useProfile';
+
+// Lazy Imports (App & System)
+const OnboardingWizard = React.lazy(() => import('./routes/app/onboarding').then(module => ({ default: module.OnboardingWizard })));
+const DashboardShell = React.lazy(() => import('./components/layout/DashboardShell').then(module => ({ default: module.DashboardShell })));
+const AdminDashboard = React.lazy(() => import('./routes/system/admin').then(module => ({ default: module.AdminDashboard })));
+const SystemLayout = React.lazy(() => import('./layouts/SystemLayout').then(module => ({ default: module.SystemLayout })));
+
+// Lazy Page Imports
+const DashboardPage = React.lazy(() => import('./routes/app/dashboard-page').then(module => ({ default: module.DashboardPage })));
+const MarketPage = React.lazy(() => import('./routes/app/market-page').then(module => ({ default: module.MarketPage })));
+const ProfilePage = React.lazy(() => import('./routes/app/profile-page').then(module => ({ default: module.ProfilePage })));
+const FinancePage = React.lazy(() => import('./routes/app/finance-page').then(module => ({ default: module.FinancePage })));
+const CalculatorPage = React.lazy(() => import('./routes/app/calculator-page').then(module => ({ default: module.CalculatorPage })));
+const InsightsPage = React.lazy(() => import('./routes/app/insights-page').then(module => ({ default: module.InsightsPage })));
+const AcademyView = React.lazy(() => import('./routes/app/academy').then(module => ({ default: module.AcademyView })));
+const AboutView = React.lazy(() => import('./routes/app/about').then(module => ({ default: module.AboutView })));
+const ChangelogView = React.lazy(() => import('./routes/app/changelog').then(module => ({ default: module.ChangelogView })));
+const TopUpView = React.lazy(() => import('./routes/app/topup').then(module => ({ default: module.TopUpView })));
+
+// Public / Auth
 import { LandingPage } from './routes/public/landing';
 import { AuthPage } from './routes/public/auth';
-
-// Lazy Imports (Chunked)
-const OnboardingWizard = React.lazy(() => import('./routes/app/onboarding').then(module => ({ default: module.OnboardingWizard })));
-const DemoTour = React.lazy(() => import('./routes/public/demo-tour').then(module => ({ default: module.DemoTour })));
-const DashboardShell = React.lazy(() => import('./components/layout/DashboardShell').then(module => ({ default: module.DashboardShell })));
-// Moved AdminDashboard from components to routes/system
-const AdminDashboard = React.lazy(() => import('./routes/system/admin').then(module => ({ default: module.AdminDashboard })));
-const PricingPage = React.lazy(() => import('./routes/public/pricing').then(module => ({ default: module.PricingPage })));
-const SystemLayout = React.lazy(() => import('./layouts/SystemLayout').then(module => ({ default: module.SystemLayout })));
-const BlogIndex = React.lazy(() => import('./routes/public/blog').then(module => ({ default: module.BlogIndex })));
-const BlogPostPage = React.lazy(() => import('./routes/public/blog/post').then(module => ({ default: module.BlogPostPage })));
-const TermsPage = React.lazy(() => import('./routes/public/legal/terms').then(module => ({ default: module.TermsPage })));
-const PrivacyPage = React.lazy(() => import('./routes/public/legal/privacy').then(module => ({ default: module.PrivacyPage })));
-const InvitePage = React.lazy(() => import('./routes/public/invite').then(module => ({ default: module.InvitePage })));
+import { DemoTour } from './routes/public/demo-tour';
+import { PricingPage } from './routes/public/pricing';
+import { InvitePage } from './routes/public/invite';
+import { BlogIndex } from './routes/public/blog';
+import { BlogPostPage } from './routes/public/blog/post';
+import { LegalLayout } from './layouts/LegalLayout';
+import { LegalIndexPage } from './routes/public/legal/index';
+import { LegalDocumentPage } from './routes/public/legal/document';
 
 // Loading Component
 const PageLoader = () => (
@@ -32,97 +49,85 @@ const PageLoader = () => (
  </div>
 );
 
-// Data
-import { DEMO_BUSINESS, DEMO_PROJECTS, DEMO_CASHFLOW, DEMO_LIABILITIES, DEMO_USER_CREDENTIALS } from './lib/demo-data';
-import { BusinessProfile } from '@shared/types';
-import { useProfile } from './hooks/useProfile';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
-
-// --- AUTH DATA HELPER ---
-const populateDemoData = () => {
-    // Only populate if missing, to prevent overwriting user work in demo
-    if (!localStorage.getItem('margins_pro_businesses_v3')) {
-        localStorage.setItem('margins_pro_businesses_v3', JSON.stringify(DEMO_BUSINESS));
-        localStorage.setItem('margins_pro_active_business_id_v3', DEMO_BUSINESS[0].id);
-        localStorage.setItem('margins_pro_v12_final', JSON.stringify(DEMO_PROJECTS));
-        localStorage.setItem('margins_pro_cashflow', JSON.stringify(DEMO_CASHFLOW));
-        localStorage.setItem('margins_pro_liabilities', JSON.stringify(DEMO_LIABILITIES));
-        localStorage.setItem('margins_pro_onboarded', 'true');
-        localStorage.setItem('margins_pro_is_demo', 'true');
-        localStorage.setItem('margins_pro_demo_welcome', 'true');
-    }
-};
-
-// --- WRAPPERS ---
+// --- WRAPPERS (Preserved from previous implementation) ---
 
 const AuthWrapper = () => {
-  const navigate = useNavigate();
-  const { showToast } = useToast();
-  const { login } = useAuth();
-  const location = useLocation();
-  // Capture referral code from URL query params (e.g. ?ref=ANDI123)
-  const searchParams = new URLSearchParams(location.search);
-  const referralCode = searchParams.get('ref') || location.state?.referralCode || '';
+    const navigate = useNavigate(); // Hook works inside RouterProvider
+    const { showToast } = useToast();
+    const { login, isAuthenticated } = useAuth();
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+    const referralCode = searchParams.get('ref') || location.state?.referralCode || '';
+    
+    // Capture mode from URL query params
+    const modeParam = searchParams.get('mode');
+    const [initialMode, setInitialMode] = useState<'login' | 'register'>(
+        location.state?.mode || (modeParam === 'login' ? 'login' : 'register')
+    );
+    const [isDemo, setIsDemo] = useState(location.state?.isDemo || false);
   
-  // Capture mode from URL query params
-  const modeParam = searchParams.get('mode');
-  const [initialMode, setInitialMode] = useState<'login' | 'register'>(
-      location.state?.mode || (modeParam === 'login' ? 'login' : 'register')
-  );
-  const [isDemo, setIsDemo] = useState(location.state?.isDemo || false);
-
-  const [prevLocationState, setPrevLocationState] = useState(location.state);
-  if (location.state !== prevLocationState) {
-    setPrevLocationState(location.state);
-    if (location.state?.mode) setInitialMode(location.state.mode);
-    if (location.state?.isDemo) setIsDemo(location.state.isDemo);
-  }
-
-  const handleSuccess = (mode: 'login' | 'register', email?: string, password?: string) => {
-     // Demo Logic
-     if (email === DEMO_USER_CREDENTIALS.email && password === DEMO_USER_CREDENTIALS.password) {
-         populateDemoData();
-         login('demo-token-123', {
-             id: 'demo-user-1',
-             email: email,
-             name: 'Demo Merchant',
-             role: 'user',
-             createdAt: Date.now()
-         });
-         return;
-     }
-     
-     // MOCKED REAL LOGIN
-     login('mock-token-xyz', {
-         id: 'user-' + Date.now(),
-         email: email || 'user@example.com',
-         name: 'New User',
-         role: 'user',
-         createdAt: Date.now()
-     });
-
-     showToast("Login Berhasil", "success");
-     
-     // Check onboarding status
-     const onboarded = localStorage.getItem('margins_pro_onboarded');
-     if (onboarded === 'true') {
-         navigate('/app');
-     } else {
-         navigate('/onboarding');
-     }
+    const [prevLocationState, setPrevLocationState] = useState(location.state);
+    if (location.state !== prevLocationState) {
+      setPrevLocationState(location.state);
+      if (location.state?.mode) setInitialMode(location.state.mode);
+      if (location.state?.isDemo) setIsDemo(location.state.isDemo);
+    }
+  
+    // Effect: Auto-redirect if authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/app', { replace: true });
+        }
+    }, [isAuthenticated, navigate]);
+  
+    const handleSuccess = (user: User) => {
+       login('cookie-managed', user);
+       const permissions = typeof user.permissions === 'string' ? JSON.parse(user.permissions) : (user.permissions || []);
+       if (permissions.includes('demo_mode')) {
+           showToast("Mode Demo Aktif", "success");
+       } else {
+           showToast("Login Berhasil", "success");
+       }
+    };
+  
+    return (
+        <AuthPage 
+          initialMode={initialMode}
+          initialEmail={''}
+          initialPassword={''}
+          initialReferralCode={referralCode}
+          isDemo={isDemo}
+          onSuccess={handleSuccess}
+          onBack={() => navigate('/')}
+        />
+    );
   };
 
-  return (
-      <AuthPage 
-        initialMode={initialMode}
-        initialEmail={isDemo ? DEMO_USER_CREDENTIALS.email : ''}
-        initialPassword={isDemo ? DEMO_USER_CREDENTIALS.password : ''}
-        initialReferralCode={referralCode}
-        isDemo={isDemo}
-        onSuccess={handleSuccess}
-        onBack={() => navigate('/')}
-      />
-  );
+const LandingWrapper = () => {
+    // We cannot use useNavigate here if it's the element of a Route?
+    // Actually yes we can, components rendered by RouterProvider can use hooks.
+    // BUT LandingWrapper logic: if auth -> redirect.
+    // We can use a Loader for this in v7, but keeping legacy logic for now.
+    const navigate = useNavigate();
+    const { isAuthenticated } = useAuth();
+    const location = useLocation(); // Hook works
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/app', { replace: true });
+        }
+    }, [isAuthenticated, navigate]);
+
+    const handleAuthNav = (mode: 'login' | 'register') => {
+        navigate({ pathname: '/auth', search: location.search }, { state: { mode } });
+    };
+
+    return <LandingPage onGetStarted={() => handleAuthNav('register')} onLogin={() => handleAuthNav('login')} onDemo={() => navigate('/demo')} />;
+};
+
+const DemoWrapper = () => {
+    const navigate = useNavigate();
+    return <DemoTour onStartDemo={() => navigate('/auth', { state: { mode: 'login', isDemo: true } })} onBack={() => navigate('/')} />;
 };
 
 const OnboardingWrapper = () => {
@@ -130,7 +135,7 @@ const OnboardingWrapper = () => {
     const { showToast } = useToast();
     const profile = useProfile();
 
-    const handleComplete = (data: Partial<BusinessProfile>) => {
+    const handleComplete = async (data: Partial<BusinessProfile>) => {
         const newBusiness: BusinessProfile = {
           id: Math.random().toString(36).substr(2, 9),
           name: data.name || 'Bisnis Saya',
@@ -145,111 +150,153 @@ const OnboardingWrapper = () => {
           avatarUrl: ''
         };
         
-        profile.addBusiness(newBusiness);
-        profile.switchBusiness(newBusiness.id);
-    
-        localStorage.setItem('margins_pro_onboarded', 'true');
-        showToast("Setup Selesai!", "success");
-        navigate('/app');
+        try {
+            await profile.createBusiness(newBusiness);
+            // activeBusinessId is set automatically by useProfile hook
+            localStorage.setItem('margins_pro_onboarded', 'true');
+            showToast("Setup Selesai!", "success");
+            navigate('/app');
+        } catch (e) {
+            console.error("Onboarding failed", e);
+        }
     };
-
     return <OnboardingWizard onComplete={handleComplete} />;
-  };
+};
+  
+// --- PAGE CONNECTORS (Context Bridge) ---
+import type { DashboardOutletContext } from './components/layout/DashboardShell';
 
-const LandingWrapper = () => {
-    const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
+const DashboardPageConnect = () => { const ctx = useOutletContext<DashboardOutletContext>(); return <DashboardPage projects={ctx.projects} setActiveTab={ctx.setActiveTab} createNewProject={ctx.createNewProject} setActiveProjectId={ctx.setActiveProjectId} />; }
+const MarketPageConnect = () => { const ctx = useOutletContext<DashboardOutletContext>(); return <MarketPage addProject={ctx.addProject} activeBusinessId={ctx.activeBusinessId} setActiveTab={ctx.setActiveTab} setActiveProjectId={ctx.setActiveProjectId} />; }
+const ProfilePageConnect = () => { const ctx = useOutletContext<DashboardOutletContext>(); return <ProfilePage businesses={ctx.businesses} activeBusiness={ctx.activeBusiness} activeBusinessId={ctx.activeBusinessId} addBusiness={ctx.addBusiness} switchBusiness={ctx.switchBusiness} updateBusiness={ctx.updateBusiness} deleteBusiness={ctx.deleteBusiness} initialTab={'outlets'} onTopUpClick={() => ctx.setActiveTab('topup')} isEditingProfile={ctx.isProfileEditing} setIsEditingProfile={ctx.setIsProfileEditing} />; }
+const FinancePageConnect = () => { const ctx = useOutletContext<DashboardOutletContext>(); return <FinancePage activeProject={ctx.activeProject} activeBusiness={ctx.activeBusiness} updateBusiness={ctx.updateBusiness} />; }
+const CalculatorPageConnect = () => { const ctx = useOutletContext<DashboardOutletContext>(); return <CalculatorPage activeProject={ctx.activeProject || null} updateProject={ctx.updateProject} createNewProject={ctx.createNewProject} deleteProject={ctx.deleteProject} goToSimulation={() => ctx.setActiveTab('insights')} />; }
+const InsightsPageConnect = () => { const ctx = useOutletContext<DashboardOutletContext>(); return <InsightsPage activeProject={ctx.activeProject || null} updateProject={ctx.updateProject} onBack={() => ctx.setActiveTab('calc')} onOpenSidebar={() => {}} exchangeRates={ctx.exchangeRates} selectedCurrency={ctx.selectedCurrency} />; }
+// Helper for TopUp which needs Hooks that were in Shell
+import { useCurrency } from './hooks/useCurrency';
+import { useMarketplace } from './hooks/useMarketplace';
+const TopUpViewWrapper = ({ setActiveTab }: { setActiveTab: (t:string)=>void }) => {
+    const { formatValue } = useCurrency();
+    const { topUpCredits, credits } = useMarketplace();
+    return <TopUpView formatValue={formatValue} topUpCredits={topUpCredits} currentCredits={credits} onBack={() => setActiveTab('profile')} onHistoryClick={() => setActiveTab('profile')} />;
+}
+const TopUpViewConnect = () => { const ctx = useOutletContext<DashboardOutletContext>(); return <TopUpViewWrapper setActiveTab={ctx.setActiveTab} /> }
+
+
+// --- PROTECTED LAYOUT (AUTH REQUIRED) ---
+const ProtectedLayout = () => {
+    const { user, isLoading: authLoading } = useContext(AuthContext) || {};
+    const profile = useProfile();
     const location = useLocation();
 
-    if (isAuthenticated) {
-        return <Navigate to="/app" replace />;
+    if (authLoading || profile.isLoading) {
+        return <PageLoader />;
     }
 
-    // Preserve query params (like ?ref=...)
-    const handleAuthNav = (mode: 'login' | 'register') => {
-        navigate({
-            pathname: '/auth',
-            search: location.search
-        }, { 
-            state: { mode } 
-        });
-    };
+    if (!user) {
+        return <Navigate to="/auth" state={{ from: location }} replace />;
+    }
+
+    // New Onboarding Logic: Check if user has any business
+    if (!profile.businesses || profile.businesses.length === 0) {
+        return <Navigate to="/onboarding" replace />;
+    }
 
     return (
-        <LandingPage 
-            onGetStarted={() => handleAuthNav('register')}
-            onLogin={() => handleAuthNav('login')}
-            onDemo={() => navigate('/demo')}
-        />
+        <DashboardShell />
     );
 };
 
-const DemoWrapper = () => {
-    const navigate = useNavigate();
-    return (
-        <DemoTour 
-            onStartDemo={() => navigate('/auth', { state: { mode: 'login', isDemo: true } })}
-            onBack={() => navigate('/')}
-        />
-    );
-};
+// --- ROUTER CONFIGURATION ---
 
-export const App: React.FC = () => {
-  return (
-    <BrowserRouter>
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
-        {/* PUBLIC */}
-        <Route path="/" element={<LandingWrapper />} />
-        
-        <Route path="/auth" element={
-             <AuthWrapper />
-        } />
-
-        <Route path="/demo" element={
-            <DemoWrapper />
-        } />
-
-        <Route path="/r/:code" element={<InvitePage />} />
-
-        {/* PROTECTED */}
-        <Route path="/onboarding" element={
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <LandingWrapper />,
+    },
+    {
+        path: "/auth",
+        element: <AuthWrapper />,
+    },
+    {
+        path: "/demo",
+        element: <DemoWrapper />,
+    },
+    {
+        path: "/r/:code",
+        element: <InvitePage />,
+    },
+    {
+        path: "/onboarding",
+        element: (
             <ProtectedRoute>
                 <OnboardingWrapper />
             </ProtectedRoute>
-        } />
-
-        <Route path="/app/*" element={
-            <ProtectedRoute>
-                <DashboardShell />
+        ),
+    },
+    {
+        path: "/app",
+        element: <ProtectedLayout />,
+        children: [
+            { index: true, element: <DashboardPageConnect /> },
+            { path: "market", element: <MarketPageConnect /> },
+            { path: "profile", element: <ProfilePageConnect /> },
+            { path: "finance", element: <FinancePageConnect /> },
+            { path: "calc", element: <CalculatorPageConnect /> },
+            { path: "insights", element: <InsightsPageConnect /> },
+            { path: "academia", element: <AcademyView onOpenAbout={() => {}} /> },
+            { path: "edu", element: <Navigate to="academia" replace /> },
+            { path: "about", element: <AboutView onBack={() => {}} onOpenChangelog={() => {}} /> },
+            { path: "changelog", element: <ChangelogView onBack={() => {}} /> },
+            { path: "topup", element: <TopUpViewConnect /> },
+            { path: "*", element: <Navigate to="/app" replace /> }
+        ]
+    },
+    {
+        path: "/system",
+        element: (
+            <ProtectedRoute requiredRole="admin" redirectTo="/app">
+                <SystemLayout />
             </ProtectedRoute>
-        } />
+        ),
+        children: [
+            { path: "admin", element: <AdminDashboard /> },
+            { index: true, element: <Navigate to="admin" replace /> }
+        ]
+    },
+    { path: "/pricing", element: <PricingPage /> },
+    { path: "/blog", element: <BlogIndex /> },
+    { path: "/blog/:slug", element: <BlogPostPage /> },
+    {
+        path: "/legal",
+        element: <LegalLayout />,
+        children: [
+            { index: true, element: <LegalIndexPage /> },
+            { path: ":slug", element: <LegalDocumentPage /> }
+        ]
+    },
+    { path: "*", element: <Navigate to="/" replace /> }
+], {
+    future: {
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+        v7_fetcherPersist: true,
+        v7_normalizeFormMethod: true,
+        v7_partialHydration: true,
+        v7_skipActionErrorRevalidation: true,
+    }
+});
 
-        {/* SYSTEM (ADMIN ONLY) */}
-        {/* Note: We use 'admin' role check here. Demo user is 'user', so this tests security. */}
-        <Route path="/system" element={
-            <ProtectedRoute requiredRole="admin" redirectTo="/app"> 
-               <SystemLayout /> 
-            </ProtectedRoute>
-        }>
-            <Route path="admin" element={<AdminDashboard />} /> 
-            <Route index element={<Navigate to="admin" replace />} />
-        </Route>
-
-        <Route path="/pricing" element={<PricingPage />} />
-
-        {/* PUBLIC CONTENT */}
-        <Route path="/blog" element={<BlogIndex />} />
-        <Route path="/blog/:slug" element={<BlogPostPage />} />
-        <Route path="/legal/terms" element={<TermsPage />} />
-        <Route path="/legal/privacy" element={<PrivacyPage />} />
-
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
-  );
+export const App: React.FC = () => {
+    return (
+        <ToastProvider>
+            <AuthProvider>
+                <Suspense fallback={<PageLoader />}>
+                    <RouterProvider router={router} />
+                </Suspense>
+            </AuthProvider>
+        </ToastProvider>
+    );
 };
 
 export default App;

@@ -1,4 +1,10 @@
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 import { Platform, Project, PlatformOverrides, CalculationResult, CostItem, ProductionConfig, ScenarioResult } from '@shared/types';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 /**
  * ==========================================
@@ -211,6 +217,20 @@ export const calculateFinancialHealth = (
     ? (gapToBuffer / projectedNetFreeCashflow).toFixed(1)
     : '∞';
 
+
+
+  // Scoring Logic
+  let score = 0;
+  const savingsPct = Math.min((currentSavings / targetBufferAmount) * 100, 100);
+  if (savingsPct >= 50) score += 30;
+  if (savingsPct >= 100) score += 20;
+  if (projectedNetFreeCashflow > 0) score += 30;
+  if (monthsToReachBuffer !== '∞' && Number(monthsToReachBuffer) < 6) score += 20;
+
+  let label: 'Healthy' | 'Warning' | 'Danger' = 'Danger';
+  if (score >= 80) label = 'Healthy';
+  else if (score >= 50) label = 'Warning';
+
   return {
     netCashflow,
     totalMonthlyBurden,
@@ -219,6 +239,8 @@ export const calculateFinancialHealth = (
     projectedNetFreeCashflow,
     targetBufferAmount,
     monthsToReachBuffer,
-    savingsPercentage: Math.min((currentSavings / targetBufferAmount) * 100, 100)
+    savingsPercentage: savingsPct,
+    score,
+    label
   };
 };

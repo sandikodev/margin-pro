@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { AppSettings } from '@shared/types';
 import { useConfig } from './useConfig';
+import { STORAGE_KEYS } from '@shared/constants';
 
-const SETTINGS_KEY = 'margins_pro_settings_v1';
+const SETTINGS_KEY = STORAGE_KEYS.SETTINGS;
 
 const DEFAULT_SETTINGS: AppSettings = {
   languageMode: 'umkm' // Default to simple language

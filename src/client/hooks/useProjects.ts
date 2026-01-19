@@ -1,11 +1,12 @@
+
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { Project } from '@shared/types';
 import { cleanAIJSON } from '../lib/utils';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../lib/client';
-
-const STORAGE_KEY = 'margins_pro_v12_final';
+import { STORAGE_KEYS } from '@shared/constants';
+import { useToast } from '../context/ToastContext';
 
 const DEFAULT_PROJECT_STATE: Project = {
   id: 'temp-fallback',
@@ -18,88 +19,71 @@ const DEFAULT_PROJECT_STATE: Project = {
 };
 
 export const useProjects = (activeBusinessId?: string) => {
-  const isDemo = localStorage.getItem('margins_pro_is_demo') === 'true';
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
-  // --- STATE (Optimistic UI) ---
-  const [allProjects, setAllProjects] = useState<Project[]>(() => {
-    // If Demo, load from LocalStorage entirely
-    // If Real, try load from LocalStorage as cache, but will be overwritten by API
-    const saved = localStorage.getItem(STORAGE_KEY);
-    const parsed = saved ? JSON.parse(saved) : [];
-
-    // Fallback Only for purely client-side/demo
-    if (parsed.length === 0 && isDemo) {
-      return [{
-        id: 'fiera-real-v2',
-        businessId: 'fiera-food-001',
-        name: 'Rice Bowl Fiera Food',
-        label: 'Real Ops',
-        confidence: 'high',
-        isFavorite: true,
-        costs: [
-          { id: '1', name: 'Ayam Broiler (Range Fluktuatif)', amount: 68000, minAmount: 66000, maxAmount: 70000, isRange: true, allocation: 'bulk', batchYield: 40, bulkUnit: 'units' },
-          { id: '2', name: 'Beras (Weekly Usage)', amount: 42000, allocation: 'bulk', batchYield: 40, bulkUnit: 'units' },
-          { id: '9', name: 'Bowl + Tutup (Pack 20pcs)', amount: 12500, minAmount: 10000, maxAmount: 15000, isRange: true, allocation: 'bulk', batchYield: 20, bulkUnit: 'units' },
-          { id: '10', name: 'Cup 22oz (50pcs)', amount: 15000, allocation: 'bulk', batchYield: 50, bulkUnit: 'units' },
-          { id: '11', name: 'Sealer Lid (2000pcs)', amount: 31500, minAmount: 30000, maxAmount: 33000, isRange: true, allocation: 'bulk', batchYield: 2000, bulkUnit: 'units' },
-          { id: '3', name: 'Minyak Goreng (1L)', amount: 17000, allocation: 'bulk', batchYield: 40, bulkUnit: 'units', detailTotalQty: 1000, detailPerPortion: 15, detailUnit: 'ml' },
-          { id: '4', name: 'Tepung Terigu (1kg)', amount: 10000, allocation: 'bulk', batchYield: 40, bulkUnit: 'units' },
-          { id: '5', name: 'Saus & Bumbu', amount: 20000, allocation: 'bulk', batchYield: 40, bulkUnit: 'units' },
-          { id: '6', name: 'Sayur & Pelengkap', amount: 25000, allocation: 'bulk', batchYield: 40, bulkUnit: 'units' },
-          { id: '7', name: 'Gas LPG (Habis 5 Hari)', amount: 22000, allocation: 'bulk', batchYield: 5, bulkUnit: 'days' },
-          { id: '8', name: 'Bensin Ops (Habis 5 Hari)', amount: 25000, allocation: 'bulk', batchYield: 5, bulkUnit: 'days' },
-          { id: 'c_fixed_default', name: 'Biaya Tetap Operasional', amount: 0, allocation: 'unit' }
-        ],
-        productionConfig: { period: 'weekly', daysActive: 5, targetUnits: 40 },
-        pricingStrategy: 'competitor',
-        competitorPrice: 10000,
-        targetNet: 2500,
-        lastModified: Date.now()
-      }];
-    }
-    return parsed;
+  // --- STATE ---
+  // Active Project ID persists in LocalStorage only for UI continuity
+  const [activeProjectId, setActiveProjectId] = useState<string>(() => {
+    return localStorage.getItem(STORAGE_KEYS.PROJECTS + '_active') || '';
   });
 
-  // --- API SYNC ---
-  const { data: remoteProjects } = useQuery({
-    queryKey: ['projects'],
+  const [isImporting, setIsImporting] = useState(false);
+
+  // --- QUERY ---
+  const { data: allProjects = [], isLoading } = useQuery({
+    queryKey: ['projects', activeBusinessId], // Scoped by business?
+    // Actually, if we want to support multi-business switching quickly, better key is ['projects', { businessId }]
     queryFn: async () => {
-      const res = await api.projects.$get();
-      if (!res.ok) throw new Error("Failed to fetch");
-      // Parse: The API returns JSON with a 'data' flattened. 
-      // We need to ensure it matches Project type.
-      const json = await res.json();
-      // Map API response to match Project type strictly if needed, 
-      // but our RPC client should handle types if Shared correctly.
-      // For now, assume strict mapping.
-      return json as unknown as Project[];
+      if (!activeBusinessId) return [];
+      const res = await api.projects.$get({
+        query: { businessId: activeBusinessId }
+      });
+      if (!res.ok) throw new Error("Failed to fetch projects");
+      const data = await res.json();
+      // Ensure Production Config Defaults if server missed any
+      return data.map(p => ({
+        ...p,
+        productionConfig: p.productionConfig || { period: 'weekly', daysActive: 5, targetUnits: 40 }
+      })) as unknown as Project[];
     },
-    enabled: !isDemo // Only fetch if not demo
+    enabled: !!activeBusinessId,
+    staleTime: 1000 * 60 * 5, // 5 min
   });
 
-  // Sync Remote -> Local
+  // Derived: Current context projects (API already filters by businessId usually, but double check)
+  const projects = useMemo(() => {
+    // If our API call is specific to businessId, this filter is redundant but safe.
+    if (!activeBusinessId) return [];
+    return allProjects.filter(p => p.businessId === activeBusinessId);
+  }, [allProjects, activeBusinessId]);
+
+  // Sync Active ID Logic
   useEffect(() => {
-    if (remoteProjects && !isDemo) {
-      setAllProjects(remoteProjects);
+    if (projects.length > 0) {
+      // If current active doesn't exist in filtered list, switch to first
+      if (!activeProjectId || !projects.find(p => p.id === activeProjectId)) {
+        setActiveProjectId(projects[0].id);
+      }
+    } else {
+      // No projects? Clear active
+      if (activeProjectId) setActiveProjectId('');
     }
-  }, [remoteProjects, isDemo]);
+  }, [projects, activeProjectId]);
 
-  // Sync Local -> Storage (Always backup)
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(allProjects));
-  }, [allProjects]);
+    if (activeProjectId) {
+      localStorage.setItem(STORAGE_KEYS.PROJECTS + '_active', activeProjectId);
+    }
+  }, [activeProjectId]);
 
 
-  // --- MUTATIONS ---
+  // --- MUTATIONS (Optimistic) ---
 
-  // Helper to split Project into API DTO (Top-Level vs Data-JSON)
+  // Helper to split Project into API DTO
   const toApiPayload = (p: Partial<Project>) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, name, label, businessId, isFavorite, lastModified, author, ...data } = p;
-    // We want to exclude these from `data` JSON column, so we destructure them out.
-    // But they are unused in the variable sense (except name, label etc which are used in return).
-    // The previous code renamed them to _id etc to suppress use?
-    // Let's just use what we need.
     return {
       name,
       label,
@@ -110,43 +94,92 @@ export const useProjects = (activeBusinessId?: string) => {
   };
 
   const createMutation = useMutation({
-    mutationFn: async (project: Partial<Project>) => {
+    mutationFn: async (project: Project) => {
+      // Ensure businessID is set
+      if (!project.businessId && activeBusinessId) project.businessId = activeBusinessId;
+
       const res = await api.projects.$post({ json: toApiPayload(project) });
+      if (!res.ok) throw new Error("Failed to create");
       return await res.json();
+    },
+    onMutate: async (newProject) => {
+      await queryClient.cancelQueries({ queryKey: ['projects', activeBusinessId] });
+      const previous = queryClient.getQueryData(['projects', activeBusinessId]);
+
+      // Optimistic Update
+      queryClient.setQueryData<Project[]>(['projects', activeBusinessId], (old) => {
+        return [newProject, ...(old || [])];
+      });
+
+      setActiveProjectId(newProject.id); // Switch instantly
+
+      return { previous };
+    },
+    onError: (e, v, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(['projects', activeBusinessId], ctx.previous);
+      showToast("Gagal membuat projek", "error");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects', activeBusinessId] });
     }
   });
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, json }: { id: string, json: Partial<Project> }) => {
-      // @ts-expect-error - Hono RPC type inference complication
-      const res = await api.projects[':id'].$put({ param: { id }, json: toApiPayload(json) });
+      const res = await api.projects[':id'].$put({
+        param: { id },
+        json: toApiPayload(json)
+      });
+      if (!res.ok) throw new Error("Failed to update");
       return await res.json();
+    },
+    onMutate: async ({ id, json }) => {
+      await queryClient.cancelQueries({ queryKey: ['projects', activeBusinessId] });
+      const previous = queryClient.getQueryData(['projects', activeBusinessId]);
+
+      queryClient.setQueryData<Project[]>(['projects', activeBusinessId], (old) => {
+        return (old || []).map(p => p.id === id ? { ...p, ...json, lastModified: Date.now() } : p);
+      });
+
+      return { previous };
+    },
+    onError: (e, v, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(['projects', activeBusinessId], ctx.previous);
+    },
+    onSettled: () => {
+      // Debounce invalidation? No need for now.
+      // Actually, invalidation here causes re-fetch which might overwrite lastModified if clock skew?
+      // Optimistic UI holds true until re-fetch.
+      queryClient.invalidateQueries({ queryKey: ['projects', activeBusinessId] });
     }
   });
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const res = await api.projects[':id'].$delete({ param: { id } });
+      if (!res.ok) throw new Error("Failed to delete");
       return await res.json();
+    },
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ['projects', activeBusinessId] });
+      const previous = queryClient.getQueryData(['projects', activeBusinessId]);
+
+      queryClient.setQueryData<Project[]>(['projects', activeBusinessId], (old) => {
+        const list = (old || []).filter(p => p.id !== id);
+        // Handle active switch if deleted
+        if (id === activeProjectId && list.length > 0) setActiveProjectId(list[0].id);
+        return list;
+      });
+
+      return { previous };
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects', activeBusinessId] });
     }
   });
 
 
-  const projects = useMemo(() => {
-    if (!activeBusinessId) return allProjects;
-    return allProjects.filter(p => p.businessId === activeBusinessId || !p.businessId);
-  }, [allProjects, activeBusinessId]);
-
-  const [activeProjectId, setActiveProjectId] = useState<string>('');
-  const [isImporting, setIsImporting] = useState(false);
-
-  useEffect(() => {
-    if (projects.length > 0) {
-      if (!activeProjectId || !projects.find(p => p.id === activeProjectId)) {
-        setActiveProjectId(projects[0].id);
-      }
-    }
-  }, [projects, activeProjectId]);
+  // --- PUBLIC METHODS ---
 
   const activeProject = useMemo(() => {
     const found = projects.find(p => p.id === activeProjectId);
@@ -156,38 +189,13 @@ export const useProjects = (activeBusinessId?: string) => {
   }, [projects, activeProjectId]);
 
   const updateProject = useCallback((updates: Partial<Project>) => {
-    setAllProjects(prev => prev.map(p => {
-      if (p.id === activeProjectId) {
-        const updated = { ...p, ...updates, lastModified: Date.now() };
-        // Fire API
-        if (!isDemo) {
-          updateMutation.mutate({
-            id: p.id,
-            json: updated
-          });
-        }
-        return updated;
-      }
-      return p;
-    }));
-  }, [activeProjectId, isDemo, updateMutation]);
+    if (!activeProjectId) return;
+    updateMutation.mutate({ id: activeProjectId, json: updates });
+  }, [activeProjectId, updateMutation]);
 
-  // NEW: Update any project by ID (Generic)
   const editProject = useCallback((id: string, updates: Partial<Project>) => {
-    setAllProjects(prev => prev.map(p => {
-      if (p.id === id) {
-        const updated = { ...p, ...updates, lastModified: Date.now() };
-        if (!isDemo) {
-          updateMutation.mutate({
-            id: p.id,
-            json: updated
-          });
-        }
-        return updated;
-      }
-      return p;
-    }));
-  }, [isDemo, updateMutation]);
+    updateMutation.mutate({ id, json: updates });
+  }, [updateMutation]);
 
   const createNewProject = useCallback(() => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -210,79 +218,47 @@ export const useProjects = (activeBusinessId?: string) => {
       isFavorite: false
     };
 
-    setAllProjects(prev => [newP, ...prev]);
-    setActiveProjectId(id);
+    createMutation.mutate(newP);
 
-    if (!isDemo) {
-      createMutation.mutate(newP);
-    }
-
-    return id;
-  }, [activeBusinessId, isDemo, createMutation]);
+    // setActiveProjectId(id); // Done in onMutate now
+    return id; // Return ID for immediate usage if needed
+  }, [activeBusinessId, createMutation]);
 
   const addProject = useCallback((project: Project) => {
     const finalProject = { ...project };
     if (!finalProject.businessId && activeBusinessId) {
       finalProject.businessId = activeBusinessId;
     }
-    setAllProjects(prev => [finalProject, ...prev]);
-    setActiveProjectId(finalProject.id);
-
-    if (!isDemo) {
-      createMutation.mutate(finalProject);
-    }
-  }, [activeBusinessId, isDemo, createMutation]);
+    createMutation.mutate(finalProject);
+  }, [activeBusinessId, createMutation]);
 
   const deleteProject = useCallback((id: string) => {
-    setAllProjects(prev => {
-      const updatedList = prev.filter(p => p.id !== id);
-      if (id === activeProjectId) {
-        const remainingInContext = activeBusinessId
-          ? updatedList.filter(p => p.businessId === activeBusinessId || !p.businessId)
-          : updatedList;
-
-        if (remainingInContext.length > 0) {
-          setTimeout(() => setActiveProjectId(remainingInContext[0].id), 0);
-        } else {
-          setTimeout(() => setActiveProjectId(''), 0);
-        }
-      }
-      return updatedList;
-    });
-
-    if (!isDemo) {
-      deleteMutation.mutate(id);
-    }
-  }, [activeProjectId, activeBusinessId, isDemo, deleteMutation]);
+    deleteMutation.mutate(id);
+  }, [deleteMutation]);
 
   const toggleFavorite = useCallback((id: string) => {
-    setAllProjects(prev => prev.map(p => {
-      if (p.id === id) {
-        const updated = { ...p, isFavorite: !p.isFavorite };
-        if (!isDemo) {
-          updateMutation.mutate({
-            id: p.id,
-            json: updated
-          });
-        }
-        return updated;
-      }
-      return p;
-    }));
-  }, [isDemo, updateMutation]);
+    const p = projects.find(x => x.id === id);
+    if (p) editProject(id, { isFavorite: !p.isFavorite });
+  }, [projects, editProject]);
 
   const importProjectWithAI = useCallback(async (jsonString: string) => {
     setIsImporting(true);
     try {
       const rawData = JSON.parse(jsonString);
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }); // Use correct ENV
+      const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+      // NOTE: Using import.meta.env for CLIENT SIDE access. 
+      // process.env.GEMINI_API_KEY might be hidden in vite unless prefixed.
+      // But server has it. Client might not. 
+      // IMPORTANT: AI Logic should ideally be Server-Side RPC to hide Key.
+      // For now, retaining Client Logic but assume VITE_ prefix.
+
       const prompt = `
         Fix missing fields for Food Pricing Project. Return strictly valid JSON.
         Input Data: ${JSON.stringify(rawData)}
       `;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash-exp', // Updated model
+        model: 'gemini-2.0-flash-exp',
         contents: prompt,
         config: { responseMimeType: 'application/json' }
       });
@@ -298,20 +274,19 @@ export const useProjects = (activeBusinessId?: string) => {
         confidence: 'medium',
       };
 
-      // Reuse addProject to handle logic
       addProject(newProject);
-
       return newId;
     } catch (e) {
       console.error("AI Import Failed:", e);
+      showToast("AI Import Gagal", "error");
       return null;
     } finally {
       setIsImporting(false);
     }
-  }, [activeBusinessId, addProject]);
+  }, [activeBusinessId, addProject, showToast]);
 
   return {
-    allProjects,
+    allProjects, // Now same as projects or scoped projects
     projects,
     activeProjectId,
     setActiveProjectId,
@@ -323,6 +298,7 @@ export const useProjects = (activeBusinessId?: string) => {
     deleteProject,
     toggleFavorite,
     importProjectWithAI,
-    isImporting
+    isImporting,
+    isLoading
   };
 };

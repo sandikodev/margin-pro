@@ -1,42 +1,25 @@
 import { BusinessProfile, Project, CashflowRecord, Liability } from '@shared/types';
+import { FINANCIAL_DEFAULTS, EXTERNAL_LINKS } from '@shared/constants';
 
 export const DEMO_USER_CREDENTIALS = {
   email: 'demo@margins.pro',
   password: 'demo123'
 };
 
-export const DEMO_BUSINESS: BusinessProfile[] = [
-  {
-    id: 'demo-biz-001',
-    name: 'Fiera Food Mangiran',
-    type: 'fnb_offline',
-    ownerName: 'Demo User',
-    email: 'demo@margins.pro',
-    phone: '081234567890',
-    address: 'Jl. Raya Mangiran No. 45, Bantul, Yogyakarta',
-    gmapsLink: 'https://maps.app.goo.gl/example',
-    initialCapital: 25000000,
-    currentAssetValue: 18500000,
-    cashOnHand: 8500000,
-    themeColor: 'indigo',
-    establishedDate: Date.now() - 1000 * 60 * 60 * 24 * 365, // 1 year ago
-    avatarUrl: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=200&q=80' // Restaurant Mock Image
-  },
-  {
-    id: 'demo-biz-002',
-    name: 'Fiera Coffee Express',
-    type: 'fnb_online',
-    ownerName: 'Demo User',
-    email: 'demo@margins.pro',
-    phone: '081234567890',
-    address: 'Cloud Kitchen Seturan, Slot B-12',
-    initialCapital: 10000000,
-    currentAssetValue: 8000000,
-    cashOnHand: 3200000,
-    themeColor: 'orange',
-    establishedDate: Date.now() - 1000 * 60 * 60 * 24 * 90 // 3 months ago
-  }
-];
+export const DEMO_BUSINESS: BusinessProfile = {
+  id: 'b_demo_123',
+  name: "Rasa Nusantara Express",
+  type: 'fnb_offline',
+  address: "Jl. Merdeka No. 45, Jakarta Selatan",
+  phone: "081234567890",
+  category: "fnb",
+  gmapsLink: EXTERNAL_LINKS.GMAPS_PLACEHOLDER,
+  initialCapital: FINANCIAL_DEFAULTS.INITIAL_CAPITAL,
+  cashOnHand: 8500000,
+  currentAssetValue: 12000000,
+  avatarUrl: EXTERNAL_LINKS.UNSPLASH_RESTAURANT, // Restaurant Mock Image
+  establishedDate: Date.now() - 1000 * 60 * 60 * 24 * 365
+};
 
 export const DEMO_PROJECTS: Project[] = [
   {

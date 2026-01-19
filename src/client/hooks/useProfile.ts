@@ -1,103 +1,165 @@
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { BusinessProfile } from '@shared/types';
-
-const BUSINESS_KEY = 'margins_pro_businesses_v3'; 
-const ACTIVE_BUSINESS_KEY = 'margins_pro_active_business_id_v3';
-
-const MOCK_BUSINESSES: BusinessProfile[] = [
-  {
-    id: 'fiera-food-001',
-    name: 'Fiera Food Mangiran',
-    type: 'fnb_offline',
-    ownerName: 'sandikodev',
-    email: 'sandiko@konxc.space',
-    phone: '0882007952010',
-    address: 'Jl. Raya Mangiran No. 45, Bantul, Yogyakarta',
-    gmapsLink: 'https://maps.app.goo.gl/example1',
-    linkGofood: 'https://gofood.link/a/fiera-food-mangiran',
-    linkGrab: 'https://grab.com/food/fiera-food-mangiran',
-    linkShopee: 'https://shopee.co.id/fiera-food-mangiran',
-    initialCapital: 15000000,
-    currentAssetValue: 12500000,
-    cashOnHand: 2500000,
-    establishedDate: Date.now() - 1000 * 60 * 60 * 24 * 365,
-    themeColor: 'indigo'
-  },
-  {
-    id: 'fiera-snack-002',
-    name: 'Fiera Snack Paseban',
-    type: 'retail',
-    ownerName: 'sandikodev',
-    email: 'sandiko@konxc.space',
-    phone: '0882007952010',
-    address: 'Kios Paseban Lt. 1, Jetis, Bantul',
-    gmapsLink: 'https://maps.app.goo.gl/example2',
-    linkGofood: '',
-    linkGrab: '',
-    linkShopee: 'https://shopee.co.id/fiera-snack-paseban',
-    initialCapital: 5000000,
-    currentAssetValue: 4200000,
-    cashOnHand: 1500000,
-    establishedDate: Date.now() - 1000 * 60 * 60 * 24 * 90,
-    themeColor: 'emerald'
-  }
-];
+import { STORAGE_KEYS } from '@shared/constants';
+import { api } from '../lib/client';
+import { useToast } from '../context/ToastContext';
 
 export const useProfile = () => {
-  const [businesses, setBusinesses] = useState<BusinessProfile[]>(() => {
-    const saved = localStorage.getItem(BUSINESS_KEY);
-    return saved ? JSON.parse(saved) : MOCK_BUSINESSES;
+  const queryClient = useQueryClient();
+  const { showToast } = useToast();
+
+  // Local UI State
+  const [activeBusinessId, setActiveBusinessId] = useState<string | null>(() => {
+    return localStorage.getItem(STORAGE_KEYS.ACTIVE_BUSINESS_ID);
   });
 
-  const [activeBusinessId, setActiveBusinessId] = useState<string>(() => {
-    return localStorage.getItem(ACTIVE_BUSINESS_KEY) || businesses[0]?.id || MOCK_BUSINESSES[0].id;
+  const [isProfileEditing, setIsProfileEditing] = useState(false);
+
+  // --- QUERY: Get Businesses ---
+  // --- QUERY: Get Businesses ---
+  const { data: businesses = [], isLoading } = useQuery({
+    queryKey: ['businesses'],
+    queryFn: async () => {
+      const res = await (api as any).businesses.$get();
+      if (!res.ok) throw new Error("Failed to fetch businesses");
+      const data = await res.json();
+      return data as unknown as BusinessProfile[];
+    },
+    staleTime: 1000 * 60 * 5, // 5 min
   });
 
-  const activeBusiness = useMemo(() => {
-    return businesses.find(b => b.id === activeBusinessId) || businesses[0];
-  }, [businesses, activeBusinessId]);
+  // Derived State
+  const activeBusiness = businesses.find(b => b.id === activeBusinessId) || businesses[0] || null;
 
+  // Effect: Sync Active ID to LocalStorage
   useEffect(() => {
-    localStorage.setItem(BUSINESS_KEY, JSON.stringify(businesses));
-  }, [businesses]);
-
-  useEffect(() => {
-    localStorage.setItem(ACTIVE_BUSINESS_KEY, activeBusinessId);
+    if (activeBusinessId) {
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_BUSINESS_ID, activeBusinessId);
+    }
   }, [activeBusinessId]);
 
-  const addBusiness = (newBusiness: BusinessProfile) => {
-    setBusinesses(prev => [...prev, newBusiness]);
-    setActiveBusinessId(newBusiness.id);
-  };
-
-  const updateBusiness = (id: string, updates: Partial<BusinessProfile>) => {
-    setBusinesses(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b));
-  };
-
-  const deleteBusiness = (id: string) => {
-    if (businesses.length <= 1) {
-      alert("Minimal harus ada satu profil bisnis.");
-      return;
+  // Effect: Auto-select first if none active
+  useEffect(() => {
+    if (!activeBusinessId && businesses.length > 0) {
+      setActiveBusinessId(businesses[0].id);
     }
-    const newBus = businesses.filter(b => b.id !== id);
-    setBusinesses(newBus);
-    if (activeBusinessId === id) {
-      setActiveBusinessId(newBus[0].id);
-    }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [businesses]); // Only run when businesses load/change
 
-  const switchBusiness = (id: string) => {
-    setActiveBusinessId(id);
-  };
+
+  // --- MUTATIONS ---
+
+
+  const addMutation = useMutation({
+    mutationFn: async (newBiz: BusinessProfile) => {
+      const res = await (api as any).businesses.$post({
+        json: newBiz
+      });
+      if (!res.ok) throw new Error("Failed to create business");
+      return await res.json();
+    },
+    onMutate: async (newBiz) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['businesses'] });
+
+      // Snapshot previous value
+      const previousBusinesses = queryClient.getQueryData<BusinessProfile[]>(['businesses']);
+
+      // Optimistically update
+      queryClient.setQueryData<BusinessProfile[]>(['businesses'], (old) => {
+        return [...(old || []), newBiz]; // Client provided ID is trusted for optimist view
+      });
+
+      // Set active immediately
+      setActiveBusinessId(newBiz.id);
+
+      return { previousBusinesses };
+    },
+    onError: (err, newBiz, context) => {
+      // Rollback
+      if (context?.previousBusinesses) {
+        queryClient.setQueryData(['businesses'], context.previousBusinesses);
+      }
+      showToast("Gagal membuat bisnis: " + err.message, 'error');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['businesses'] });
+    },
+    onSuccess: (data, variables) => {
+      showToast(`Bisnis "${variables.name}" berhasil dibuat`, 'success');
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (updates: Partial<BusinessProfile> & { id: string }) => {
+      const res = await (api as any).businesses[':id'].$put({
+        param: { id: updates.id },
+        json: updates
+      });
+      if (!res.ok) throw new Error("Failed to update");
+      return await res.json();
+    },
+    onMutate: async (updates) => {
+      await queryClient.cancelQueries({ queryKey: ['businesses'] });
+      const previousBusinesses = queryClient.getQueryData<BusinessProfile[]>(['businesses']);
+
+      queryClient.setQueryData<BusinessProfile[]>(['businesses'], (old) => {
+        return (old || []).map(b => b.id === updates.id ? { ...b, ...updates } : b);
+      });
+
+      return { previousBusinesses };
+    },
+    onError: (err, updates, context) => {
+      if (context?.previousBusinesses) {
+        queryClient.setQueryData(['businesses'], context.previousBusinesses);
+      }
+      showToast("Gagal update: " + err.message, 'error');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['businesses'] });
+    },
+    onSuccess: () => {
+      showToast("Profil bisnis diperbarui", 'success');
+      setIsProfileEditing(false);
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await (api as any).businesses[':id'].$delete({ param: { id } });
+      if (!res.ok) throw new Error("Failed to delete");
+      return await res.json();
+    },
+    onSuccess: (data, id) => {
+      queryClient.invalidateQueries({ queryKey: ['businesses'] });
+      showToast("Bisnis dihapus", 'info');
+      if (activeBusinessId === id) setActiveBusinessId(null);
+    }
+  });
+
+
+  // --- API SURFACE ---
 
   return {
     businesses,
     activeBusiness,
     activeBusinessId,
-    addBusiness,
-    updateBusiness,
-    deleteBusiness,
-    switchBusiness
+
+    // Actions
+    switchBusiness: setActiveBusinessId,
+
+    addBusiness: addMutation.mutate,
+    createBusiness: addMutation.mutateAsync,
+    updateBusiness: (id: string, updates: Partial<BusinessProfile>) => updateMutation.mutate({ ...updates, id }),
+    deleteBusiness: deleteMutation.mutate,
+
+    // UI State
+    isProfileEditing,
+    setIsProfileEditing,
+
+    // Loading State
+    isLoading
   };
 };
