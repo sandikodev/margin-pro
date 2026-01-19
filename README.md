@@ -72,6 +72,16 @@ bun run dev
 ```
 Buka browser di `http://localhost:5173`.
 
+### 6. Verifikasi & Testing
+Sebelum melakukan commit, pastikan kode aman dari error:
+```bash
+# Validasi Code Style (Lint), Type Check, dan Build Test
+bun run validate
+
+# Jalankan End-to-End Testing (Playwright)
+bun run test
+```
+
 ---
 
 ## 📂 Struktur Project

@@ -17,6 +17,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
   const [isScrolled, setIsScrolled] = React.useState(false);
   const [roiRevenue, setRoiRevenue] = React.useState(15000000); // 15jt default
 
+  const [floatingIcons, setFloatingIcons] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    setFloatingIcons([...Array(5)].map((_, i) => ({
+      id: i,
+      x: Math.random() * 100 + 'vw',
+      duration: 10 + Math.random() * 10,
+      size: 24 + Math.random() * 20,
+      delay: i * 2
+    })));
+  }, []);
+
   React.useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -169,23 +181,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
 
         {/* Floating Icons Animation (Playful element) */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {[...Array(5)].map((_, i) => (
+            {floatingIcons.map((icon) => (
                 <motion.div
-                    key={i}
+                    key={icon.id}
                     className="absolute text-indigo-500/20"
-                    initial={{ y: '100vh', x: Math.random() * 100 + 'vw' }}
+                    initial={{ y: '100vh', x: icon.x }}
                     animate={{ 
                         y: '-20vh',
                         rotate: 360
                     }}
                     transition={{ 
-                        duration: 10 + Math.random() * 10, 
+                        duration: icon.duration, 
                         repeat: Infinity, 
                         ease: "linear",
-                        delay: i * 2
+                        delay: icon.delay
                     }}
                 >
-                    <Star size={24 + Math.random() * 20} fill="currentColor" />
+                    <Star size={icon.size} fill="currentColor" />
                 </motion.div>
             ))}
         </div>
