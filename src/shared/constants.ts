@@ -193,3 +193,11 @@ export const EXTERNAL_LINKS = {
   UNSPLASH_RESTAURANT: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=200&q=80',
   BACKGROUND_PATTERN: 'https://www.transparenttextures.com/patterns/cubes.png'
 };
+
+export const COMPANY = {
+  NAME: 'PT Koneksi Jaringan Indonesia',
+  WEBSITE: 'https://www.konxc.space',
+  INSTAGRAM: 'https://instagram.com/konxc.id',
+  LINKEDIN: 'https://www.linkedin.com/in/koneksi-jaringan-a0b149396/',
+  EMAIL: 'support@konxc.space'
+};

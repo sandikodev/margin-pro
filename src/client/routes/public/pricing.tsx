@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useMidtrans } from '../../hooks/useMidtrans';
-import { Check, Star, Shield, History, Clock, FileText, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useToast } from '../../context/ToastContext';
+import { Check, Star, Shield, History, Clock, FileText, ArrowRight, Activity, ArrowLeft } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from '../../context/toast-context';
 import { useAuth } from '../../hooks/useAuth';
 import { SUBSCRIPTION_PRICING } from '@shared/constants';
 import { Invoice, User } from '@shared/types';
 import { useNavigate } from 'react-router-dom';
+import { BentoCard } from '../../components/ui/design-system/BentoCard';
+import { GradientCard } from '../../components/ui/design-system/GradientCard';
+import { cn } from '@/lib/utils';
+import { DashboardSectionHeader } from '../../components/ui/design-system/SectionHeader';
 
 // --- SUB COMPONENTS ---
 
@@ -26,77 +30,88 @@ interface PricingCardProps {
 const PricingCard: React.FC<PricingCardProps> = ({ 
     tier, price, unit, features, isPopular, isLifetime, isLoading, user, isLoaded, onAction 
 }) => {
-    // Assumption: 'starter' is current for free users, 'pro' requires checking actual subscription
-    // For demo simplicity, we assume free user unless they have paid
     const isStarter = tier === 'starter';
     const isCurrentPlan = isStarter && (!user || (user && !('isPro' in user))); 
 
-    // Dynamic Visuals
     const Container = isPopular ? motion.div : 'div';
     const containerProps = isPopular ? {
         initial: { y: 20, opacity: 0 },
         animate: { y: 0, opacity: 1 },
-        className: "bg-slate-900 rounded-[2.5rem] p-8 border-4 border-indigo-500 relative flex flex-col gap-6 shadow-2xl shadow-indigo-500/20"
-    } : {
-        className: `bg-white rounded-[2.5rem] p-8 border border-slate-200 flex flex-col gap-6 relative overflow-hidden ${isStarter ? 'opacity-70 hover:opacity-100 transition-opacity' : ''}`
-    };
+        className: "relative h-full"
+    } : { className: "relative h-full" };
 
     return (
         <Container {...containerProps}>
-            {/* Badges */}
-            {isPopular && (
-                <div className="absolute top-0 right-0 p-6">
-                    <Star className="w-6 h-6 text-yellow-400 fill-yellow-400 animate-pulse" />
-                </div>
-            )}
-            {isLifetime && (
-                <div className="absolute top-0 right-0 p-8 opacity-5 -rotate-12">
-                    <Shield className="w-32 h-32 text-slate-900" />
-                </div>
-            )}
-
-            {/* Header */}
-            <div>
-                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                    isPopular ? 'bg-indigo-500 text-white' : 
-                    isLifetime ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500'
-                }`}>
-                    {isPopular ? 'Most Popular' : isLifetime ? 'Lifetime Deal' : 'Starter'}
-                </span>
-                <div className="mt-4 flex items-baseline gap-1">
-                    <span className={`text-3xl font-black ${isPopular ? 'text-white' : 'text-slate-800'}`}>{price}</span>
-                    <span className={`text-sm font-bold ${isPopular ? 'text-slate-400' : 'text-slate-400'}`}>{unit}</span>
-                </div>
-            </div>
-
-            {/* Feature List */}
-            <ul className="space-y-4 flex-1 relative z-10">
-                {features.map(f => (
-                    <li key={f} className={`flex items-center gap-3 text-sm font-bold ${isPopular ? 'text-slate-300' : 'text-slate-500'}`}>
-                        <Check className={`w-4 h-4 ${isPopular ? 'text-indigo-400' : isLifetime ? 'text-emerald-500' : 'text-slate-300'}`} /> 
-                        {f}
-                    </li>
-                ))}
-            </ul>
-
-            {/* Action Button */}
-            <button 
-                onClick={onAction}
-                disabled={isLoading || isCurrentPlan || (isPopular && !isLoaded)}
-                className={`w-full py-4 rounded-xl font-black text-sm transition-all relative z-10 flex items-center justify-center gap-2 ${
-                    isCurrentPlan ? 'bg-slate-100 text-slate-400 cursor-not-allowed' :
-                    isPopular ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg hover:shadow-indigo-500/50 hover:scale-105 active:scale-95 disabled:scale-100 disabled:opacity-50' :
-                    isLifetime ? 'bg-slate-100 hover:bg-slate-200 text-slate-800' :
-                    'bg-slate-900 text-white hover:bg-slate-800'
-                }`}
+            <BentoCard 
+                className={cn(
+                    "h-full flex flex-col relative overflow-hidden transition-all duration-300",
+                    isPopular ? "!border-indigo-500/50 shadow-2xl shadow-indigo-500/10 bg-slate-900" : "bg-slate-900/50 hover:bg-slate-900 border-slate-800",
+                    isStarter ? "opacity-80 hover:opacity-100" : ""
+                )}
             >
-                {isLoading ? 'Processing...' : 
-                 isCurrentPlan ? 'Current Plan' : 
-                 !user ? (isStarter ? 'Start Free' : 'Get Started') :
-                 'Upgrade Now'}
-                 
-                {!isLoading && !isCurrentPlan && <ArrowRight className="w-4 h-4" />}
-            </button>
+                {/* Badges */}
+                {isPopular && (
+                    <div className="absolute top-0 right-0 p-6">
+                        <Star className="w-6 h-6 text-indigo-400 fill-indigo-400 animate-pulse" />
+                    </div>
+                )}
+                {isLifetime && (
+                    <div className="absolute -top-6 -right-6 p-12 opacity-10 -rotate-12 pointer-events-none">
+                        <Shield className="w-40 h-40 text-emerald-400" />
+                    </div>
+                )}
+
+                {/* Header */}
+                <div className="mb-8">
+                    <div className={cn(
+                        "inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-4",
+                        isPopular ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30" : 
+                        isLifetime ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : 
+                        "bg-slate-800 text-slate-400 border border-slate-700"
+                    )}>
+                        {isPopular ? 'Most Popular' : isLifetime ? 'Lifetime Deal' : 'Starter'}
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                        <span className="text-4xl font-black text-white tracking-tight">{price}</span>
+                        <span className="text-sm font-bold text-slate-500">{unit}</span>
+                    </div>
+                </div>
+
+                {/* Feature List */}
+                <ul className="space-y-4 flex-1 mb-8">
+                    {features.map(f => (
+                        <li key={f} className="flex items-start gap-3 text-sm font-bold text-slate-300">
+                             <div className={cn(
+                                 "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0",
+                                 isPopular ? "bg-indigo-500/20 text-indigo-400" : isLifetime ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800 text-slate-500"
+                             )}>
+                                <Check className="w-3 h-3" /> 
+                             </div>
+                            <span className="leading-tight">{f}</span>
+                        </li>
+                    ))}
+                </ul>
+
+                {/* Action Button */}
+                <button 
+                    onClick={onAction}
+                    disabled={isLoading || isCurrentPlan || (isPopular && !isLoaded)}
+                    className={cn(
+                        "w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all relative z-10 flex items-center justify-center gap-2",
+                        isCurrentPlan ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700" :
+                        isPopular ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:scale-95" :
+                        isLifetime ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:scale-95" :
+                        "bg-white text-slate-950 hover:bg-indigo-50 hover:-translate-y-0.5 active:scale-95"
+                    )}
+                >
+                    {isLoading ? 'Processing...' : 
+                     isCurrentPlan ? 'Current Plan' : 
+                     !user ? (isStarter ? 'Start Free' : 'Get Started') :
+                     'Upgrade Now'}
+                     
+                    {!isLoading && !isCurrentPlan && <ArrowRight className="w-4 h-4" />}
+                </button>
+            </BentoCard>
         </Container>
     );
 };
@@ -128,16 +143,13 @@ export const PricingPage = () => {
     }, [user]);
 
     const handleAction = async (tier: 'starter' | 'pro_monthly' | 'pro_lifetime') => {
-        // 1. PUBLIC FLOW: Redirect to Register
         if (!user) {
             navigate('/auth', { state: { mode: 'register' } });
             return;
         }
 
-        // 2. STARTER FLOW: No Action (Already Active)
         if (tier === 'starter') return;
 
-        // 3. AUTHENTICATED FLOW: Trigger Payment
         setIsLoading(true);
         try {
             const payload = {
@@ -167,7 +179,6 @@ export const PricingPage = () => {
             const data = await res.json();
             const { snapToken, invoiceId } = data;
 
-            // Optimistic update
             const newInvoice: Invoice = {
                 id: invoiceId,
                 userId: user.id,
@@ -178,7 +189,6 @@ export const PricingPage = () => {
             };
             setInvoices(prev => [newInvoice, ...prev]);
 
-            // Snap Payment
             pay(snapToken, 
                 (_result) => {
                     showToast('Payment Successful! Welcome to Pro.', 'success');
@@ -202,40 +212,54 @@ export const PricingPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 py-12 px-4 md:px-8 font-sans">
-            {/* Header */}
-            <div className="max-w-7xl mx-auto space-y-12">
-                <div className="text-center space-y-6">
+        <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-indigo-500/30">
+            {/* Header / Nav */}
+            <div className="max-w-7xl mx-auto px-6 py-8 flex items-center justify-between">
+                <button 
+                    onClick={() => navigate('/')} 
+                    className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
+                >
+                    <div className="w-8 h-8 rounded-full border border-slate-800 bg-slate-900 group-hover:bg-slate-800 flex items-center justify-center transition-colors">
+                         <ArrowLeft className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-bold uppercase tracking-widest hidden md:block">Back to Home</span>
+                </button>
+                <div className="flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-indigo-500" />
+                    <span className="font-black tracking-tight">MARGIN PRO</span>
+                </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-6 pb-20 space-y-16">
+                
+                {/* Hero */}
+                <div className="text-center space-y-6 max-w-3xl mx-auto pt-10">
                     {!user && (
-                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-100 text-indigo-600 text-[10px] font-black uppercase tracking-widest mb-4">
-                            <Star className="w-3 h-3 fill-indigo-600" /> Public Pricing
+                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-black uppercase tracking-widest animate-in fade-in slide-in-from-top-4">
+                            <Star className="w-3 h-3 fill-indigo-300" /> Public Pricing
                          </div>
                     )}
-                    <h1 className="text-4xl md:text-6xl font-black text-slate-800 tracking-tight">
-                        Unlock <span className="text-indigo-600">Margin Pro</span>
+                    <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-[0.95] animate-in fade-in slide-in-from-bottom-4 delay-100">
+                        Unlock <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">Pro Power.</span>
                     </h1>
-                    <p className="text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-lg text-slate-400 max-w-xl mx-auto leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-4 delay-200">
                         Take full control of your business finance with AI-driven insights, unlimited projects, and advanced simulations.
                     </p>
-                    
-                    {/* Login Reminder for Guest */}
-                    {!user && (
-                         <p className="text-sm text-slate-400">
-                            Already have an account? <a href="/auth" className="text-indigo-600 font-bold hover:underline">Log In</a>
-                         </p>
-                    )}
                 </div>
 
                 {/* MOBILE SEGMENTED CONTROL */}
-                <div className="md:hidden flex justify-center sticky top-2 z-30 mb-4">
-                     <div className="bg-slate-200/80 backdrop-blur-md p-1.5 rounded-2xl flex items-center shadow-lg border border-white/20">
+                <div className="md:hidden flex justify-center sticky top-4 z-30">
+                     <div className="bg-slate-900/80 backdrop-blur-md p-1.5 rounded-2xl flex items-center shadow-xl border border-white/10">
                         {TIERS.map(t => {
                             const isActive = activeTab === t.id;
                             return (
                                 <button
                                     key={t.id}
                                     onClick={() => setActiveTab(t.id)}
-                                    className={`relative px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 ${isActive ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+                                    className={cn(
+                                        "relative px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300",
+                                        isActive ? "text-slate-950" : "text-slate-400 hover:text-slate-200"
+                                    )}
                                 >
                                     {isActive && (
                                         <motion.div 
@@ -252,7 +276,7 @@ export const PricingPage = () => {
                 </div>
 
                 {/* DESKTOP GRID (Hidden on Mobile) */}
-                <div className="hidden md:grid md:grid-cols-3 gap-8 max-w-5xl mx-auto items-start">
+                <div className="hidden md:grid md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
                     <PricingCard 
                         tier="starter"
                         price="Rp 0"
@@ -288,48 +312,50 @@ export const PricingPage = () => {
                 {/* MOBILE TAB CONTENT (Shown only on mobile) */}
                 <div className="md:hidden">
                     <div className="max-w-md mx-auto">
-                        {activeTab === 'starter' && (
-                            <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-                                <PricingCard 
-                                    tier="starter"
-                                    price="Rp 0"
-                                    unit="/ forever"
-                                    features={['Basic Calculators', '1 Project Limit', 'Community Support']}
-                                    user={user}
-                                    onAction={() => handleAction('starter')}
-                                />
-                            </motion.div>
-                        )}
-                        {activeTab === 'pro_monthly' && (
-                            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
-                                <PricingCard 
-                                    tier="pro_monthly"
-                                    price="Rp 150k"
-                                    unit="/ month"
-                                    features={['Unlimited Projects', 'AI Intelligence Hub', 'Global Branding Engine', 'Priority Support', 'Advanced Exports']}
-                                    isPopular
-                                    isLoading={isLoading}
-                                    user={user}
-                                    isLoaded={isLoaded}
-                                    onAction={() => handleAction('pro_monthly')}
-                                />
-                            </motion.div>
-                        )}
-                        {activeTab === 'pro_lifetime' && (
-                             <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                                <PricingCard 
-                                    tier="pro_lifetime"
-                                    price="Rp 2.5jt"
-                                    unit="/ once"
-                                    features={['Everything in Pro', 'Lifetime Updates', 'No Recurring Fees', 'Founder Status Badge']}
-                                    isLifetime
-                                    isLoading={isLoading}
-                                    user={user}
-                                    isLoaded={isLoaded}
-                                    onAction={() => handleAction('pro_lifetime')}
-                                />
-                             </motion.div>
-                        )}
+                        <AnimatePresence mode="wait">
+                            {activeTab === 'starter' && (
+                                <motion.div key="starter" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
+                                    <PricingCard 
+                                        tier="starter"
+                                        price="Rp 0"
+                                        unit="/ forever"
+                                        features={['Basic Calculators', '1 Project Limit', 'Community Support']}
+                                        user={user}
+                                        onAction={() => handleAction('starter')}
+                                    />
+                                </motion.div>
+                            )}
+                            {activeTab === 'pro_monthly' && (
+                                <motion.div key="pro" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
+                                    <PricingCard 
+                                        tier="pro_monthly"
+                                        price="Rp 150k"
+                                        unit="/ month"
+                                        features={['Unlimited Projects', 'AI Intelligence Hub', 'Global Branding Engine', 'Priority Support', 'Advanced Exports']}
+                                        isPopular
+                                        isLoading={isLoading}
+                                        user={user}
+                                        isLoaded={isLoaded}
+                                        onAction={() => handleAction('pro_monthly')}
+                                    />
+                                </motion.div>
+                            )}
+                            {activeTab === 'pro_lifetime' && (
+                                 <motion.div key="lifetime" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }}>
+                                    <PricingCard 
+                                        tier="pro_lifetime"
+                                        price="Rp 2.5jt"
+                                        unit="/ once"
+                                        features={['Everything in Pro', 'Lifetime Updates', 'No Recurring Fees', 'Founder Status Badge']}
+                                        isLifetime
+                                        isLoading={isLoading}
+                                        user={user}
+                                        isLoaded={isLoaded}
+                                        onAction={() => handleAction('pro_lifetime')}
+                                    />
+                                 </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
                 </div>
 
@@ -338,72 +364,73 @@ export const PricingPage = () => {
                     <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="max-w-4xl mx-auto pt-16 border-t border-slate-200"
+                        className="max-w-4xl mx-auto pt-20 border-t border-slate-800"
                     >
-                         <div className="flex items-center justify-between mb-8">
-                            <div className="flex items-center gap-2">
-                                <div className="p-2 bg-slate-100 rounded-lg">
-                                    <History className="w-5 h-5 text-slate-500" />
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-700">Billing History</h3>
-                            </div>
-                            <span className="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
-                                {user.email}
-                            </span>
-                         </div>
+                         <DashboardSectionHeader 
+                             icon={History} 
+                             title="Billing History" 
+                             subtitle={`Manage your invoices for ${user.email}`} 
+                         />
 
-                         {invoices.length === 0 ? (
-                            <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 border-dashed text-slate-400 flex flex-col items-center gap-4">
-                                 <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center">
-                                     <FileText className="w-8 h-8 opacity-20" />
-                                 </div>
-                                 <span className="text-sm font-medium">No billing history found</span>
-                            </div>
-                         ) : (
-                            <div className="space-y-4">
-                                {invoices.map(inv => (
-                                    <div key={inv.id} className="bg-white p-6 rounded-2xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between shadow-sm hover:shadow-md transition-shadow gap-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
-                                                inv.status === 'PAID' ? 'bg-emerald-100 text-emerald-600' :
-                                                inv.status === 'PENDING' ? 'bg-amber-100 text-amber-600' :
-                                                'bg-rose-100 text-rose-600'
-                                            }`}>
-                                                {inv.status === 'PAID' ? <Check size={20} /> : 
-                                                 inv.status === 'PENDING' ? <Clock size={20} /> : <FileText size={20} />}
-                                            </div>
-                                            <div>
-                                                <div className="font-bold text-slate-800 text-lg">Invoice #{inv.id.slice(0, 8)}</div>
-                                                <div className="text-xs text-slate-400 font-medium flex gap-2">
-                                                    <span>{new Date(inv.createdAt || Date.now()).toLocaleDateString()}</span>
-                                                    <span>•</span>
-                                                    <span>{new Date(inv.createdAt || Date.now()).toLocaleTimeString()}</span>
+                         <div className="mt-8">
+                             {invoices.length === 0 ? (
+                                <BentoCard className="py-20 flex flex-col items-center justify-center text-center gap-6 border-dashed border-slate-800 bg-slate-900/30">
+                                     <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center border border-slate-800">
+                                         <FileText className="w-8 h-8 text-slate-600" />
+                                     </div>
+                                     <div>
+                                         <h4 className="text-white font-bold text-lg mb-1">No billing history found</h4>
+                                         <p className="text-slate-500 text-sm">Once you upgrade, your invoices will appear here.</p>
+                                     </div>
+                                </BentoCard>
+                             ) : (
+                                <div className="space-y-4">
+                                    {invoices.map(inv => (
+                                        <BentoCard key={inv.id} className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-slate-700 transition-colors">
+                                            <div className="flex items-center gap-4">
+                                                <div className={cn(
+                                                    "w-12 h-12 rounded-2xl flex items-center justify-center border",
+                                                    inv.status === 'PAID' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' :
+                                                    inv.status === 'PENDING' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
+                                                    'bg-rose-500/10 border-rose-500/20 text-rose-500'
+                                                )}>
+                                                    {inv.status === 'PAID' ? <Check size={20} /> : 
+                                                     inv.status === 'PENDING' ? <Clock size={20} /> : <FileText size={20} />}
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-white text-lg">Invoice #{inv.id.slice(0, 8)}</div>
+                                                    <div className="text-xs text-slate-500 font-bold flex gap-2 mt-1">
+                                                        <span>{new Date(inv.createdAt || Date.now()).toLocaleDateString()}</span>
+                                                        <span>•</span>
+                                                        <span>{new Date(inv.createdAt || Date.now()).toLocaleTimeString()}</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-0 border-slate-100 pt-4 md:pt-0">
-                                            <div className="text-right">
-                                                <div className="font-black text-slate-800 text-lg">Rp {inv.amount.toLocaleString()}</div>
-                                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Amount</div>
+                                            <div className="flex items-center justify-between md:justify-end gap-8 border-t md:border-0 border-slate-800 pt-4 md:pt-0">
+                                                <div className="text-right">
+                                                    <div className="font-black text-white text-lg">Rp {inv.amount.toLocaleString()}</div>
+                                                    <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Total Amount</div>
+                                                </div>
+                                                <div className={cn(
+                                                     "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border",
+                                                     inv.status === 'PAID' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' :
+                                                     inv.status === 'PENDING' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
+                                                     'bg-rose-500/10 border-rose-500/20 text-rose-500'
+                                                )}>
+                                                    {inv.status}
+                                                </div>
                                             </div>
-                                            <div className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest ${
-                                                 inv.status === 'PAID' ? 'bg-emerald-100 text-emerald-600' :
-                                                 inv.status === 'PENDING' ? 'bg-amber-100 text-amber-600' :
-                                                 'bg-rose-100 text-rose-600'
-                                            }`}>
-                                                {inv.status}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                         )}
+                                        </BentoCard>
+                                    ))}
+                                </div>
+                             )}
+                         </div>
                     </motion.div>
                 )}
 
-                <div className="flex justify-center gap-8 text-slate-300 grayscale opacity-50 pt-4">
-                     <span className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
-                        <Shield className="w-4 h-4" /> Secured by Midtrans
+                <div className="flex justify-center gap-8 text-slate-600 opacity-50 pt-10">
+                     <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                        <Shield className="w-3 h-3" /> Secured by Midtrans
                      </span>
                 </div>
             </div>

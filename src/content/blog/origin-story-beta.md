@@ -20,9 +20,9 @@ You’ve closed the shop. The staff has gone home. The floors are mopped. And th
 You made sales today. A lot of them. The register was ringing. But as you punch the numbers into your calculator, the feeling in your stomach drops.
 *Between the platform fees (20%), the PB1 tax (10%), the packaging costs, and the rising price of chili...*
 
-**You didn't make a profit today.**
-
+```share
 You just worked 14 hours for free.
+```
 
 ## The Industry's Dirty Little Secret
 
@@ -71,7 +71,9 @@ We are looking for the **Early Adopters**. The ones who are tired of guessing. T
 
 ## Join Us
 
-We are proving that F&B doesn't have to be high risk. It just has to be high intelligence.
+```share
+F&B doesn't have to be high risk. It just has to be high intelligence.
+```
 
 The link below is your ticket. Grab it before we close the gates.
 
