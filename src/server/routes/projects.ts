@@ -84,7 +84,9 @@ const app = new Hono()
         const id = raw.id || Math.random().toString(36).substring(2, 9);
 
         // Extract core fields vs JSON fields
-        const { name, label, businessId, isFavorite, lastModified: _lastModified, id: _id, ...jsonData } = raw;
+        const { name, label, businessId, isFavorite, lastModified: _ignoreMod, id: _ignoreId, ...jsonData } = raw;
+
+
 
         // DB Data Object (Merge with defaults to satisfy strict schema)
         const dbData = {
@@ -125,14 +127,13 @@ const app = new Hono()
 
         if (!business) return c.json({ error: "Access denied" }, 403);
 
-        const { name, label, businessId: _businessId, isFavorite, lastModified: _lastModified, id: _id, ...jsonData } = raw;
+        const { name, label, businessId: _ignoreBiz, isFavorite, lastModified: _ignoreMod, id: _ignoreId, ...jsonData } = raw;
+
+        // "Use" the ignored vars
+
 
         const dbData = {
             ...jsonData,
-            // For updates, we might want to preserve existing props if partial update, 
-            // but PUT usually implies full replacement of the resource or controlled partial.
-            // Zod schema makes everything optional? No, Zod schema has structure.
-            // The client hook sends the FULL object.
             productionConfig: jsonData.productionConfig || { period: 'weekly', daysActive: 5, targetUnits: 40 },
         };
 

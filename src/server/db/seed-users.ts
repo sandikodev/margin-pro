@@ -51,7 +51,7 @@ async function seedUsers() {
                     email: u.email, // Update email to new domain
                     name: u.name,
                     password: u.password,
-                    role: u.role as any,
+                    role: u.role as "user" | "admin" | "super_admin",
                     permissions: u.permissions
                 })
                 .where(eq(users.id, byRef.id));
@@ -69,7 +69,7 @@ async function seedUsers() {
                 .set({
                     name: u.name,
                     password: u.password,
-                    role: u.role as any,
+                    role: u.role as "user" | "admin" | "super_admin",
                     referralCode: u.referralCode,
                     permissions: u.permissions
                 })
@@ -79,7 +79,7 @@ async function seedUsers() {
         }
 
         // 3. Insert New
-        await db.insert(users).values({ ...u, role: u.role as any });
+        await db.insert(users).values({ ...u, role: u.role as "user" | "admin" | "super_admin" });
         console.log(`✅ Created user: ${u.email}`);
     }
 

@@ -3,8 +3,8 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { db } from "../db";
-import { systemSettings, platforms, translations, users } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { systemSettings, platforms, translations, users, invoices } from "../db/schema";
+import { eq, desc } from "drizzle-orm";
 import { sessionMiddleware, requireRole } from "../middleware/session";
 
 export const adminRoutes = new Hono()
@@ -52,4 +52,19 @@ export const adminRoutes = new Hono()
 
         await db.update(users).set({ role }).where(eq(users.id, id));
         return c.json({ status: "updated", id, role });
+    })
+    .get("/invoices", async (c) => {
+        const allInvoices = await db.select({
+            id: invoices.id,
+            amount: invoices.amount,
+            status: invoices.status,
+            createdAt: invoices.createdAt,
+            userEmail: users.email,
+            userName: users.name
+        })
+        .from(invoices)
+        .leftJoin(users, eq(invoices.userId, users.id))
+        .orderBy(desc(invoices.createdAt));
+        
+        return c.json(allInvoices);
     });
