@@ -102,12 +102,12 @@ app.get("*", async (c, next) => {
         }
     } else if (process.env.NODE_ENV === "production") {
         // Local Production (Bun)
-        // @ts-ignore
-        html = await Bun.file("./dist/index.html").text();
+        const bun = (globalThis as any).Bun;
+        html = bun ? await bun.file("./dist/index.html").text() : "";
     } else {
         // Local Development (Bun)
-        // @ts-ignore
-        html = await Bun.file("index.html").text();
+        const bun = (globalThis as any).Bun;
+        html = bun ? await bun.file("index.html").text() : "";
 
         // Inject Vite Client & React Preamble
         html = html.replace(
