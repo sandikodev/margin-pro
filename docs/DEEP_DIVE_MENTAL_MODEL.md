@@ -116,6 +116,20 @@ Berikut adalah panduan lengkap istilah teknis, bisnis, dan desain yang dikelompo
 
 ---
 
+### 📂 Dunia Struktur Project & File System (The Workplace)
+*Istilah dasar tentang tempat developer bekerja dan menyimpan file.*
+
+| Istilah | Definisi dalam Konteks Kerja |
+| :--- | :--- |
+| **Workspace** | Ruang Kerja. Folder utama tempat kita membuka editor (VS Code). Di sini "dunia" project kita berada. |
+| **Source Code** | Kode Sumber (Resep Masakan). File teks mentah yang ditulis manusia (TS, JS, CSS) sebelum dimasak (compile) jadi aplikasi. |
+| **Codebase** | Basis Kode. Keseluruhan koleksi file, script, dan aset yang membentuk satu aplikasi utuh. |
+| **Root Dir** | Akar Pohon. Folder paling atas dari project (biasanya di mana file `package.json` berada). Jangan buang sampah (log file) di sini! |
+| **Environment Variable** | Variabel Lingkungan (`.env`). "Rahasia Dapur". Tempat menyimpan password, API Key, dan setting sensitif yang tidak boleh dilihat orang lain (tidak masuk Git). |
+| **Directory/Path** | Alamat File. Penunjuk lokasi di mana file berada, misal: `src/client/components`. Harus akurat, salah satu huruf saja error. |
+
+---
+
 ### 🏢 Dunia Bisnis, Produk & Marketing
 *Istilah yang sering didengar di ruangan meeting direksi atau tim growth.*
 
