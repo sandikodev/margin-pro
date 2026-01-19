@@ -100,132 +100,130 @@ Anda mungkin bertanya: *"Kenapa di JS/TS kita seolah-olah gila akan tipe data, s
 
 Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana untuk istilah-istilah "keren" yang kita gunakan:
 
-### A. Konsep Fundamental (General)
-| Istilah | Penjelasan Sederhana |
-| :--- | :--- |
-| **Runtime** | Lingkungan tempat kode dijalankan (seperti sistem operasi mini khusus untuk JavaScript, e.g., Node.js, Bun, Browser). |
-| **End-to-End (E2E)** | Sistem yang terhubung dari ujung (Database/Backend) sampai ke ujung lainnya (Browser/User) secara utuh. |
-| **Type Safety** | Jaminan bahwa data yang mengalir dalam aplikasi selalu sesuai dengan tipe yang ditentukan, mencegah error "data tidak dikenal". |
-| **DX (Developer Experience)** | Seberapa nyaman dan cepat seorang pengembang saat bekerja dengan sebuah codebase (seperti UX tapi untuk programmer). |
-| **CI/CD** | Sistem otomatis yang melakukan tes, build, dan deployment setiap kali pengembang menyimpan kode baru. |
+## 7. Kamus Besar Istilah Margin Pro (Glosarium)
 
-### B. Proses & Tooling (Build System)
-| Istilah | Penjelasan Sederhana |
-| :--- | :--- |
-| **Compiling** | Proses mengubah kode dari bahasa yang dipahami manusia ke bahasa yang dipahami mesin (biner/bytecode). |
-| **Transpiling** | Mirip kompilasi, tapi mengubah satu bahasa pemrograman ke bahasa lain yang levelnya setara (misal: TypeScript ke JavaScript). |
-| **Bundler** | Alat yang mengumpulkan ratusan file kode menjadi satu file kecil yang siap dikirim ke user (e.g., Vite, Webpack, Rolldown). |
-| **Tree-shaking** | Proses otomatis membuang kode yang tidak pernah dipanggil/dipakai (seperti menggoyangkan pohon untuk menjatuhkan daun kering). |
-| **Linting** | Proses pengecekan kode otomatis untuk mencari potensi kesalahan penulisan atau gaya bahasa yang buruk. |
-| **Formatting** | Proses merapikan susunan teks kode (spasi, baris baru) agar enak dibaca manusia. |
-| **HMR (Hot Module Replacement)** | Fitur yang membuat layar browser update instan saat kode diubah tanpa perlu refresh manual. |
-| **Cold Start** | Waktu yang dibutuhkan server "tidur" (serverless) untuk bangun dan merespons tamu pertama. |
+Berikut adalah panduan lengkap istilah teknis, bisnis, dan desain yang dikelompokkan berdasarkan "Dunia" masing-masing. Jika ada istilah yang muncul di dua dunia berbeda, itu disengaja karena konteksnya memang berbeda.
 
-### C. Backend & Arsitektur Sistem
-| Istilah | Penjelasan Sederhana |
-| :--- | :--- |
-| **Monolith (Monolitik)** | Arsitektur di mana seluruh aplikasi (database, backend, frontend) digabung jadi satu bongkahan raksasa. Mudah di awal, susah dipecah nanti. |
-| **Microservices** | Memecah aplikasi raksasa menjadi layanan-layanan kecil yang saling bicara (misal: Service User, Service Pembayaran). Kompleks tapi scalable. |
-| **Serverless** | Model di mana Anda hanya upload kode fungsi, dan cloud provider yang mengurus servernya (hidup saat dipanggil, mati saat sepi). |
-| **Edge Computing** | Menjalankan kode backend di server yang secara fisik paling dekat dengan lokasi user (misal: user Jakarta dilayani server Singapura, bukan AS). |
-| **Monorepo** | Strategi menyimpan kode backend dan frontend dalam satu folder besar agar mudah dikelola bersama (seperti yang kita lakukan sekarang). |
-| **Agnostik** | Sifat aplikasi yang tidak "pilih-pilih" tempat tinggal; bisa jalan di server mana pun tanpa banyak ubahan. |
-| **RPC (Remote Procedure Call)** | Cara frontend memanggil fungsi backend seolah-olah fungsi itu ada di komputer lokalnya. |
-| **Load Balancing** | Teknik membagi beban trafik ke banyak server agar tidak ada satu server yang jebol sendirian. |
-| **Rate Limiting** | Membatasi jumlah request dari satu user dalam waktu tertentu (misal: max 100 hit/menit) untuk mencegah abuse. |
-| **Middleware** | "Pos Satpam" yang berdiri di tengah-tengah antara request user dan backend (bisa untuk cek login, log data, dll). |
-| **Webhook** | Mekanisme "Saya hubungi kamu": Server A mengirim data ke Server B secara otomatis saat ada kejadian tertentu (push, bukan pull). |
-| **WebSocket** | Jalur komunikasi dua arah yang terus terbuka (seperti telepon) untuk data realtime, beda dengan HTTP (seperti surat) yang putus-nyambung. |
-| **Idempotent** | Operasi yang jika dilakukan berkali-kali memberikan hasil yang tetap sama (misal: tombol save yang tidak membuat data ganda). |
-| **Single Source of Truth** | Prinsip di mana data hanya disimpan di satu tempat, sehingga semua orang merujuk ke data yang pasti valid. |
-| **CQRS (Command Query Responsibility Segregation)** | Memisahkan jalur "Baca Data" dan "Tulis Data" menjadi dua sistem berbeda untuk performa maksimal. |
-| **Event-Driven** | Arsitektur di mana komponen saling berkomunikasi dengan cara meneriakkan "Kejadian" (Event) tanpa peduli siapa yang mendengarkan. |
-| **Race Condition** | Bug yang terjadi ketika hasil akhir tergantung pada urutan/waktu eksekusi yang tidak terduga dari dua proses cepat. |
+### 🏢 Dunia Bisnis, Produk & Marketing
+*Istilah yang sering didengar di ruangan meeting direksi atau tim growth.*
 
-### D. Frontend Modern (Beyond React)
-| Istilah | Penjelasan Sederhana |
+| Istilah | Definisi dalam Konteks Bisnis |
 | :--- | :--- |
-| **SPA (Single Page Application)** | Website yang hanya memuat satu file HTML kosong di awal, lalu sisanya diurus oleh JavaScript (seperti aplikasi HP). |
-| **CSR (Client-Side Rendering)** | Browser user yang bekerja keras menyusun HTML dari data JSON (beban di HP user). |
-| **SSR (Server-Side Rendering)** | Server yang menyusun HTML lengkap sebelum dikirim ke user (beban di server, tapi SEO bagus). |
-| **SSG (Static Site Generation)** | HTML disusun sekali saat "Build Time", lalu disajikan sebagai file statis selamanya (sangat cepat). |
-| **ISR (Incremental Static Regeneration)** | Gabungan SSG + update otomatis. Halaman statis bisa diperbarui di background setiap X detik. |
-| **Resumability** | (Advanced) Konsep di mana aplikasi tidak perlu "dihidupkan ulang" (Hydration) di browser, tapi langsung melanjutkan eksekusi dari server (cth: Qwik). |
-| **Islands Architecture** | Teknik arsitektur di mana halaman mayoritas berupa HTML statis, dan hanya bagian kecil (pulau) yang interaktif (cth: Astro). |
-| **Partial Hydration** | Hanya menghidupkan JavaScript di bagian-bagian penting saja, bukan seluruh halaman (sepupu dari Islands Architecture). |
-| **Lazy Loading** | Strategi menunda pemuatan gambar atau kode berat sampai user benar-benar menggulir layar ke area tersebut (hemat kuota). |
-| **Code Splitting** | Memecah satu paket JS besar menjadi potongan-potongan kecil yang hanya didownload saat halaman spesifik dibuka. |
-| **Streaming SSR** | Mengirim HTML dari server sepotong demi sepotong (bukan nunggu selesai semua), sehingga user bisa melihat konten lebih cepat. |
-| **Debounce** | Teknik menunda eksekusi fungsi sampai user berhenti beraktivitas (misal: search baru jalan setelah user stop ngetik 300ms). |
-| **Throttle** | Membatasi fungsi agar hanya jalan maksimal X kali per detik, tidak peduli seberapa cepat user melakukan aksi (misal: saat scroll). |
-| **Polyfill** | Kode "penambal" yang disuntikkan agar browser jadul bisa menjalankan fitur modern yang sebenarnya belum mereka dukung. |
-| **Minification** | Proses menghapus spasi, baris baru, dan komentar dari kode agar ukuran filenya sekecil mungkin saat didownload user. |
-| **Obfuscation** | Mengacak-acak kode agar sulit dibaca manusia/hacker, tapi tetap bisa dijalankan mesin (untuk keamanan properti intelektual). |
-| **Critical Rendering Path** | Langkah-langkah kritis yang harus dilalui browser dari menerima HTML sampai pixel pertama muncul di layar. |
-| **Hydration** | Proses "menghidupkan" HTML mati dari server menjadi aplikasi React interaktif di browser. |
-| **Virtual DOM** | Salinan data struktur halaman di memori JavaScript untuk menghitung perubahan minimal sebelum menyentuh layar asli. |
-| **Reconciliation** | Proses membandingkan Virtual DOM lama vs baru untuk menentukan bagian mana yang perlu diganti. |
-| **Hooks** | Fungsi spesial React (seperti `useState`, `useEffect`) yang memungkinkan kita "mengaitkan" logika ke dalam komponen UI. |
-| **Props Drilling** | Masalah saat kita harus mengoper data melewati 5 lapis komponen yang sebenarnya tidak butuh data itu, hanya untuk sampai ke anak terbawah. |
-| **State Management** | Cara mengelola "memori" aplikasi (data user, tema, keranjang belanja) agar tersinkronisasi di semua halaman. |
-| **Optimistic UI** | Teknik menampilkan sukses duluan di layar (fake success) sebelum server benar-benar selesai memproses, agar aplikasi terasa instan. |
+| **MVP (Minimum Viable Product)** | Produk versi paling dasar tapi sudah punya nilai jual, dirilis cepat untuk tes "ombak" pasar. Bukan produk setengah jadi, tapi produk inti. |
+| **PMF (Product-Market Fit)** | Momen "Sakral" ketika produk Anda sangat diinginkan pasar sehingga jualan terasa mudah. Tandanya: user marah kalau produk Anda mati. |
+| **USP (Unique Selling Proposition)** | Satu "Keajaiban" yang membedakan produk Anda dari kompetitor. Alasan kenapa user memilih Anda, bukan orang lain. |
+| **Funnel** | Corong perjalanan user. Atas lebar (banyak yang lihat), bawah sempit (sedikit yang beli). Tugas kita melebarkan lubang bawahnya. |
+| **Churn Rate** | Persentase user yang "putus hubungan" (berhenti langganan). Musuh nomor satu bisnis SaaS. |
+| **CAC (Customer Acquisition Cost)** | Harga satu kepala user baru. (Biaya Iklan + Gaji Sales) / Jumlah User Baru. |
+| **LTV (Lifetime Value)** | Total uang yang kita perah dari satu user dari awal dia daftar sampai dia pergi/mati. Rumus sukses: LTV harus > 3x CAC. |
+| **MRR/ARR** | Pendapatan Rutin Bulanan/Tahunan. Ini nadi kehidupan bisnis langganan (SaaS). Investor cuma peduli angka ini. |
+| **SEO (Search Engine Optimization)** | Seni merayu robot Google agar website kita ditaruh di ranking 1 tanpa bayar. |
+| **Copywriting** | Penulisan kata-kata yang tujuan utamanya bukan memberi informasi, tapi "menghipnotis" pembaca untuk klik tombol Beli. |
+| **Conversion Rate** | Tingkat keberhasilan gol. Dari 100 pengunjung, berapa yang jadi pembeli? Kalau 5 orang, berarti 5%. |
+| **Lead Magnet** | "Umpan" gratis (Ebook, Template, Trial) untuk memancing user memberikan email/nomor WA mereka. |
 
-### E. UI/UX & Design Engineering
-| Istilah | Penjelasan Sederhana |
+---
+
+### 🎨 Dunia Desain Visual & Estetika (Look)
+*Istilah tentang bagaimana produk "terlihat" di mata user.*
+
+| Istilah | Definisi dalam Konteks Visual |
 | :--- | :--- |
-| **Design System** | Kumpulan standar aturan, komponen, dan panduan visual yang tersentralisasi (Single Source of Truth) untuk menjaga konsistensi brand produk. |
-| **Headless UI** | Komponen library yang hanya menyediakan logika dan fungsionalitas (aksesibilitas, keyboard nav) tanpa tampilan (CSS) sama sekali. |
-| **A11y (Accessibility)** | Praktik membuat website yang bisa digunakan oleh semua orang, termasuk penyandang disabilitas (tunanetra, gangguan motorik). |
-| **FOUC (Flash of Unstyled Content)** | Glitch jelek di mana user melihat halaman berantakan selama sesaat sebelum CSS selesai dimuat. |
-| **Mobile First** | Filosofi mendesain tampilan untuk layar HP dulu (ruang sempit), baru diperluas untuk Desktop. |
-| **Responsive vs Adaptive** | Responsive (cair mengikuti lebar layar) vs Adaptive (punya layout fix beda-beda untuk setiap ukuran layar). |
-| **Micro-interactions** | Animasi kecil dan halus (seperti tombol 'like' yang membal) untuk memberikan feedback rasa puas ke user. |
-| **Intuitif (Intuitive)** | Desain yang bisa langsung dimengerti cara pakainya tanpa perlu mikir atau baca manual (cth: cubit layar untuk zoom). |
-| **Imersif (Immersive)** | Pengalaman yang membuat user merasa "tenggelam" atau masuk sepenuhnya ke dalam dunia aplikasi (bebas gangguan). |
-| **Affordance** | Petunjuk visual yang memberi tahu user bahwa benda itu bisa diapakan (cth: tombol yang tampak timbul "minta" ditekan). |
-| **Dark Pattern** | Trik desain jahat yang memanipulasi user untuk melakukan hal yang tidak mereka inginkan (cth: tombol unsubscribe tersembunyi). |
-| **Gamification** | Memasukkan elemen game (skor, level, badge) ke aplikasi non-game untuk meningkatkan motivasi dan adiksi user. |
-| **Above the Fold** | Area layar yang langsung terlihat saat website dibuka tanpa perlu scroll ke bawah (posisi paling mahal/penting). |
-| **Breadcrumbs** | Navigasi "remah roti" (Home > Kategori > Produk) agar user tahu posisinya dan bisa mundur dengan mudah. |
-| **CTA (Call to Action)** | Elemen utama (biasanya tombol besar) yang menjadi tujuan akhir halaman (cth: "Beli Sekarang", "Daftar Gratis"). |
-| **Whitespace** | Ruang kosong (negatif) di antara elemen desain agar tampilan tidak sumpek dan mata user bisa "bernapas". |
-| **Grid System** | Sistem pembagian layar menjadi kolom-kolom imajiner untuk menjaga kerapihan dan konsistensi tata letak. |
+| **Design System** | "Kitab Undang-Undang" desain. Kumpulan aturan warna, font, tombol, dan pola yang wajib dipatuhi agar brand konsisten di mana-mana. |
+| **Flat Design** | Gaya desain gepeng/datar. Nol efek 3D, nol bayangan, warna solid. Bersih tapi kadang membosankan. (Cth: Windows 8). |
+| **Skeuomorphism** | Gaya desain yang meniru benda nyata seakurat mungkin. Tombol hapus bentuk tong sampah besi, aplikasi catat bentuk kertas kulit. |
+| **Neumorphism** | Gaya "Soft UI". Elemen terlihat menyatu dengan background, timbul karena bayangan halus. Seperti dibuat dari lempung futuristik. |
+| **Glassmorphism** | Efek kaca buram (frosted glass). Elemen transparan dengan blur background, memberi kesan modern dan kedalaman (Depth). |
+| **Brutalism (Neo-Brutalism)** | Gaya "Pemberontak". Garis tebal, font tabrak, warna kontras, layout kaku. Sengaja terlihat "kasar" untuk tampil beda & jujur. |
+| **Playful** | Gaya "Ceria". Menggunakan warna-warni cerah, bentuk bulat, dan animasi membal (bouncy) agar produk terasa ramah dan tidak kaku. |
+| **Whitespace** | Ruang napas. Area kosong di antara konten agar mata user tidak lelah dan fokus ke hal penting. |
+| **Dark Mode** | Mode tampilan latar gelap. Bukan cuma membalik warna, tapi mengatur ulang kontras agar nyaman dibaca di kondisi minim cahaya. |
 
-### F. Aliran & Gaya Desain Visual (Aesthetics)
-| Istilah | Penjelasan Sederhana |
+---
+
+### 👆 Dunia UX & Interface Engineering (Feel)
+*Istilah tentang bagaimana produk "terasa" saat digunakan.*
+
+| Istilah | Definisi dalam Konteks Pengalaman User |
 | :--- | :--- |
-| **Flat Design** | Gaya desain yang super minimalis, menghilangkan semua efek 3D, bayangan, dan tekstur. Fokus pada warna solid dan tipografi bersih (cth: Windows 8, iOS 7). |
-| **Material Design** | Bahasa desain Google yang seperti "kertas digital"; datar tapi memiliki bayangan halus untuk menunjukkan tumpukan (elevasi) dan animasi fisika. |
-| **Skeuomorphism** | Gaya desain yang meniru benda dunia nyata secara detail (cth: ikon sampah bentuk tong sampah besi, atau aplikasi kalkulator tekstur plastik). |
-| **Neumorphism** | Evolusi dari Skeuomorphism bedanya lebih halus; elemen terlihat menyatu dengan background seperti timbul dari lempung yang ditekan (Soft UI). |
-| **Glassmorphism** | Gaya desain yang meniru estetika kaca buram (frosted glass) untuk memberikan kesan modern, futuristik, dan kedalaman (depth). |
-| **Brutalism (Neo-Brutalism)** | Gaya desain yang "kasar", jujur, dan anti-mainstream. Menggunakan font tabrak, garis tebal, warna kontras tinggi, dan layout yang seolah "rusak" tapi estetik. |
-| **Metro Design** | Gaya klasik Microsoft yang berbasis kotak-kotak (grid), tipografi besar, dan fokus pada konten daripada hiasan (sebelum Flat Design populer). |
-| **Playful** | Pendekatan desain yang menggunakan warna cerah, animasi membal (bouncy), dan bahasa santai untuk membuat aplikasi terasa "hidup" (ini gaya Margin Pro!). |
+| **Intuitif** | "Gak pake mikir". User langsung tahu cara pakai fitur tanpa baca manual. |
+| **Imersif** | Pengalaman yang menyedot perhatian user sepenuhnya, membuat lupa dunia sekitar (bebas gangguan). |
+| **Affordance** | Petunjuk visual fungsi benda. Tombol yang tampak timbul secara alamiah "mengundang" jari untuk menekan. |
+| **Micro-interactions** | Animasi super kecil (like button meledak, loading bar jalan) yang memberi rasa puas psikologis ke user. |
+| **Responsive** | Layout "Cair". Website menyesuaikan diri dengan elegan dari layar HP sempit ke Monitor lebar. |
+| **Mobile First** | Filosofi mendesain untuk layar HP duluan (karena lebih susah/sempit), baru diperluas ke Desktop. |
+| **A11y (Accessibility)** | Kemudahan akses untuk SEMUA manusia, termasuk tunanetra (Screen Reader) atau gangguan motorik (Keyboard Nav). |
+| **Dark Pattern** | Desain Jahat. Teknik manipulatif untuk menipu user (misal: tombol Unsubscribe warnanya samar biar sulit ditemukan). |
+| **FOUC** | "Flash of Unstyled Content". Glitch sesaat dimana website tampil telanjang (hancur) sebelum baju (CSS) nya terpasang. |
+| **Above the Fold** | Area layar yang terlihat pertama kali tanpa scroll. "Tanah" paling mahal di website. |
 
-### G. Product, Marketing & Bisnis Digital
-| Istilah | Penjelasan Sederhana |
+---
+
+### 🖥️ Dunia Frontend Engineering (Browser)
+*Istilah teknis seputar apa yang terjadi di browser user (Chrome/Safari).*
+
+| Istilah | Definisi dalam Konteks Browser |
 | :--- | :--- |
-| **SEO (Search Engine Optimization)** | Seni mengatur kode dan konten agar website muncul di halaman pertama Google tanpa perlu membayar iklan. |
-| **SERP (Search Engine Results Page)** | Halaman daftar hasil pencarian yang muncul setelah user mengetik kata kunci di Google. |
-| **Landing Page** | Halaman khusus yang didesain dengan satu tujuan fokus: membuat pengunjung melakukan aksi tertentu (daftar/beli). |
-| **CTA (Call to Action)** | Tombol atau teks pemicu aksi utama, misal: "Beli Sekarang", "Mulai Gratis", "Hubungi Sales". |
-| **Funnel** | Perjalanan user dari sekadar "tahu" (Awareness) -> "tertarik" (Interest) -> "beli" (Purchase) -> jadi "pelanggan setia" (Loyalty). |
-| **Conversion Rate** | Persentase pengunjung yang akhirnya "gol" melakukan aksi yang kita inginkan (misal: dari 100 tamu, 5 orang beli = 5%). |
-| **Bounce Rate** | Persentase pengunjung yang "kabur" (keluar) dari website setelah hanya melihat satu halaman saja (tanda konten kurang relevan). |
-| **A/B Testing** | Bereksperimen dengan menampilkan 2 versi halaman berbeda ke user secara acak untuk melihat mana yang performanya lebih baik. |
-| **MVP (Minimum Viable Product)** | Produk versi paling dasar tapi sudah punya nilai guna, dibuat untuk mengetes pasar secepat mungkin sebelum bikin fitur canggih. |
-| **PMF (Product-Market Fit)** | Titik manis di mana produk Anda sangat disukai pasar sehingga bisnis tumbuh pesat dengan sendirinya (tanda startup sukses). |
-| **Churn Rate** | Persentase pelanggan yang berhenti berlangganan dalam periode tertentu (musuh utama bisnis SaaS). |
-| **CAC (Customer Acquisition Cost)** | Biaya rata-rata yang dikeluarkan untuk mendapatkan satu pelanggan baru (biaya iklan / jumlah user baru). |
-| **LTV (Lifetime Value)** | Total uang yang akan dibayarkan satu pelanggan kepada kita selama seumur hidup mereka menjadi nasabah. |
-| **MRR/ARR (Monthly/Annual Recurring Revenue)** | Ukuran pendapatan rutin bulanan/tahunan yang bisa diprediksi, metrik paling dewa di dunia SaaS. |
-| **Lead Magnet** | "Hadiah gratis" (ebook, template, trial) yang diberikan kepada user sebagai pancingan agar mereka mau memberikan emailnya. |
-| **Copywriting** | Seni menulis teks iklan/marketing yang persuasif untuk hipnotis pembaca agar mau membeli. |
-| **USP (Unique Selling Proposition)** | Satu hal unik yang membedakan produk Anda dari kompetitor (alasan kenapa orang harus beli punya Anda). |
-| **Retargeting/Remarketing** | Iklan yang "menghantui" user yang pernah buka website Anda saat mereka buka sosmed atau website lain. |
+| **SPA (Single Page Application)** | Aplikasi web yang cuma punya 1 file HTML kosong. Pindah halaman = Ganti konten pakai JS, bukan reload browser. Cepat tapi berat di awal. |
+| **Hydration** | Proses "Menghidupkan Mayat". HTML statis dari server dikirim dulu (biar cepat tampil), lalu JS datang belakangan untuk membuatnya dpt diklik. |
+| **Virtual DOM** | "Buku Catatan" di memori. React mencatat perubahan di sini dulu, menghitung bedanya, baru update layar asli (DOM) yang mahal. |
+| **Reconciliation** | Proses React membandingkan "Buku Catatan" (Virtual DOM) lama vs baru untuk menentukan bagian mana yang perlu dicat ulang. |
+| **Hooks** | "Kail" untuk mengaitkan logika (seperti State/Memory) ke dalam komponen fungsi React. |
+| **State Management** | Manajemen memori aplikasi di sisi client. Mengatur data apa yang disimpan sementara di browser (Shopping Cart, User Data). |
+| **CSR (Client-Side Rendering)** | Masak di Meja Tamu. Browser user dikirimi bahan mentah (JS), lalu browser user yang harus capek merender HTML. |
+| **SSR (Server-Side Rendering)** | Masak di Dapur. Server merender HTML jadi matang, baru dikirim ke user. Cepat tampil, bagus untuk SEO. |
+| **ISR (Incremental Static Regeneration)** | Masak Katering. Halaman dibuat statis (SSG), tapi diperbarui otomatis di background setiap X menit. |
+| **Islands Architecture** | Halaman mayoritas HTML mati (ringan), cuma bagian kecil tertentu (Kepulauan) yang dihidupkan interaktif pakai JS. |
+| **Resumability** | (Advanced) Tidak perlu Hydration. Aplikasi langsung jalan dari kondisi terakhir di server, tanpa re-eksekusi JS awal. |
 
-### H. Developer Culture & Jargon "Nerd"
+---
+
+### ⚙️ Dunia Backend & Arsitektur Sistem (Server)
+*Istilah teknis seputar apa yang terjadi di balik layar (Server/Cloud).*
+
+| Istilah | Definisi dalam Konteks Server |
+| :--- | :--- |
+| **Monolith** | Satu Raksasa. Backend, Frontend, Database, semua logikanya jadi satu bongkahan kode. Mudah develop, susah scaling. |
+| **Microservices** | Pasukan Semut. Aplikasi dipecah jadi layanan kecil-kecil yang saling ngobrol. Rumit manage-nya, tapi kuat scale-nya. |
+| **Serverless** | "Server Hantu". Tidak ada server yang nyala 24 jam. Fungsi backend cuma hidup saat dipanggil user, lalu mati lagi. Hemat biaya. |
+| **Edge Computing** | Server di Ujung Gang. Menaruh logika backend di server yang lokasi fisiknya nempel dengan user (Jakarta), bukan di pusat (Amerika). |
+| **RPC (Remote Procedure Call)** | Telepati Antar Server. Frontend memanggil fungsi Backend seolah-olah fungsi itu ada di laptopnya sendiri. |
+| **Idempotent** | Anti-Double. Sifat operasi yang biar ditekan 100x, hasilnya tetap sama (Contoh: Tombol 'Bayar' yang gak bikin saldo kepotong 2x). |
+| **Middleware** | Pos Satpam. Kode yang mencegat request sebelum sampai ke tujuan utama (Cek Login, Catat Log, Validasi Data). |
+| **Webhook** | "Don't call us, we call you". Server A memberi tahu Server B kalau ada kejadian, tanpa Server B perlu nanya terus-terusan. |
+| **Race Condition** | Balapan Liar. Bug yang terjadi karena dua proses berebut mengubah data yang sama di waktu bersamaan, hasilnya jadi acak. |
+| **CQRS** | Pemisahan Jalur. Pintu masuk data (Write) dan pintu keluar data (Read) dibedakan sistemnya biar tidak macet. |
+
+---
+
+### 🛠️ Dunia DevOps & Tooling (Dapur Produksi)
+*Istilah tentang alat-alat dan proses membuat software.*
+
+| Istilah | Definisi dalam Konteks Development |
+| :--- | :--- |
+| **Monorepo** | Satu Gudang Besar. Menyimpan kode backend, frontend, library, dan docs dalam satu repository git. Memudahkan sharing kode. |
+| **CI/CD** | Robot Pabrik Otomatis. Setiap save kode -> Robot Test -> Robot Build -> Robot Deploy ke server. |
+| **Bundler** | Mesin Press. Mengambil ribuan file JS/TS/CSS kita, membuang spasi, menyatukan jadi 1 file kecil siap saji. |
+| **Tree-shaking** | Menggoyangkan Pohon. Proses bundler membuang kode-kode (daun mati) yang tidak pernah dipanggil di aplikasi. |
+| **Polyfill** | Tambalan Ban. Kode tambahan yang disuntikkan agar browser jadul bisa menjalankan fitur teknologi modern. |
+| **Linting** | Polisi Tata Bahasa. Tool otomatis yang memarahi developer kalau salah ketik atau kodenya berantakan. |
+| **HMR (Hot Module Replacement)** | Edit Langsung Jadi. Ubah kode di editor -> Browser update instan tanpa refresh halaman. |
+| **Cold Start** | Pemanasan Mesin. Jeda waktu yang dibutuhkan server (Function) untuk bangun dari tidur saat pertama kali dipanggil. |
+
+---
+
+### 🤓 Dunia Kultur Developer (Slang)
+*Istilah gaul atau fenomena sosial di kalangan programmer.*
+
+| Istilah | Definisi dalam Konteks Kultur |
+| :--- | :--- |
+| **Yak Shaving** | Mencukur Yak (Sapi Gunung). Niat benerin bug kecil, malah jadi harus install ulang OS, update driver, beli kopi... kerjaan melebar kemana-mana. |
+| **Bikeshedding** | Rapat Parkiran Sepeda. Debat panjang soal hal sepele (warna tombol) karena semua orang merasa paham, padahal arsitektur inti diabaikan. |
+| **Over-engineering** | Membunuh Nyamuk pakai Bazooka. Solusi super canggih dan rumit untuk masalah yang sebenarnya sederhana. |
+| **Tech Debt** | Hutang Teknologi. "Bikin dulu yang penting jalan, rapihnya nanti". Ingat, hutang ini berbunga (makin lama makin susah dibereskan). |
+| **Syntactic Sugar** | Pemanis Buatan. Fitur bahasa pemrograman yang fungsinya sama saja, cuma biar kodenya terlihat lebih manis/pendek. |
+| **Rubber Ducking** | Ngomong sama Bebek Karet. Cara debugging dengan menjelaskan masalah baris demi baris ke benda mati sampai solusinya ketemu sendiri. |
+| **Foo / Bar / Baz** | Nama Variabel Asal. Kata-kata nonsense yang dipakai programmer saat memberi contoh kode (variabel X, Y, Z nya programmer). |
 | Istilah | Penjelasan Sederhana |
 | :--- | :--- |
 | **Yak Shaving** | Aktivitas teknis kecil yang tampaknya tidak relevan tapi harus dilakukan sebelum tugas utama bisa selesai (e.g., fix config sebelum coding fitur). |
