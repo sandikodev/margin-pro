@@ -203,7 +203,29 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 | **Metro Design** | Gaya klasik Microsoft yang berbasis kotak-kotak (grid), tipografi besar, dan fokus pada konten daripada hiasan (sebelum Flat Design populer). |
 | **Playful** | Pendekatan desain yang menggunakan warna cerah, animasi membal (bouncy), dan bahasa santai untuk membuat aplikasi terasa "hidup" (ini gaya Margin Pro!). |
 
-### G. Developer Culture & Jargon "Nerd"
+### G. Product, Marketing & Bisnis Digital
+| Istilah | Penjelasan Sederhana |
+| :--- | :--- |
+| **SEO (Search Engine Optimization)** | Seni mengatur kode dan konten agar website muncul di halaman pertama Google tanpa perlu membayar iklan. |
+| **SERP (Search Engine Results Page)** | Halaman daftar hasil pencarian yang muncul setelah user mengetik kata kunci di Google. |
+| **Landing Page** | Halaman khusus yang didesain dengan satu tujuan fokus: membuat pengunjung melakukan aksi tertentu (daftar/beli). |
+| **CTA (Call to Action)** | Tombol atau teks pemicu aksi utama, misal: "Beli Sekarang", "Mulai Gratis", "Hubungi Sales". |
+| **Funnel** | Perjalanan user dari sekadar "tahu" (Awareness) -> "tertarik" (Interest) -> "beli" (Purchase) -> jadi "pelanggan setia" (Loyalty). |
+| **Conversion Rate** | Persentase pengunjung yang akhirnya "gol" melakukan aksi yang kita inginkan (misal: dari 100 tamu, 5 orang beli = 5%). |
+| **Bounce Rate** | Persentase pengunjung yang "kabur" (keluar) dari website setelah hanya melihat satu halaman saja (tanda konten kurang relevan). |
+| **A/B Testing** | Bereksperimen dengan menampilkan 2 versi halaman berbeda ke user secara acak untuk melihat mana yang performanya lebih baik. |
+| **MVP (Minimum Viable Product)** | Produk versi paling dasar tapi sudah punya nilai guna, dibuat untuk mengetes pasar secepat mungkin sebelum bikin fitur canggih. |
+| **PMF (Product-Market Fit)** | Titik manis di mana produk Anda sangat disukai pasar sehingga bisnis tumbuh pesat dengan sendirinya (tanda startup sukses). |
+| **Churn Rate** | Persentase pelanggan yang berhenti berlangganan dalam periode tertentu (musuh utama bisnis SaaS). |
+| **CAC (Customer Acquisition Cost)** | Biaya rata-rata yang dikeluarkan untuk mendapatkan satu pelanggan baru (biaya iklan / jumlah user baru). |
+| **LTV (Lifetime Value)** | Total uang yang akan dibayarkan satu pelanggan kepada kita selama seumur hidup mereka menjadi nasabah. |
+| **MRR/ARR (Monthly/Annual Recurring Revenue)** | Ukuran pendapatan rutin bulanan/tahunan yang bisa diprediksi, metrik paling dewa di dunia SaaS. |
+| **Lead Magnet** | "Hadiah gratis" (ebook, template, trial) yang diberikan kepada user sebagai pancingan agar mereka mau memberikan emailnya. |
+| **Copywriting** | Seni menulis teks iklan/marketing yang persuasif untuk hipnotis pembaca agar mau membeli. |
+| **USP (Unique Selling Proposition)** | Satu hal unik yang membedakan produk Anda dari kompetitor (alasan kenapa orang harus beli punya Anda). |
+| **Retargeting/Remarketing** | Iklan yang "menghantui" user yang pernah buka website Anda saat mereka buka sosmed atau website lain. |
+
+### H. Developer Culture & Jargon "Nerd"
 | Istilah | Penjelasan Sederhana |
 | :--- | :--- |
 | **Yak Shaving** | Aktivitas teknis kecil yang tampaknya tidak relevan tapi harus dilakukan sebelum tugas utama bisa selesai (e.g., fix config sebelum coding fitur). |
