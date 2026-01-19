@@ -131,7 +131,7 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 | **Single Source of Truth** | Prinsip di mana data hanya disimpan di satu tempat, sehingga semua orang merujuk ke data yang pasti valid. |
 | **Race Condition** | Bug yang terjadi ketika hasil akhir tergantung pada urutan/waktu eksekusi yang tidak terduga dari dua proses cepat. |
 
-### D. Frontend Modern (React & UI)
+### D. Frontend Modern (Beyond React)
 | Istilah | Penjelasan Sederhana |
 | :--- | :--- |
 | **SPA (Single Page Application)** | Website yang hanya memuat satu file HTML kosong di awal, lalu sisanya diurus oleh JavaScript (seperti aplikasi HP). |
@@ -139,6 +139,12 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 | **SSR (Server-Side Rendering)** | Server yang menyusun HTML lengkap sebelum dikirim ke user (beban di server, tapi SEO bagus). |
 | **SSG (Static Site Generation)** | HTML disusun sekali saat "Build Time", lalu disajikan sebagai file statis selamanya (sangat cepat). |
 | **ISR (Incremental Static Regeneration)** | Gabungan SSG + update otomatis. Halaman statis bisa diperbarui di background setiap X detik. |
+| **Resumability** | (Advanced) Konsep di mana aplikasi tidak perlu "dihidupkan ulang" (Hydration) di browser, tapi langsung melanjutkan eksekusi dari server (cth: Qwik). |
+| **Islands Architecture** | Teknik arsitektur di mana halaman mayoritas berupa HTML statis, dan hanya bagian kecil (pulau) yang interaktif (cth: Astro). |
+| **Partial Hydration** | Hanya menghidupkan JavaScript di bagian-bagian penting saja, bukan seluruh halaman (sepupu dari Islands Architecture). |
+| **Lazy Loading** | Strategi menunda pemuatan gambar atau kode berat sampai user benar-benar menggulir layar ke area tersebut (hemat kuota). |
+| **Code Splitting** | Memecah satu paket JS besar menjadi potongan-potongan kecil yang hanya didownload saat halaman spesifik dibuka. |
+| **Streaming SSR** | Mengirim HTML dari server sepotong demi sepotong (bukan nunggu selesai semua), sehingga user bisa melihat konten lebih cepat. |
 | **Hydration** | Proses "menghidupkan" HTML mati dari server menjadi aplikasi React interaktif di browser. |
 | **Virtual DOM** | Salinan data struktur halaman di memori JavaScript untuk menghitung perubahan minimal sebelum menyentuh layar asli. |
 | **Reconciliation** | Proses membandingkan Virtual DOM lama vs baru untuk menentukan bagian mana yang perlu diganti. |
@@ -146,9 +152,19 @@ Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana
 | **Props Drilling** | Masalah saat kita harus mengoper data melewati 5 lapis komponen yang sebenarnya tidak butuh data itu, hanya untuk sampai ke anak terbawah. |
 | **State Management** | Cara mengelola "memori" aplikasi (data user, tema, keranjang belanja) agar tersinkronisasi di semua halaman. |
 | **Optimistic UI** | Teknik menampilkan sukses duluan di layar (fake success) sebelum server benar-benar selesai memproses, agar aplikasi terasa instan. |
-| **Atomic Design** | Metodologi memecah UI menjadi Atom (Tombol), Molekul (Form Search), dan Organisme (Header) untuk reusabilitas. |
 
-### E. Developer Culture & Jargon "Nerd"
+### E. UI/UX & Design Engineering
+| Istilah | Penjelasan Sederhana |
+| :--- | :--- |
+| **Design System** | Kumpulan standar aturan, komponen, dan panduan visual yang tersentralisasi (Single Source of Truth) untuk menjaga konsistensi brand produk. |
+| **Headless UI** | Komponen library yang hanya menyediakan logika dan fungsionalitas (aksesibilitas, keyboard nav) tanpa tampilan (CSS) sama sekali. |
+| **A11y (Accessibility)** | Praktik membuat website yang bisa digunakan oleh semua orang, termasuk penyandang disabilitas (tunanetra, gangguan motorik). |
+| **FOUC (Flash of Unstyled Content)** | Glitch jelek di mana user melihat halaman berantakan selama sesaat sebelum CSS selesai dimuat. |
+| **Mobile First** | Filosofi mendesain tampilan untuk layar HP dulu (ruang sempit), baru diperluas untuk Desktop. |
+| **Responsive vs Adaptive** | Responsive (cair mengikuti lebar layar) vs Adaptive (punya layout fix beda-beda untuk setiap ukuran layar). |
+| **Micro-interactions** | Animasi kecil dan halus (seperti tombol 'like' yang membal) untuk memberikan feedback rasa puas ke user. |
+
+### F. Developer Culture & Jargon "Nerd"
 | Istilah | Penjelasan Sederhana |
 | :--- | :--- |
 | **Yak Shaving** | Aktivitas teknis kecil yang tampaknya tidak relevan tapi harus dilakukan sebelum tugas utama bisa selesai (e.g., fix config sebelum coding fitur). |
