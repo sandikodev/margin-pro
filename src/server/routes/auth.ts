@@ -134,12 +134,39 @@ export const auth = new Hono()
         // Create an ephemeral demo user in memory/JWT (no DB persistence needed for read-only demo if possible, 
         // but our app expects DB user for some things. We will use a consistent Demo ID or Random Ephemeral).
 
-        // Strategy: Create a new random "Demo User" in DB so they don't conflict, 
-        // BUT for cleanup we might want a cron.
-        // For now: Let's create a real user in DB flagged as 'demo'.
+        // Strategy: Try to finding seeded demo user first (owner@lumina.bistro)
+        // If found, use IT. If not, fallback to ephemeral.
 
-        const demoId = `demo-${Math.random().toString(36).substring(2, 9)}`;
-        const demoEmail = `${demoId}@demo.local`;
+        const SEEDED_EMAIL = "owner@lumina.bistro";
+        let demoUserId = "";
+        let demoRole = "user";
+        let demoPermissions: string[] = ["demo_mode"];
+
+        const seededUser = await db.query.users.findFirst({
+            where: eq(users.email, SEEDED_EMAIL)
+        });
+
+        if (seededUser) {
+            demoUserId = seededUser.id;
+            demoRole = seededUser.role || "user";
+            // Ensure permissions match what we expect for demo
+            demoPermissions = seededUser.permissions?.length ? seededUser.permissions : ["demo_mode"];
+        } else {
+            // Fallback: Create ephemeral
+            demoUserId = `demo-${Math.random().toString(36).substring(2, 9)}`;
+            const demoEmail = `${demoUserId}@demo.local`;
+
+            await db.insert(users).values({
+                id: demoUserId,
+                name: "Demo Merchant",
+                email: demoEmail,
+                password: "demo-password-hash-placeholder",
+                role: "user",
+                referralCode: `DEMO-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
+                permissions: ["demo_mode"],
+                credits: 1000
+            });
+        }
 
         // Insert ephemeral demo user
         await db.insert(users).values({
@@ -153,9 +180,9 @@ export const auth = new Hono()
         });
 
         const token = await sign({
-            id: demoId,
-            role: "user",
-            permissions: ["demo_mode"],
+            id: demoUserId,
+            role: demoRole,
+            permissions: demoPermissions,
             exp: Math.floor(Date.now() / 1000) + 60 * 60 * 2 // 2 Hours Demo Session
         }, JWT_SECRET);
 
@@ -170,11 +197,11 @@ export const auth = new Hono()
         return c.json({
             success: true,
             user: {
-                id: demoId,
-                name: "Demo Merchant",
-                email: demoEmail,
-                role: "user",
-                permissions: ["demo_mode"]
+                id: demoUserId,
+                name: seededUser ? seededUser.name : "Demo Merchant",
+                email: seededUser ? seededUser.email : `demo-${demoUserId}@demo.local`,
+                role: demoRole,
+                permissions: demoPermissions
             }
         });
     })
