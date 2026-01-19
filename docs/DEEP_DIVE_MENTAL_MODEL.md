@@ -76,3 +76,25 @@ Vercel dipilih karena model **Serverless**-nya:
 Project ini didesain bukan untuk menjadi yang paling kompleks, tapi yang paling **efisien**. Setiap tambahan paket harus melalui pertanyaan: *"Apakah ini membuat aplikasi lebih cepat atau developer lebih produktif?"*
 
 Jika jawabannya tidak, kita tidak menggunakannya. Inilah rahasia di balik **Margin Pro**.
+
+---
+
+## 7. Glosarium Istilah Teknis
+
+Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana untuk istilah-istilah "keren" yang kita gunakan:
+
+| Istilah | Penjelasan Sederhana |
+| :--- | :--- |
+| **Runtime** | Lingkungan tempat kode dijalankan (seperti sistem operasi mini khusus untuk JavaScript). |
+| **Bundler** | Alat yang mengumpulkan ratusan file kode Anda menjadi satu atau beberapa file kecil yang siap dikirim ke user. |
+| **Tree-shaking** | Proses otomatis membuang kode yang tidak pernah dipanggil/dipakai (seperti menggoyangkan pohon untuk menjatuhkan daun kering). |
+| **Cold Start** | Waktu yang dibutuhkan server "tidur" (serverless) untuk bangun dan merespons saat ada tamu (user) berkunjung. |
+| **Monorepo** | Strategi menyimpan kode backend dan frontend dalam satu folder besar agar mudah dikelola bersama. |
+| **ESM (ES Modules)** | Standar modern cara file JavaScript saling berbagi kode menggunakan `import` dan `export`. |
+| **HMR** | Fitur yang membuat layar browser Anda update secara instan saat Anda mengubah kode, tanpa perlu refresh manual. |
+| **Agnostik** | Sifat aplikasi yang tidak "pilih-pilih" tempat tinggal; bisa jalan di server mana pun tanpa banyak ubahan. |
+| **RPC** | Cara frontend memanggil fungsi di backend seolah-olah fungsi itu ada di komputernya sendiri (sangat aman dan cepat). |
+| **Hydration** | Proses "menghidupkan" HTML mati dari server menjadi aplikasi React yang interaktif di browser. |
+
+---
+*Dokumen ini diperbarui terakhir pada: 19 Jan 2026*
