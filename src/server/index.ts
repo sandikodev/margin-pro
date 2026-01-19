@@ -33,8 +33,9 @@ app.notFound((c) => {
 });
 
 // --- RPC Routes ---
-// We mount the sub-apps to form the API
-export const api = app.basePath("/api")
+// The .basePath() method creates a new Hono instance with the prefix
+const apiApp = new Hono()
+    .basePath("/api")
     .get("/health", (c) => c.json({ status: "ok", runtime: "bun" }))
     .route("/auth", auth)
     .route("/businesses", businessRoutes)
@@ -44,6 +45,12 @@ export const api = app.basePath("/api")
     .route("/configs", configRoutes)
     .route("/admin", adminRoutes)
     .route("/midtrans", paymentRoutes);
+
+// Mount the API app to the main app root
+app.route("/", apiApp);
+
+// Export only the API part for RPC Client to infer types from
+export const api = apiApp;
 
 // --- Static File Serving & SEO ---
 
