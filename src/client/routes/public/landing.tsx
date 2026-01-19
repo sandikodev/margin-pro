@@ -82,12 +82,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
              <button onClick={onLogin} className="text-sm font-bold text-slate-300 hover:text-white transition-colors w-20 text-right">
                Log In
              </button>
+             <div className="w-[140px] flex justify-end">
                  <button 
                     onClick={onGetStarted}
                     className={`w-full whitespace-nowrap bg-white text-slate-950 px-6 py-2.5 rounded-xl font-black text-sm hover:bg-indigo-50 transition-all shadow-lg shadow-white/5 hover:-translate-y-0.5 ${isScrolled ? 'block' : 'hidden'}`}
                 >
                     Start for Free
                 </button>
+             </div>
           </div>
 
           {/* Mobile Menu Toggle */}
