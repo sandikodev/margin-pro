@@ -6,10 +6,11 @@ import { db } from "../db";
 import { invoices, transactions } from "../db/schema";
 import { eq } from "drizzle-orm";
 
-// Midtrans Config
+// --- CONFIG ---
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY || "";
-const MIDTRANS_APP_URL = "https://app.midtrans.com/snap/v1/transactions"; // Production URL since keys are Prod
-// const MIDTRANS_APP_URL = "https://app.sandbox.midtrans.com/snap/v1/transactions"; // Sandbox
+const MIDTRANS_APP_URL = process.env.NODE_ENV === 'production'
+    ? "https://app.midtrans.com/snap/v1/transactions"
+    : "https://app.sandbox.midtrans.com/snap/v1/transactions"; // Sandbox
 
 export const paymentRoutes = new Hono()
     .post("/invoices", zValidator("json", z.object({

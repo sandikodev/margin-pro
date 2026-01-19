@@ -5,8 +5,12 @@ import { zValidator } from "@hono/zod-validator";
 import { db } from "../db";
 import { systemSettings, platforms, translations, users } from "../db/schema";
 import { eq } from "drizzle-orm";
+import { sessionMiddleware, requireRole } from "../middleware/session";
 
 export const adminRoutes = new Hono()
+    .use("*", sessionMiddleware)
+    .use("*", requireRole(["super_admin"]))
+
     .put("/settings/:key", zValidator("json", z.object({ value: z.string() })), async (c) => {
         const key = c.req.param("key");
         const { value } = c.req.valid("json");
