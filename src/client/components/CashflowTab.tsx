@@ -2,7 +2,9 @@
 import React, { useState, useMemo } from 'react';
 import { Banknote, AlertTriangle, Plus, TrendingUp, ArrowDownRight, ArrowUpRight, Calculator, CheckCircle2, Trash2, Target, Sliders, ShieldAlert, Hourglass, ShieldCheck } from 'lucide-react';
 import { Liability, CashflowRecord, Project } from '@shared/types';
+import { FINANCIAL_DEFAULTS } from '@shared/constants';
 import { calculateLoanPayment, calculateFinancialHealth } from '../utils';
+import { useToast } from '../context/ToastContext';
 
 interface FinanceManagerProps {
   liabilities: Liability[];
@@ -22,9 +24,10 @@ interface ExtendedFinanceManagerProps extends FinanceManagerProps {
 
 export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
   liabilities, setLiabilities, cashflow, setCashflow, activeProject, formatValue,
-  monthlyFixedCost = 3500000, setMonthlyFixedCost = (_: number) => {},
-  currentSavings = 2500000, setCurrentSavings = (_: number) => {}
+  monthlyFixedCost = FINANCIAL_DEFAULTS.MONTHLY_FIXED_COST, setMonthlyFixedCost = (_: number) => {},
+  currentSavings = FINANCIAL_DEFAULTS.CURRENT_SAVINGS, setCurrentSavings = (_: number) => {}
 }) => {
+  const { showToast } = useToast();
   const [activeSubTab, setActiveSubTab] = useState<'journal' | 'debt' | 'strategy'>('journal');
   
   // States for Daily Journal Input
@@ -77,10 +80,9 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
       note: journalNote
     };
     setCashflow([newRecord, ...cashflow]);
-    setJournalRevenue('');
     setJournalExpense('');
     setJournalNote('');
-    alert("Jurnal harian berhasil disimpan!");
+    showToast("Jurnal harian berhasil disimpan!", "success");
   };
 
   const calculateLoan = () => {
@@ -107,7 +109,7 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
     setLiabilities([...liabilities, newLiability]);
     setSimResult(null);
     setSimPlafon('');
-    alert("Cicilan berhasil ditambahkan ke daftar kewajiban!");
+    showToast("Cicilan berhasil ditambahkan ke daftar kewajiban!", "success");
   };
 
   return (

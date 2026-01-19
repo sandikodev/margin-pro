@@ -41,7 +41,7 @@ export const AccountSettings: React.FC = () => {
   };
 
   const handleSave = () => {
-    if (activeBusiness.id) {
+    if (activeBusiness?.id) {
         updateBusiness(activeBusiness.id, profile);
         setIsSaved(true);
         setTimeout(() => setIsSaved(false), 2000);

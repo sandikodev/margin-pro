@@ -119,6 +119,7 @@ export const ProductCalculator: React.FC<ProductCalculatorProps> = ({
         activeProject={activeProject}
         updateProject={updateProject}
         prodConfig={prodConfig}
+        style={{ viewTransitionName: `project-card-${activeProject.id}` } as React.CSSProperties}
       />
 
       <CostList 

@@ -15,6 +15,8 @@ interface FinanceManagerProps {
   // New props for Business Profile Sync
   activeBusiness?: BusinessProfile;
   updateBusiness?: (updates: Partial<BusinessProfile>) => void;
+  addLiability?: (l: Liability) => void;
+  addCashflow?: (c: CashflowRecord) => void;
 }
 
 interface ExtendedFinanceManagerProps extends FinanceManagerProps {

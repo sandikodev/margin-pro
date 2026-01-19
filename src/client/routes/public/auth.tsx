@@ -1,11 +1,14 @@
+import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Eye, EyeOff, ArrowRight, Loader2, ArrowLeft, Mail, Lock, User as UserIcon, Sparkles } from 'lucide-react';
+import { User } from '@shared/types';
+import { useToast } from '../../context/ToastContext';
 
-import React, { useState } from 'react';
-import { Eye, EyeOff, ArrowRight, Loader2, ArrowLeft, Mail, Lock, User, Sparkles } from 'lucide-react';
 
 // --- FRONTEND AUTH LOGIC ---
 
 interface AuthPageProps {
-  onSuccess: (mode: 'login' | 'register', email?: string, password?: string) => void;
+  onSuccess: (user: User) => void;
   onBack: () => void;
   initialMode?: 'login' | 'register';
   initialEmail?: string;
@@ -23,11 +26,36 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   initialReferralCode = '',
   isDemo = false
 }) => {
-  const [mode, setMode] = useState<'login' | 'register'>(
-    (initialEmail || initialPassword) ? 'login' : initialMode
-  );
+  const { showToast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Derived state from URL or props
+  const modeParam = searchParams.get('mode');
+  const activeMode = (modeParam === 'login' || modeParam === 'register') ? modeParam : initialMode;
+
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
+
+  // Focus Refs
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync Focus on Mode Change
+  useEffect(() => {
+    if (activeMode === 'register' && nameInputRef.current) {
+        // slight delay to allow layout entry
+        setTimeout(() => nameInputRef.current?.focus(), 50);
+    } else if (activeMode === 'login' && emailInputRef.current) {
+        setTimeout(() => emailInputRef.current?.focus(), 50);
+    }
+  }, [activeMode]);
+
+  const handleModeSwitch = (newMode: 'login' | 'register') => {
+      setSearchParams(prev => {
+          prev.set('mode', newMode);
+          return prev;
+      });
+  };
 
   // Form State
   const [formData, setFormData] = useState({
@@ -40,22 +68,27 @@ export const AuthPage: React.FC<AuthPageProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.email || !formData.password) return;
-    if (mode === 'register' && !formData.name) return;
+    if (activeMode === 'register' && !formData.name) return;
 
     setLoading(true);
     
     if (isDemo) {
-        // Mock demo login
-        setTimeout(() => {
+        try {
+            const res = await fetch('/api/auth/demo', { method: 'POST' });
+            const data = await res.json();
+            if (!res.ok) throw new Error("Failed to start demo session");
+            onSuccess(data.user);
+        } catch {
+            alert("Demo session unavailable");
+        } finally {
             setLoading(false);
-            onSuccess(mode, formData.email, formData.password);
-        }, 1500);
+        }
         return;
     }
 
     try {
-        const url = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
-        const body = mode === 'login' 
+        const url = activeMode === 'login' ? '/api/auth/login' : '/api/auth/register';
+        const body = activeMode === 'login' 
             ? { email: formData.email, password: formData.password }
             : { name: formData.name, email: formData.email, password: formData.password, referralCode: formData.referralCode };
 
@@ -69,9 +102,9 @@ export const AuthPage: React.FC<AuthPageProps> = ({
         
         if (!res.ok) throw new Error(data.error || 'Authentication failed');
 
-        onSuccess(mode, formData.email, formData.password); // In real app, we might use data.user/token
+        onSuccess(data.user);
     } catch (err) {
-        alert(err instanceof Error ? err.message : 'Something went wrong');
+        showToast(err instanceof Error ? err.message : 'Something went wrong', 'error');
     } finally {
         setLoading(false);
     }
@@ -139,12 +172,12 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                 <h1 className="text-3xl font-black tracking-tight text-slate-900 mb-2">
                     {isDemo 
                     ? 'Akses Akun Demo.' 
-                    : (mode === 'login' ? 'Selamat Datang Kembali.' : 'Buat Akun Baru.')}
+                    : (activeMode === 'login' ? 'Selamat Datang Kembali.' : 'Buat Akun Baru.')}
                 </h1>
                 <p className="text-sm text-slate-500 font-medium">
                     {isDemo
-                    ? 'Masuk sebagai Owner Fiera Food untuk simulasi.'
-                    : (mode === 'login' 
+                    ? 'Masuk sebagai Owner Lumina Bistro untuk simulasi.'
+                    : (activeMode === 'login' 
                         ? 'Masuk untuk mengelola margin profit Anda.' 
                         : 'Mulai perjalanan bisnis yang lebih profitable.')
                     }
@@ -152,13 +185,14 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
-                {mode === 'register' && (
+                {activeMode === 'register' && (
                     <>
                     <div className="space-y-1.5 animate-in slide-in-from-top-2 fade-in duration-300">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Nama Lengkap</label>
                     <div className="relative group">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                        <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
                         <input 
+                        ref={nameInputRef} 
                         name="name"
                         type="text" 
                         value={formData.name}
@@ -190,6 +224,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                     <div className="relative group">
                     <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${isDemo ? 'text-indigo-500' : 'text-slate-400 group-focus-within:text-indigo-500'}`} />
                     <input 
+                        ref={emailInputRef} 
                         name="email"
                         type="email" 
                         value={formData.email}
@@ -239,7 +274,7 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                 >
                     {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
                     <>
-                        {isDemo ? 'Masuk Dashboard Demo' : (mode === 'login' ? 'Masuk Sekarang' : 'Daftar Gratis')} 
+                        {isDemo ? 'Masuk Dashboard Demo' : (activeMode === 'login' ? 'Masuk Sekarang' : 'Daftar Gratis')} 
                         <ArrowRight className="w-4 h-4" />
                     </>
                     )}
@@ -249,12 +284,12 @@ export const AuthPage: React.FC<AuthPageProps> = ({
                 <div className="mt-8 text-center pb-8">
                 {!isDemo && (
                     <p className="text-xs text-slate-500 font-medium">
-                    {mode === 'login' ? 'Belum punya akun?' : 'Sudah punya akun?'}
+                    {activeMode === 'login' ? 'Belum punya akun?' : 'Sudah punya akun?'}
                     <button 
-                        onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+                        onClick={() => handleModeSwitch(activeMode === 'login' ? 'register' : 'login')}
                         className="ml-1 text-indigo-600 font-black hover:underline"
                     >
-                        {mode === 'login' ? 'Daftar disini' : 'Login disini'}
+                        {activeMode === 'login' ? 'Daftar disini' : 'Login disini'}
                     </button>
                     </p>
                 )}

@@ -6,11 +6,12 @@ interface OperationalContextProps {
   activeProject: Project;
   updateProject: (updates: Partial<Project>) => void;
   prodConfig: ProductionConfig;
+  style?: React.CSSProperties;
 }
 
-export const OperationalContext: React.FC<OperationalContextProps> = ({ activeProject, updateProject, prodConfig }) => {
+export const OperationalContext: React.FC<OperationalContextProps> = ({ activeProject, updateProject, prodConfig, style }) => {
   return (
-    <div className="bg-slate-900 rounded-[2rem] lg:rounded-[2.5rem] p-5 lg:p-8 text-white shadow-2xl relative overflow-hidden group">
+    <div style={style} className="bg-slate-900 rounded-[2rem] lg:rounded-[2.5rem] p-5 lg:p-8 text-white shadow-2xl relative overflow-hidden group">
         <div className="relative z-10 flex flex-col gap-5 lg:gap-6">
           
           {/* Header Section (Simplified) */}

@@ -1,24 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Platform, Project, MarketplaceItem } from '@shared/types';
-import { INITIAL_MARKETPLACE } from '../../lib/constants';
-
-// Routes (Tabs)
-import { DashboardView } from '../../routes/app/index';
-import { ProductCalculator } from '../../routes/app/calculator'; 
-import { MarketplaceView } from '../../routes/app/market'; 
-import { ProfitSimulator } from '../../routes/app/insights';
-import { AcademyView } from '../../routes/app/academy';
-import { MerchantProfile } from '../../routes/app/profile';
-import { FinanceManager } from '../../routes/app/finance';
-import { AboutView } from '../../routes/app/about';
-import { ChangelogView } from '../../routes/app/changelog';
-import { TopUpView } from '../../routes/app/topup';
+import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { Platform, Project, BusinessProfile, Currency } from '@shared/types';
 
 // Layout
 import { Sidebar } from '../../components/layout/Sidebar';
 import { Header } from '../../components/layout/Header';
-import { MobileNav } from '../../components/layout/MobileNav';
+import { MobileNav, TabId } from '../../components/layout/MobileNav';
 
 // Modals
 import { ProjectSelectorModal } from '../../components/modals/ProjectSelectorModal';
@@ -26,28 +13,68 @@ import { ProjectSelectorModal } from '../../components/modals/ProjectSelectorMod
 // Hooks
 import { useCurrency } from '../../hooks/useCurrency';
 import { useProjects } from '../../hooks/useProjects';
-import { useFinance } from '../../hooks/useFinance';
-import { useMarketplace } from '../../hooks/useMarketplace';
 import { useTTS } from '../../hooks/useTTS';
-import { useSettings } from '../../hooks/useSettings'; 
 import { useProfile } from '../../hooks/useProfile';
-import { usePricingEngine } from '../../hooks/usePricingEngine';
+import { useMarketplace } from '../../hooks/useMarketplace';
 import { useToast } from '../../context/ToastContext';
+
+// Define the Context Type
+export interface DashboardOutletContext {
+    projects: Project[];
+    activeProject: Project | undefined;
+    activeProjectId: string;
+    setActiveProjectId: (id: string) => void;
+    updateProject: (id: string, updates: Partial<Project>) => void;
+    createNewProject: () => void; // Wrapped for UI
+    addProject: (p: Project) => void;
+    editProject: (id: string, updates: Partial<Project>) => void;
+    deleteProject: (id: string) => void;
+    activeBusiness: BusinessProfile | undefined;
+    activeBusinessId: string;
+    // Shared Utils
+    setActiveTab: (tab: string) => void;
+    // Profile
+    businesses: BusinessProfile[];
+    addBusiness: (b: BusinessProfile) => void;
+    switchBusiness: (id: string) => void;
+    updateBusiness: (id: string, u: Partial<BusinessProfile>) => void;
+    deleteBusiness: (id: string) => void;
+    // UI
+    isProfileEditing: boolean;
+    setIsProfileEditing: (val: boolean) => void;
+    // Currency
+    exchangeRates: any;
+    selectedCurrency: Currency;
+}
 
 export const DashboardShell: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { showToast } = useToast();
 
+  // --- DERIVE ACTIVE TAB FROM URL ---
+  const getTabFromPath = (path: string): TabId => {
+      if (path.includes('/app/market')) return 'market';
+      if (path.includes('/app/profile')) return 'profile';
+      if (path.includes('/app/finance')) return 'cashflow';
+      if (path.includes('/app/calc')) return 'calc';
+      if (path.includes('/app/insights')) return 'insights';
+      if (path.includes('/app/academia') || path.includes('/app/edu')) return 'edu';
+      if (path.includes('/app/about')) return 'about';
+      if (path.includes('/app/changelog')) return 'changelog';
+      if (path.includes('/app/topup')) return 'topup';
+      return 'home';
+  };
+  const activeTab = getTabFromPath(location.pathname);
+
   // --- APP STATE MANAGEMENT ---
-  const [activeTab, setActiveTab] = useState<'home' | 'calc' | 'insights' | 'market' | 'edu' | 'profile' | 'cashflow' | 'about' | 'changelog' | 'topup'>('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileEditing, setIsProfileEditing] = useState(false);
   const [showProjectSelector, setShowProjectSelector] = useState(false);
-  const [expandedPlatform, setExpandedPlatform] = useState<Platform | null>(null);
-  const [profileInitialTab, setProfileInitialTab] = useState<'outlets' | 'account' | 'ledger'>('outlets');
-
+  
   // Hooks
   const profile = useProfile();
+  const { credits } = useMarketplace(); // Fetch real credits for Header
   const { 
     projects, activeProject, activeProjectId, setActiveProjectId, 
     updateProject, editProject, createNewProject: createProjectHook, addProject,
@@ -67,70 +94,67 @@ export const DashboardShell: React.FC = () => {
   }, [profile.activeBusinessId, projects, activeProjectId, setActiveProjectId]);
 
   const { selectedCurrency, setSelectedCurrency, exchangeRates, isRefreshingRates, fetchLiveRates, formatValue } = useCurrency();
-  const { results, chartData, feeComparisonData, overrides, setOverrides, promoPercent, setPromoPercent } = usePricingEngine(activeProject, selectedCurrency, exchangeRates);
-  const { liabilities, setLiabilities, cashflow, setCashflow, monthlyFixedCost, setMonthlyFixedCost, currentSavings, toggleLiabilityPaid, deleteCashflow } = useFinance();
-  const { credits, transactionHistory, deductCredits, topUpCredits } = useMarketplace();
   const { isSpeaking, handleAudioSummary: playSummary } = useTTS();
-  const { settings, toggleLanguage, t } = useSettings();
 
   // --- HANDLERS ---
-
-  const handleLogout = () => {
-    // Clear session
-    localStorage.removeItem('margins_pro_auth');
-    localStorage.removeItem('margins_pro_is_demo');
-    
-    // Clear Demo Data securely if it was demo
-    // (Optional: keep data for better UX if they re-login, but strictly "logout" implies clearing access)
-    
-    showToast("Anda telah keluar sesi.", "info");
-    navigate('/');
-  };
 
   const handleCreateNewProject = () => {
     const newId = createProjectHook();
     setActiveProjectId(newId);
-    setActiveTab('calc');
+    navigate('/app/calc'); // Navigate instead of setState
     setIsSidebarOpen(false);
     showToast("Project baru dibuat", "info");
   };
 
-  const handleBuyItem = (item: MarketplaceItem) => {
-    const success = deductCredits(item.price || 0, item.name);
-    if (!success) {
-      showToast("Credit tidak mencukupi!", "error");
-      return;
+  const handleTabChange = (tab: string) => {
+    // Legacy support for string args, map to routes
+    switch(tab) {
+        case 'home': navigate('/app'); break;
+        case 'calc': navigate('/app/calc'); break;
+        case 'insights': 
+            navigate('/app/insights'); 
+            setShowProjectSelector(true); // Keep selector logic
+            break;
+        case 'market': navigate('/app/market'); break;
+        case 'edu': navigate('/app/academia'); break;
+        case 'profile': navigate('/app/profile'); break;
+        case 'cashflow': navigate('/app/finance'); break;
+        case 'about': navigate('/app/about'); break;
+        case 'changelog': navigate('/app/changelog'); break;
+        case 'topup': navigate('/app/topup'); break;
+        default: navigate('/app');
     }
-    const newProject: Project = {
-      ...item,
-      id: Math.random().toString(36).substr(2, 9),
-      businessId: profile.activeBusinessId,
-      name: `[NEW] ${item.name}`,
-      lastModified: Date.now()
-    };
-    addProject(newProject);
-    setActiveTab('calc');
-    showToast("Template berhasil dibeli", "success");
-  };
-
-  const handleTabChange = (tab: typeof activeTab) => {
-    if (tab === 'insights') {
-      setShowProjectSelector(true);
-    } else {
-      if (tab === 'profile') setProfileInitialTab('outlets');
-      setActiveTab(tab);
-    }
-  };
-
-  const handleHistoryNavigation = () => {
-    setProfileInitialTab('ledger');
-    setActiveTab('profile');
   };
 
   const handleAudioSummary = () => {
     if (!activeProject || !activeProject.costs) return;
     const totalCost = activeProject.costs.reduce((a,b)=>a+b.amount,0);
     playSummary(activeProject, formatValue(totalCost), formatValue(activeProject.targetNet));
+  };
+
+  // --- CONTEXT VALUE ---
+  const outletContext: DashboardOutletContext = {
+      projects,
+      activeProject,
+      activeProjectId,
+      setActiveProjectId,
+      updateProject: editProject,
+      createNewProject: handleCreateNewProject,
+      addProject,
+      editProject,
+      deleteProject,
+      activeBusiness: profile.activeBusiness,
+      activeBusinessId: profile.activeBusinessId,
+      setActiveTab: handleTabChange,
+      businesses: profile.businesses,
+      addBusiness: profile.addBusiness,
+      switchBusiness: profile.switchBusiness,
+      updateBusiness: profile.updateBusiness,
+      deleteBusiness: profile.deleteBusiness,
+      isProfileEditing,
+      setIsProfileEditing,
+      exchangeRates,
+      selectedCurrency
   };
 
   return (
@@ -169,7 +193,13 @@ export const DashboardShell: React.FC = () => {
           isSpeaking={isSpeaking}
           handleAudioSummary={handleAudioSummary}
           setActiveTab={handleTabChange}
-          credits={credits}
+          credits={credits || 0} 
+                      // Header needs credits. We should pull useMarketplace just for credits in Header if needed, 
+                      // OR remove it from Header props if it fetches itself. 
+                      // Let's check Header.tsx... It takes credits as prop.
+                      // For now, let's keep it 0 or fetch it here cleanly if critical.
+                      // Optimization: Let's fetch lightweight credit balance here.
+                      // Actually, let useMarketplace() run here just for credits.
           activeBusiness={profile.activeBusiness}
           isProfileEditing={isProfileEditing}
           onProfileBack={() => setIsProfileEditing(false)}
@@ -177,125 +207,12 @@ export const DashboardShell: React.FC = () => {
 
         <div className="flex-grow overflow-y-auto bg-slate-50/50 p-4 lg:p-10 scrollbar-hide pb-36 lg:pb-20 overscroll-y-contain w-full">
           <div className="max-w-5xl mx-auto w-full">
-            {activeTab === 'home' && (
-              <DashboardView 
-                projects={projects} 
-                credits={credits} 
-                setCredits={(amount: number) => { topUpCredits(amount); }}
-                setActiveTab={handleTabChange} 
-                createNewProject={handleCreateNewProject} 
-                setActiveProjectId={setActiveProjectId} 
-                formatValue={formatValue}
-                marketItemsCount={INITIAL_MARKETPLACE.length}
-              />
-            )}
-
-            {activeTab === 'market' && (
-              <MarketplaceView 
-                items={INITIAL_MARKETPLACE} 
-                handleBuyItem={handleBuyItem} 
-                formatValue={formatValue} 
-              />
-            )}
-
-            {(activeTab === 'profile') && (
-              <MerchantProfile 
-                credits={credits} 
-                // setCredits removed 
-                transactionHistory={transactionHistory}
-                settings={settings}
-                toggleLanguage={toggleLanguage}
-                isEditingProfile={isProfileEditing}
-                setIsEditingProfile={setIsProfileEditing}
-                onTopUpClick={() => handleTabChange('topup')}
-                businesses={profile.businesses}
-                activeBusinessId={profile.activeBusinessId}
-                activeBusiness={profile.activeBusiness}
-                addBusiness={profile.addBusiness}
-                switchBusiness={profile.switchBusiness}
-                updateBusiness={profile.updateBusiness}
-                deleteBusiness={profile.deleteBusiness}
-                initialTab={profileInitialTab}
-                onLogout={handleLogout} 
-              />
-            )}
-
-            {activeTab === 'topup' && (
-              <TopUpView 
-                formatValue={formatValue}
-                topUpCredits={topUpCredits}
-                onBack={() => handleTabChange('profile')}
-                onHistoryClick={handleHistoryNavigation}
-              />
-            )}
-
-            {activeTab === 'cashflow' && (
-              <FinanceManager 
-                liabilities={liabilities}
-                setLiabilities={setLiabilities}
-                cashflow={cashflow}
-                setCashflow={setCashflow}
-                activeProject={activeProject}
-                formatValue={formatValue}
-                monthlyFixedCost={monthlyFixedCost}
-                setMonthlyFixedCost={setMonthlyFixedCost}
-                currentSavings={currentSavings}
-                // setCurrentSavings removed
-                toggleLiabilityPaid={toggleLiabilityPaid}
-                deleteCashflow={deleteCashflow}
-                activeBusiness={profile.activeBusiness}
-                updateBusiness={(updates) => profile.updateBusiness(profile.activeBusinessId, updates)}
-              />
-            )}
-
-            {activeTab === 'calc' && activeProject && (
-              <ProductCalculator 
-                activeProject={activeProject} 
-                updateProject={updateProject} 
-                createNewProject={handleCreateNewProject} 
-                deleteProject={deleteProject}
-                formatValue={formatValue} 
-                goToSimulation={() => handleTabChange('insights')} 
-              />
-            )}
-
-            {activeTab === 'insights' && activeProject && (
-              <ProfitSimulator 
-                results={results}
-                chartData={chartData}
-                feeComparisonData={feeComparisonData}
-                promoPercent={promoPercent}
-                setPromoPercent={setPromoPercent}
-                expandedPlatform={expandedPlatform}
-                setExpandedPlatform={setExpandedPlatform}
-                formatValue={formatValue}
-                selectedCurrency={selectedCurrency}
-                activeProject={activeProject}
-                updateProject={updateProject}
-                overrides={overrides}
-                setOverrides={setOverrides}
-                onOpenSidebar={() => setIsSidebarOpen(true)}
-                onBack={() => {
-                  if (activeProject) setActiveTab('calc'); 
-                  else setActiveTab('home');
-                }}
-                t={t}
-              />
-            )}
-
-            {activeTab === 'edu' && <AcademyView onOpenAbout={() => handleTabChange('about')} />}
-            {activeTab === 'about' && (
-              <AboutView 
-                onBack={() => handleTabChange('edu')} 
-                onOpenChangelog={() => handleTabChange('changelog')} 
-              />
-            )}
-            {activeTab === 'changelog' && <ChangelogView onBack={() => handleTabChange('about')} />}
+             <Outlet context={outletContext} />
           </div>
         </div>
 
         <div className="pb-safe bg-slate-50/50 lg:hidden">
-           <MobileNav activeTab={activeTab} setActiveTab={handleTabChange} />
+           <MobileNav activeTab={activeTab} setActiveTab={(t) => handleTabChange(t)} />
         </div>
 
         <ProjectSelectorModal 
@@ -305,7 +222,7 @@ export const DashboardShell: React.FC = () => {
           activeProjectId={activeProjectId}
           onSelect={(id) => {
             setActiveProjectId(id);
-            setActiveTab('insights');
+            navigate('/app/insights'); // Direct nav
             setShowProjectSelector(false);
           }}
           onCreateNew={handleCreateNewProject}

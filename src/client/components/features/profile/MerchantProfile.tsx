@@ -13,6 +13,7 @@ import { ProfileIdentity } from './ProfileIdentity';
 import { ProfileFinancials } from './ProfileFinancials';
 import { NotificationModal } from '../../modals/NotificationModal';
 import { TabNavigation, TabItem } from '../../ui/TabNavigation';
+import { useToast } from '../../../context/ToastContext';
 
 interface MerchantProfileProps {
   credits: number;
@@ -45,6 +46,7 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
   const [editForm, setEditForm] = useState<Partial<BusinessProfile>>({});
   const [isSaved, setIsSaved] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const { showToast } = useToast();
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -196,7 +198,13 @@ export const MerchantProfile: React.FC<MerchantProfileProps> = ({
                 {isSaved ? 'Berhasil Disimpan' : 'Simpan Perubahan'}
             </button>
             {businesses.length > 1 && editForm.id && (
-                <button onClick={() => deleteBusiness(editForm.id!)} className="w-full py-4 rounded-2xl bg-rose-50 text-rose-600 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-600 hover:text-white transition-all border border-rose-100 mt-4">
+                <button onClick={() => {
+                   if (confirm("Yakin hapus cabang ini? Data tidak bisa dikembalikan.")) {
+                       deleteBusiness(editForm.id!);
+                       // Hook handles toast and success state
+                       setIsEditingProfile(false);
+                   }
+                }} className="w-full py-4 rounded-2xl bg-rose-50 text-rose-600 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-rose-600 hover:text-white transition-all border border-rose-100 mt-4">
                   <Trash2 className="w-4 h-4" /> Hapus Cabang Ini
                 </button>
             )}

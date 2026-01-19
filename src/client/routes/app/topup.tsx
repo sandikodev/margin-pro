@@ -59,7 +59,7 @@ const PAYMENT_METHODS = [
   { id: 'ewallet', label: 'E-Wallet', icon: Wallet, desc: 'GoPay/OVO' }
 ];
 
-export const TopUpView: React.FC<TopUpViewProps> = ({ formatValue, topUpCredits, onBack, onHistoryClick }) => {
+export const TopUpView: React.FC<TopUpViewProps> = ({ formatValue, topUpCredits, onBack, onHistoryClick, currentCredits }) => {
   const [selectedPackage, setSelectedPackage] = useState(PACKAGES[1]); // Default to Pro
   const [paymentMethod, setPaymentMethod] = useState<'qris' | 'va' | 'ewallet'>('qris');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -121,7 +121,7 @@ export const TopUpView: React.FC<TopUpViewProps> = ({ formatValue, topUpCredits,
                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-200/80">Active Balance</span>
                   </div>
                   <div className="flex items-baseline gap-2">
-                     <p className="text-5xl font-black tracking-tighter">250</p>
+                     <p className="text-5xl font-black tracking-tighter">{currentCredits}</p>
                      <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">Credits</p>
                   </div>
                </div>

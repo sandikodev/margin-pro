@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
 import { Calculator, PlusCircle, Trash2, Loader2, Package, Sparkles, CheckCircle2, ArrowRightLeft, Scale, Layers, Ruler, Plus, Info, CalendarClock, PieChart as PieChartIcon, Hammer, Box } from 'lucide-react';
-import { GoogleGenAI, Type } from "@google/genai";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Project, ProductionConfig, CostItem } from '@shared/types';
-import { calculateEffectiveCost, calculateOperationalBurnRate, cleanAIJSON } from '../../lib/utils';
+import { calculateEffectiveCost, calculateOperationalBurnRate } from '../../lib/utils';
+import { useAIEstimator } from '../../hooks/useAIEstimator';
 
 interface CostListProps {
   activeProject: Project;
@@ -273,7 +273,7 @@ const OperationalBurnRate: React.FC<{
 export const CostList: React.FC<CostListProps> = ({ 
   activeProject, updateProject, formatValue, prodConfig, totalEffectiveCost 
 }) => {
-  const [isGenerating, setIsGenerating] = useState(false);
+  const { estimateCosts, isGenerating } = useAIEstimator();
 
   const chartData = activeProject.costs.map(cost => ({
       name: cost.name, 
@@ -282,60 +282,11 @@ export const CostList: React.FC<CostListProps> = ({
 
   const handleMagicEstimate = async () => {
     if (!activeProject.name || isGenerating) return;
-    setIsGenerating(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `List 5-8 main cost components (ingredients or materials) and estimated cost in IDR for product/service "${activeProject.name}".
-      IMPORTANT: Identify if an item is usually bought in bulk/stock or per unit.
-      Return strictly valid JSON with a "costs" array containing objects with:
-      - "name" (string)
-      - "amount" (number, total price of purchase)
-      - "allocation" (string, either 'unit' or 'bulk')
-      - "batchYield" (number, estimated units one purchase can serve. If 'unit', set 1).`;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              costs: {
-                type: Type.ARRAY,
-                items: {
-                  type: Type.OBJECT,
-                  properties: {
-                    name: { type: Type.STRING },
-                    amount: { type: Type.NUMBER },
-                    allocation: { type: Type.STRING },
-                    batchYield: { type: Type.NUMBER }
-                  }
-                }
-              }
-            }
-          }
-        }
-      });
-      
-      const data = JSON.parse(cleanAIJSON(response.text || '{}'));
-      
-      if (data.costs && Array.isArray(data.costs)) {
-        const newCosts = data.costs.map((c: { name: string; amount: number; allocation: string; batchYield: number }) => ({
-          id: Math.random().toString(36).substr(2, 9),
-          name: c.name,
-          amount: c.amount,
-          allocation: (c.allocation === 'bulk' || c.allocation === 'unit') ? c.allocation : 'unit',
-          batchYield: c.batchYield || 1,
-          bulkUnit: 'units' as const
-        }));
-        updateProject({ costs: [...activeProject.costs, ...newCosts] });
-      }
-    } catch (e) {
-      console.error("Magic Estimate Error:", e);
-      alert("Gagal mengestimasi biaya.");
-    } finally {
-      setIsGenerating(false);
+    
+    const newCosts = await estimateCosts(activeProject.name);
+    
+    if (newCosts && newCosts.length > 0) {
+       updateProject({ costs: [...activeProject.costs, ...newCosts] });
     }
   };
 

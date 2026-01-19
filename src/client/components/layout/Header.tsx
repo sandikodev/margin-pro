@@ -69,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({
       case 'insights': return 'Simulasi Profit';
       case 'about': return 'Tentang Platform';
       case 'changelog': return 'System Changelog';
-      default: return 'Margins Pro';
+      default: return 'Margin Pro';
     }
   };
 

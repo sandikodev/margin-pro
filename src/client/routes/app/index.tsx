@@ -212,11 +212,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                </div>
             ) : (
                projects.slice(0, 4).map(p => (
-                  <div 
-                    key={p.id} 
-                    onClick={() => { setActiveProjectId(p.id); setActiveTab('calc'); }}
-                    className="p-5 flex items-center justify-between active:bg-slate-50 transition-colors group cursor-pointer"
-                  >
+                  <div                     key={p.id} 
+                     onClick={(_) => { 
+                        // Start View Transition directly? No, Router v7 handles it via startTransition mostly, 
+                        // but explicit document.startViewTransition wrapper might be needed if Router doesn't auto-trigger it 
+                        // for state updates that aren't navigation-based? 
+                        // Wait, setActiveTab triggers navigation in DashboardShell.
+                        // So just setting the name here is step 1.
+                        setActiveProjectId(p.id); 
+                        setActiveTab('calc'); 
+                     }}
+                     style={{ viewTransitionName: `project-card-${p.id}` } as React.CSSProperties}
+                     className="p-5 flex items-center justify-between active:bg-slate-50 transition-colors group cursor-pointer"
+                   >
                      <div className="flex items-center gap-5">
                         <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center font-black text-slate-300 text-xl uppercase border border-slate-100 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 shadow-sm">
                            {p.name.charAt(0)}
@@ -250,7 +258,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <Star className="w-6 h-6 text-white fill-white animate-pulse" />
                </div>
                <div className="space-y-0.5">
-                  <h5 className="text-xs font-black uppercase tracking-widest leading-none">Margins Academy</h5>
+                  <h5 className="text-xs font-black uppercase tracking-widest leading-none">Margin Academy</h5>
                   <p className="text-[10px] text-indigo-100 opacity-80 leading-tight">Pelajari trik jualan untung di platform food.</p>
                </div>
             </div>

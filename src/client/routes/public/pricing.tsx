@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { useMidtrans } from '../../hooks/useMidtrans';
 import { Check, Star, Shield, History, Clock, FileText, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../hooks/useAuth';
+import { SUBSCRIPTION_PRICING } from '@shared/constants';
 import { Invoice, User } from '@shared/types';
 import { useNavigate } from 'react-router-dom';
 
@@ -140,19 +140,27 @@ export const PricingPage = () => {
         // 3. AUTHENTICATED FLOW: Trigger Payment
         setIsLoading(true);
         try {
+            const payload = {
+                id: Math.random().toString(36).substr(2, 9),
+                tier: tier, 
+                amount: tier === 'pro_monthly' ? SUBSCRIPTION_PRICING.PRO_MONTHLY : SUBSCRIPTION_PRICING.PRO_LIFETIME,
+                currency: 'IDR',
+                status: 'pending',
+                items: [
+                    {
+                        id: tier,
+                        name: tier === 'pro_monthly' ? 'Margin Pro Monthly' : 'Margin Pro Lifetime',
+                        price: tier === 'pro_monthly' ? SUBSCRIPTION_PRICING.PRO_MONTHLY : SUBSCRIPTION_PRICING.PRO_LIFETIME,
+                        quantity: 1
+                    }
+                ],
+                userId: user.id
+            };
+
             const res = await fetch('/api/midtrans/invoices', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    amount: tier === 'pro_monthly' ? 150000 : 2500000,
-                    items: [{
-                        id: tier,
-                        name: tier === 'pro_monthly' ? 'Margin Pro Monthly' : 'Margin Pro Lifetime',
-                        price: tier === 'pro_monthly' ? 150000 : 2500000,
-                        quantity: 1
-                    }],
-                    userId: user.id
-                })
+                body: JSON.stringify(payload)
             });
 
             if (!res.ok) throw new Error('Failed to create invoice');
@@ -163,7 +171,7 @@ export const PricingPage = () => {
             const newInvoice: Invoice = {
                 id: invoiceId,
                 userId: user.id,
-                amount: tier === 'pro_monthly' ? 150000 : 2500000,
+                amount: tier === 'pro_monthly' ? SUBSCRIPTION_PRICING.PRO_MONTHLY : SUBSCRIPTION_PRICING.PRO_LIFETIME,
                 status: 'PENDING',
                 snapToken,
                 createdAt: Date.now()

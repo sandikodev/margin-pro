@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { 
   Banknote, Plus, CalendarClock, TrendingUp, 
   ArrowDownRight, ArrowUpRight, Calculator, CheckCircle2, 
@@ -7,10 +7,13 @@ import {
 } from 'lucide-react';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { Liability, CashflowRecord, Project, TransactionCategory, BusinessProfile } from '@shared/types';
-import { calculateLoanPayment, calculateFinancialHealth } from '../../../lib/utils';
+import { FINANCIAL_DEFAULTS } from '@shared/constants';
+import { calculateLoanPayment } from '../../../lib/utils';
 import { Modal } from '../../ui/Modal';
 import { FloatingActionMenu, FloatingActionItem } from '../../ui/FloatingActionMenu';
 import { TabNavigation, TabItem } from '../../ui/TabNavigation';
+import { useToast } from '../../../context/ToastContext';
+import { useFinanceAnalytics } from '../../../hooks/useFinanceAnalytics';
 
 interface FinanceManagerProps {
   liabilities: Liability[];
@@ -21,6 +24,7 @@ interface FinanceManagerProps {
   formatValue: (val: number) => string;
   toggleLiabilityPaid?: (id: string) => void;
   deleteCashflow?: (id: string) => void;
+  addLiability?: (l: Liability) => void;
   activeBusiness?: BusinessProfile;
   updateBusiness?: (updates: Partial<BusinessProfile>) => void;
 }
@@ -29,17 +33,18 @@ interface ExtendedFinanceManagerProps extends FinanceManagerProps {
   monthlyFixedCost?: number;
   setMonthlyFixedCost?: (val: number) => void;
   currentSavings?: number;
-  // setCurrentSavings removed as unused
 }
 
 export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
   liabilities, setLiabilities, cashflow, setCashflow, activeProject, formatValue,
-  monthlyFixedCost = 3500000, setMonthlyFixedCost = (_: number) => {},
-  currentSavings = 2500000, 
+  monthlyFixedCost = FINANCIAL_DEFAULTS.MONTHLY_FIXED_COST, setMonthlyFixedCost = (_: number) => {},
+  currentSavings = FINANCIAL_DEFAULTS.CURRENT_SAVINGS, 
   toggleLiabilityPaid = (_: string) => {},
   deleteCashflow = (_: string) => {},
+  addLiability = (_: Liability) => {},
   activeBusiness, updateBusiness
 }) => {
+  const { showToast } = useToast();
   const [activeSubTab, setActiveSubTab] = useState<'journal' | 'debt' | 'strategy'>('journal');
   const [isInputModalOpen, setIsInputModalOpen] = useState(false);
   const [isFabOpen, setIsFabOpen] = useState(false); 
@@ -67,67 +72,27 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
   ];
 
   // --- CALCULATIONS ---
-  const totalUnpaidLiabilities = liabilities.filter(l => !l.isPaidThisMonth).reduce((acc, l) => acc + l.amount, 0);
-  
-  // Chart Data Preparation (Last 7 Days or Transactions)
-  const chartData = useMemo(() => {
-    const sorted = [...cashflow].sort((a, b) => a.date - b.date).slice(-10); // Take last 10
-    if (sorted.length === 0) return [{ name: 'Start', balance: activeBusiness?.initialCapital || 0 }];
-    
-    return sorted.map((c, i) => ({
-      name: i.toString(),
-      amount: c.revenue - c.expense,
-      date: new Date(c.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
-    }));
-  }, [cashflow, activeBusiness]);
-
-  const monthlySummary = useMemo(() => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    
-    const monthlyRecords = cashflow.filter(c => {
-      const d = new Date(c.date);
-      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-    });
-
-    return {
-      income: monthlyRecords.reduce((acc, c) => acc + c.revenue, 0),
-      expense: monthlyRecords.reduce((acc, c) => acc + c.expense, 0),
-      count: monthlyRecords.length
-    };
-  }, [cashflow]);
-
-  // Group Cashflow by Date
-  const groupedCashflow = useMemo(() => {
-    const groups: { [key: string]: CashflowRecord[] } = {};
-    cashflow.forEach(record => {
-      const dateKey = new Date(record.date).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-      if (!groups[dateKey]) groups[dateKey] = [];
-      groups[dateKey].push(record);
-    });
-    return groups;
-  }, [cashflow]);
-
-  const totalRevenue = cashflow.reduce((acc, c) => acc + c.revenue, 0);
-  const totalExpense = cashflow.reduce((acc, c) => acc + c.expense, 0);
-  const totalNetProfit = totalRevenue - totalExpense;
-  const initialCapital = activeBusiness?.initialCapital || 1;
-  const roiPercentage = (totalNetProfit / initialCapital) * 100;
+  const {
+    chartData,
+    monthlySummary,
+    groupedCashflow,
+    roiPercentage,
+    healthStats
+  } = useFinanceAnalytics({
+    cashflow,
+    liabilities,
+    activeBusiness,
+    activeProject,
+    monthlyFixedCost,
+    simDailySalesQty,
+    currentSavings
+  });
   
   const {
       projectedNetFreeCashflow,
       monthsToReachBuffer,
       savingsPercentage,
-  } = useMemo(() => calculateFinancialHealth(
-      totalRevenue, 
-      totalExpense, 
-      totalUnpaidLiabilities, 
-      monthlyFixedCost, 
-      activeProject?.targetNet || 0, 
-      simDailySalesQty, 
-      activeBusiness?.cashOnHand || currentSavings
-  ), [totalRevenue, totalExpense, totalUnpaidLiabilities, monthlyFixedCost, activeProject, simDailySalesQty, activeBusiness, currentSavings]);
+  } = healthStats;
 
   // --- HANDLERS ---
 
@@ -193,10 +158,14 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
       totalTenure: Number(simTenor),
       remainingTenure: Number(simTenor)
     };
-    setLiabilities([...liabilities, newLiability]);
+    if (addLiability) {
+        addLiability(newLiability);
+    } else {
+        setLiabilities([...liabilities, newLiability]);
+    }
     setSimResult(null);
     setSimPlafon('');
-    alert("Kewajiban dicatat.");
+    showToast("Kewajiban dicatat.", "success");
   };
 
   const openInput = (type: 'IN' | 'OUT') => {

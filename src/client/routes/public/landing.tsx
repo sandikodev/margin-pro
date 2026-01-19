@@ -1,5 +1,6 @@
 import React from 'react';
 import { TrendingUp, ShieldCheck, Zap, ArrowRight, Star, Activity, HelpCircle, Instagram, Twitter, Linkedin, Mail, Eye, Menu, X, BookOpen, CreditCard } from 'lucide-react';
+import { EXTERNAL_LINKS } from '@shared/constants';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -292,7 +293,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
             </button>
             <p className="text-[10px] text-indigo-400 mt-4 font-bold opacity-60">Tanpa Kartu Kredit • Batal Kapan Saja</p>
          </div>
-         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03]"></div>
+         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: `url(${EXTERNAL_LINKS.BACKGROUND_PATTERN})` }}></div>
       </section>
 
       {/* Footer */}
