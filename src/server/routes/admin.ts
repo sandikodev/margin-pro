@@ -2,7 +2,7 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-import { db } from "../db";
+import { db } from "../db/index";
 import { systemSettings, platforms, translations, users, invoices } from "../db/schema";
 import { eq, desc } from "drizzle-orm";
 import { sessionMiddleware, requireRole } from "../middleware/session";
@@ -62,9 +62,9 @@ export const adminRoutes = new Hono()
             userEmail: users.email,
             userName: users.name
         })
-        .from(invoices)
-        .leftJoin(users, eq(invoices.userId, users.id))
-        .orderBy(desc(invoices.createdAt));
-        
+            .from(invoices)
+            .leftJoin(users, eq(invoices.userId, users.id))
+            .orderBy(desc(invoices.createdAt));
+
         return c.json(allInvoices);
     });

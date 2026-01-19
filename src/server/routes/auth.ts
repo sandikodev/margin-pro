@@ -4,7 +4,7 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { setCookie, deleteCookie } from "hono/cookie";
 import { sign } from "hono/jwt";
-import { db } from "../db";
+import { db } from "../db/index";
 import { users } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { sessionMiddleware, getSession } from "../middleware/session";

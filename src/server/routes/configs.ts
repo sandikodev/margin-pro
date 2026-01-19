@@ -1,6 +1,6 @@
 
 import { Hono } from "hono";
-import { db } from "../db";
+import { db } from "../db/index";
 import { systemSettings, platforms, translations } from "../db/schema";
 
 export const configRoutes = new Hono()

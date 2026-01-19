@@ -9,7 +9,6 @@ import { paymentRoutes } from "./routes/payment";
 import { financeRoutes } from "./routes/finance";
 import { marketplaceRoutes } from "./routes/marketplace";
 import { getSession } from "./middleware/session";
-import { serveStatic } from "@hono/node-server/serve-static";
 
 import { securityHeaders, requestLogger, apiLimiter } from "./middleware/security";
 
@@ -57,6 +56,7 @@ export const api = apiApp;
 // Serve static assets from public/assets in production
 // Skip on Vercel as Vercel handles static assets via vercel.json rewrites more efficiently
 if (process.env.NODE_ENV === "production" && !process.env.VERCEL) {
+    const { serveStatic } = await import("@hono/node-server/serve-static");
     app.use("/assets/*", serveStatic({ root: "./dist" }));
     app.use("*", serveStatic({ root: "./public" }));
 }

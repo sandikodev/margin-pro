@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-import { db } from "../db";
+import { db } from "../db/index";
 import { users, creditTransactions } from "../db/schema";
 import { getSession } from "../middleware/session";
 import { eq, desc } from "drizzle-orm";

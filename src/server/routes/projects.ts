@@ -2,7 +2,7 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
-import { db } from "../db";
+import { db } from "../db/index";
 import { projects } from "../db/schema";
 import { projectSchema } from "../../shared/schemas";
 import { getSession } from "../middleware/session";
