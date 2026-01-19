@@ -141,11 +141,13 @@ export interface Currency {
   locale: string;
 }
 
+export type ExchangeRates = Record<string, number>;
+
 export interface User {
   id: string;
   email: string;
   name?: string;
-  role?: 'user' | 'admin';
+  role?: 'user' | 'admin' | 'super_admin';
   createdAt?: number;
   referralCode?: string;
   referredBy?: string;

@@ -13,7 +13,16 @@ export const users = sqliteTable("users", {
     referredBy: text("referred_by"), // Code of the referrer
     affiliateEarnings: integer("affiliate_earnings").default(0),
     permissions: text("permissions", { mode: "json" }).$type<string[]>().default(sql`'[]'`), // ['can_manage_users', 'can_view_revenue']
+    credits: integer("credits").default(0),
     createdAt: integer("created_at", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const creditTransactions = sqliteTable("credit_transactions", {
+    id: text("id").primaryKey(),
+    userId: text("user_id").references(() => users.id).notNull(),
+    amount: integer("amount").notNull(), // Negative for spend, positive for topup
+    description: text("description").notNull(), // e.g. "Purchased Feature X"
+    date: integer("date", { mode: "timestamp" }).default(sql`CURRENT_TIMESTAMP`),
 });
 
 // --- Businesses ---

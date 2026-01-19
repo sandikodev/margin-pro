@@ -161,3 +161,35 @@ export const TERMINOLOGY = {
     pro: 'Optimal: Target margin secured.'
   }
 };
+
+// --- STORAGE KEYS ---
+export const STORAGE_KEYS = {
+  PROJECTS: 'margin_pro_v12_final',
+  BUSINESSES: 'margin_pro_businesses_v3',
+  ACTIVE_BUSINESS_ID: 'margin_pro_active_business_id_v3',
+  ONBOARDED: 'margin_pro_onboarded',
+  SETTINGS: 'margin_pro_settings',
+  LIABILITIES: 'margin_pro_liabilities',
+  CASHFLOW: 'margin_pro_cashflow',
+  FINANCE_SETTINGS: 'margin_pro_finance_settings_v3'
+};
+
+// --- FINANCIAL DEFAULTS ---
+export const FINANCIAL_DEFAULTS = {
+  MONTHLY_FIXED_COST: 3_500_000,
+  CURRENT_SAVINGS: 2_500_000,
+  INITIAL_CAPITAL: 25_000_000,
+};
+
+// --- SUBSCRIPTION PRICING ---
+export const SUBSCRIPTION_PRICING = {
+  PRO_MONTHLY: 150_000,
+  PRO_LIFETIME: 2_500_000,
+};
+
+// --- EXTERNAL LINKS ---
+export const EXTERNAL_LINKS = {
+  GMAPS_PLACEHOLDER: 'https://maps.app.goo.gl/example',
+  UNSPLASH_RESTAURANT: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=200&q=80',
+  BACKGROUND_PATTERN: 'https://www.transparenttextures.com/patterns/cubes.png'
+};
