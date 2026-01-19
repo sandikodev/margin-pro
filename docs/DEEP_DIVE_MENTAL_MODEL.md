@@ -79,7 +79,24 @@ Jika jawabannya tidak, kita tidak menggunakannya. Inilah rahasia di balik **Marg
 
 ---
 
-## 7. Glosarium Istilah Teknis
+## 7. Evolusi RPC: Dari gRPC ke Hono RPC
+
+Mungkin Anda pernah mendengar **gRPC** (milik Google). Secara esensial, terminologinya sama: **Remote Procedure Call**. Artinya: "Saya memanggil fungsi di tempat jauh (server), tapi rasanya seperti memanggil fungsi lokal di komputer saya."
+
+### Apa Perbedaannya?
+-   **gRPC**: Menggunakan protokol biner (Protobuf) dan biasanya digunakan untuk komunikasi antar bahasa yang berbeda (misal: Golang ke C++). Ia sangat cepat tapi cukup "berat" untuk dipasang di browser secara langsung.
+-   **Hono RPC / tRPC**: Dirancang khusus untuk ekosistem TypeScript (End-to-End Type Safety). Ia menggunakan JSON standar tapi "membocorkan" tipe datanya ke frontend.
+
+### Mengapa Dunia JS/TS Sangat "Perfeksionis"?
+Anda mungkin bertanya: *"Kenapa di JS/TS kita seolah-olah gila akan tipe data, sedangkan di PHP kita lebih santai?"*
+
+1.  **Shift Left Errors**: Di PHP (terutama gaya lama), kesalahan seringkali baru terlihat saat aplikasi dijalankan (Runtime). Anda tahu ada error setelah user melihat halaman putih atau error log. Di TS, kita ingin kesalahan itu terlihat **saat Anda mengetik** (Compile-time).
+2.  **Kontrak Otomatis**: PHP seringkali bersifat monolitik (Server dan UI di satu tempat). Di aplikasi SaaS modern, Frontend dan Backend seringkali terpisah. **RPC adalah "Kontrak Otomatis"** yang menjamin bahwa jika Backend mengubah satu baris kode, Frontend akan langsung tahu tanpa perlu cek manual atau plugin IDE tambahan.
+3.  **Skalabilitas Mental**: Dengan tipe data yang ketat, otak kita tidak perlu mengingat ribuan struktur data. Biarkan **IDE dan Compiler** yang melakukan tugas administratif itu, sehingga kita (manusia) bisa fokus pada logika bisnis.
+
+---
+
+## 8. Glosarium Istilah Teknis
 
 Untuk membantu pengembang yang baru memulai, berikut adalah penjelasan sederhana untuk istilah-istilah "keren" yang kita gunakan:
 
