@@ -1,6 +1,6 @@
 import React from 'react';
 import { Flame } from 'lucide-react';
-import { BentoCard } from '@koda/core/ui';
+import { BentoCard } from '@koda/ui';
 
 interface PromoControlsProps {
     promoPercent: number;

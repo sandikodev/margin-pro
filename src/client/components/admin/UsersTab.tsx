@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useToast } from '@/context/toast-context';
 import { api } from '@/lib/client';
 import { User as UserModel } from '@shared/types';
-import { BentoCard } from '@koda/core/ui';
+import { BentoCard } from '@koda/ui';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 import { cn } from '@/lib/utils';
 

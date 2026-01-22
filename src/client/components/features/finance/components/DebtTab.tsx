@@ -1,7 +1,7 @@
 import React from 'react';
 import { Calculator, Banknote, ShieldCheck } from 'lucide-react';
 import { Liability } from '@shared/types';
-import { BentoCard } from '@koda/core/ui';
+import { BentoCard } from '@koda/ui';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 
 interface DebtTabProps {

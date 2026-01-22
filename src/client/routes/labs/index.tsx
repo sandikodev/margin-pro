@@ -9,7 +9,7 @@ import {
     Droplets
 } from 'lucide-react';
 import { useLaboratoryStore, LabBlueprint } from '@/store/useLaboratoryStore';
-import { BentoCard } from '@koda/core/ui';
+import { BentoCard } from '@koda/ui';
 import {
     Users,
     HardHat,

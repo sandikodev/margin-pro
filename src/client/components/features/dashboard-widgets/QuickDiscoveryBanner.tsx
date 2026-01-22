@@ -1,6 +1,6 @@
 import React from 'react';
 import { ArrowRight, BookOpen, GraduationCap } from 'lucide-react';
-import { GradientCard } from '@koda/core/ui';
+import { GradientCard } from '@koda/ui';
 
 interface QuickDiscoveryBannerProps {
    setActiveTab: (tab: string) => void;

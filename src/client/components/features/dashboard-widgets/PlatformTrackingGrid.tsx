@@ -1,7 +1,7 @@
 import React from 'react';
 import { Package, TrendingUp, Wallet } from 'lucide-react';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
-import { BentoCard, ResponsiveGrid } from '@koda/core/ui';
+import { BentoCard, ResponsiveGrid } from '@koda/ui';
 
 interface PlatformTrackingGridProps {
    projectsCount: number;

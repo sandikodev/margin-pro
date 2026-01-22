@@ -1,7 +1,7 @@
 import React from 'react';
 import { PlusCircle, CheckCircle2, Settings, Store } from 'lucide-react';
 import { BusinessProfile } from '@shared/types';
-import { BentoCard } from '@koda/core/ui';
+import { BentoCard } from '@koda/ui';
 
 interface BusinessListProps {
     businesses: BusinessProfile[];

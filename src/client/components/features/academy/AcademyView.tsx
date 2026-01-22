@@ -2,7 +2,7 @@ import React from 'react';
 import { GraduationCap, Lightbulb, Calculator, Target, ShieldCheck, BookOpen, ExternalLink, Globe } from 'lucide-react';
 import { Platform, PlatformConfig } from '@shared/types';
 import { useConfig } from '@/hooks/useConfig';
-import { GradientCard, BentoCard } from '@koda/core/ui';
+import { GradientCard, BentoCard } from '@koda/ui';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 
 interface AcademyViewProps {

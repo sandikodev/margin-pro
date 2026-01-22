@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Sparkle, Plus, ShoppingBag, Search, History } from 'lucide-react';
-import { BentoCard } from '@koda/core/ui';
+import { BentoCard } from '@koda/ui';
 
 interface HeroWidgetProps {
   createNewProject: () => void;

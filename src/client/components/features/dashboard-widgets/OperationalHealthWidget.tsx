@@ -1,6 +1,6 @@
 import React from 'react';
 import { ShieldCheck, Hourglass, BarChart3 } from 'lucide-react';
-import { BentoCard } from '@koda/core/ui';
+import { BentoCard } from '@koda/ui';
 
 interface OperationalHealthWidgetProps {
    setActiveTab: (tab: string) => void;

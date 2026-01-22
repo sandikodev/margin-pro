@@ -1,7 +1,7 @@
 import React from 'react';
 import { Store, Target, Wallet, ArrowRight, Zap, ShieldCheck } from 'lucide-react';
 import { Project, ProductionConfig, BusinessProfile } from '@shared/types';
-import { GradientCard, BentoCard } from '@koda/core/ui';
+import { GradientCard, BentoCard } from '@koda/ui';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 
 interface PricingStrategySectionProps {

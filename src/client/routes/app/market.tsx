@@ -4,7 +4,7 @@ import { MarketplaceItem } from '@shared/types';
 import { FilterModal, SortOption } from '@/components/modals/FilterModal';
 import { MarketItemCard } from '@/components/features/market/MarketItemCard';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
-import { BentoCard, GradientCard, ResponsiveGrid } from '@koda/core/ui';
+import { BentoCard, GradientCard, ResponsiveGrid } from '@koda/ui';
 
 interface MarketplaceViewProps {
   items: MarketplaceItem[];

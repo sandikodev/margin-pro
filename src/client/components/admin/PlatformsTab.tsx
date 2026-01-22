@@ -5,9 +5,9 @@ import { useConfig } from '@/hooks/useConfig';
 import { useToast } from '@/context/toast-context';
 import { api } from '@/lib/client';
 import { Platform, PlatformConfig, PlatformCategory } from '@shared/types';
-import { BentoCard } from '@koda/core/ui';
+import { BentoCard } from '@koda/ui';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
-import { ResponsiveGrid } from '@koda/core/ui';
+import { ResponsiveGrid } from '@koda/ui';
 
 interface PlatformsTabProps {
     addAuditLog: (action: string, details: string, type?: 'success' | 'info' | 'error') => void;
