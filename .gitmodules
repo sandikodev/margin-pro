@@ -1,3 +1,3 @@
-[submodule "packages/koda-core"]
-	path = packages/koda-core
+[submodule "packages/koda"]
+	path = packages/koda
 	url = git@github.com:sandikodev/koda.git

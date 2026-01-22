@@ -110,7 +110,9 @@ export default defineConfig(({ mode }) => {
         '@client': path.resolve(__dirname, './src/client'),
         '@server': path.resolve(__dirname, './src/server'),
         '@shared': path.resolve(__dirname, './src/shared'),
-        '@framework': path.resolve(__dirname, './packages/koda-core/src'),
+        '@framework': path.resolve(__dirname, './packages/koda/packages/core/src'),
+        '@koda/core': path.resolve(__dirname, './packages/koda/packages/core/src'),
+        '@koda/ui': path.resolve(__dirname, './packages/koda/packages/ui/src'),
       }
     }
   };
