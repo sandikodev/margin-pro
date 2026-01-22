@@ -1,7 +1,7 @@
 import React from 'react';
 import { BarChart3, Target, CalendarDays, Scale, ShieldCheck, Clock } from 'lucide-react';
 import { Project, ProductionConfig, PeriodType } from '@shared/types';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 
 interface OperationalContextProps {
   activeProject: Project;

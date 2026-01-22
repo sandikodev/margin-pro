@@ -5,7 +5,7 @@ import { User } from '@shared/types';
 import { useToast } from '@/context/toast-context';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { GradientCard } from '@/components/ui/design-system/GradientCard';
+import { GradientCard } from '@koda/core/ui';
 
 // --- FRONTEND AUTH LOGIC ---
 

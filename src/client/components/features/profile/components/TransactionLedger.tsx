@@ -1,6 +1,6 @@
 import React from 'react';
 import { History, ShoppingBag, Activity } from 'lucide-react';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 
 interface TransactionLedgerProps {
     transactionHistory: { name: string; date: string | number; price: number }[];

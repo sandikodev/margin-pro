@@ -1,7 +1,7 @@
 import React from 'react';
 import { Wallet, ShoppingCart, Package, Zap, Building2, HelpCircle, Plus } from 'lucide-react';
 import { CashflowRecord, TransactionCategory } from '@shared/types';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 import { FloatingActionMenu, FloatingActionItem } from '@/components/ui/FloatingActionMenu';
 

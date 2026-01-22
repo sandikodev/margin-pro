@@ -99,10 +99,8 @@ app.get("*", async (c: Context, next: Next) => {
     const description = "Hitung profit margin, simulasi harga, dan atur keuangan bisnis kuliner & retail anda.";
     const image = "https://placehold.co/1200x630/4f46e5/white?text=Margin+Pro";
 
-    const image = "https://placehold.co/1200x630/4f46e5/white?text=Margin+Pro";
-
     let html = "";
-    
+
     // Deployment-Agnostic Asset Fetching logic
     if (koda.env.runtime === 'edge') {
         const baseUrl = new URL(c.req.url).origin;

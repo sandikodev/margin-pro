@@ -1,6 +1,6 @@
 import React from 'react';
 import { Briefcase, CheckCircle2, Save, History, ChevronRight, Bell, LogOut } from 'lucide-react';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 
 interface AccountSettingsFormProps {

@@ -2,7 +2,7 @@ import React from 'react';
 import { AlertCircle } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, CartesianGrid } from 'recharts';
 import { CalculationResult, Platform, Currency, PlatformConfig } from '@shared/types';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 import { FeeComparisonItem } from '../ProfitSimulator';
 

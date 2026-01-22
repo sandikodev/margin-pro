@@ -9,8 +9,8 @@ import {
 import { motion } from 'framer-motion';
 import { useConfig } from '@/hooks/useConfig';
 import { PlatformConfig, PlatformCategory } from '@shared/types';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
-import { ResponsiveGrid } from '@/components/ui/design-system/ResponsiveGrid';
+import { BentoCard } from '@koda/core/ui';
+import { ResponsiveGrid } from '@koda/core/ui';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 import { api } from '@/lib/client';
 import { useToast } from '@/context/toast-context';

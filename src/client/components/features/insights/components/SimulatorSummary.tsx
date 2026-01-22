@@ -1,7 +1,7 @@
 import React from 'react';
 import { Clock, Eye, EyeOff, Activity } from 'lucide-react';
 import { Project } from '@shared/types';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 
 interface SimulatorSummaryProps {
     activeProject?: Project;

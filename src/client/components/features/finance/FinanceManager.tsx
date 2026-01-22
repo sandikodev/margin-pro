@@ -14,7 +14,7 @@ import { FloatingActionItem } from '@/components/ui/FloatingActionMenu';
 import { TabNavigation, TabItem } from '@/components/ui/TabNavigation';
 import { useToast } from '@/context/toast-context';
 import { useFinanceAnalytics } from '@/hooks/useFinanceAnalytics';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 
 // Modular Components
 import { JournalTab } from './components/JournalTab';

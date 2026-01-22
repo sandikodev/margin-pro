@@ -1,8 +1,8 @@
 import React from 'react';
 import { TrendingUp, ShieldCheck, ArrowRight, Star, Activity, HelpCircle, Instagram, Linkedin, Mail, Eye, Menu, X, BookOpen, CreditCard, Globe } from 'lucide-react';
 import { EXTERNAL_LINKS, COMPANY } from '@shared/constants';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
-import { GradientCard } from '@/components/ui/design-system/GradientCard';
+import { BentoCard } from '@koda/core/ui';
+import { GradientCard } from '@koda/core/ui';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface LandingPageProps {

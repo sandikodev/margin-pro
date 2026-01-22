@@ -1,8 +1,7 @@
 import React from 'react';
 import { Store, Target, Wallet, ArrowRight, Zap, ShieldCheck } from 'lucide-react';
 import { Project, ProductionConfig, BusinessProfile } from '@shared/types';
-import { GradientCard } from '@/components/ui/design-system/GradientCard';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { GradientCard, BentoCard } from '@koda/core/ui';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 
 interface PricingStrategySectionProps {
@@ -67,7 +66,7 @@ export const PricingStrategySection: React.FC<PricingStrategySectionProps> = ({
          {/* Input & Result Grid */}
          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-stretch">
             {/* INPUT SIDE - High Visiblity */}
-            <GradientCard noPadding className="p-6 lg:p-8 flex flex-col justify-center min-h-[180px] group transition-all hover:scale-[1.01]">
+            <GradientCard className="p-6 lg:p-8 flex flex-col justify-center min-h-[180px] group transition-all hover:scale-[1.01]">
                <div className="relative z-10 space-y-2">
                   <div className="flex items-center justify-between gap-2 mb-2">
                      <div className="flex items-center gap-2">

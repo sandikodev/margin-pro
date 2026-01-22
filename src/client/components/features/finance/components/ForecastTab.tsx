@@ -1,6 +1,6 @@
 import React from 'react';
 import { TrendingUp, ShieldCheck, Calculator } from 'lucide-react';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 
 interface ForecastTabProps {
     simDailySalesQty: number;

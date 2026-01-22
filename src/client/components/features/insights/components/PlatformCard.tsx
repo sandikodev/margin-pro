@@ -1,6 +1,6 @@
 import React from 'react';
 import { Settings2, ShieldCheck } from 'lucide-react';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 import { Carousel, CarouselItem } from '@/components/ui/Carousel';
 import { CalculationResult, Platform, Project, PlatformConfig } from '@shared/types';
 

@@ -3,7 +3,7 @@ import { FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useToast } from '@/context/toast-context';
 import { api } from '@/lib/client';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 import { cn } from '@/lib/utils';
 

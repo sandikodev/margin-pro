@@ -3,7 +3,7 @@ import { Building2, TrendingUp, Wallet, Settings, Gem } from 'lucide-react';
 import { BusinessProfile, AppSettings, User as UserType } from '@shared/types';
 import { ProfileIdentity } from '../ProfileIdentity';
 import { ProfileFinancials } from '../ProfileFinancials';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 
 interface MerchantHeaderProps {
     activeBusiness: BusinessProfile | undefined;

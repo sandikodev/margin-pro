@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recha
 import { Project, ProductionConfig, CostItem } from '@shared/types';
 import { calculateEffectiveCost, calculateOperationalBurnRate } from '@/lib/utils';
 import { useAIEstimator } from '@/hooks/useAIEstimator';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 
 interface CostListProps {

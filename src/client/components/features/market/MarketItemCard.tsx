@@ -1,7 +1,7 @@
 import React from 'react';
 import { Coffee, Utensils, Star, Heart, BadgeCheck, Download, TrendingUp, Zap, Coins } from 'lucide-react';
 import { MarketplaceItem } from '@shared/types';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 
 interface MarketItemCardProps {
   item: MarketplaceItem;

@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { SUBSCRIPTION_PRICING } from '@shared/constants';
 import { Invoice, User } from '@shared/types';
 import { useNavigate } from 'react-router-dom';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 import { cn } from '@/lib/utils';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 

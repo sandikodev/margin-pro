@@ -4,9 +4,7 @@ import { MarketplaceItem } from '@shared/types';
 import { FilterModal, SortOption } from '@/components/modals/FilterModal';
 import { MarketItemCard } from '@/components/features/market/MarketItemCard';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
-import { GradientCard } from '@/components/ui/design-system/GradientCard';
-import { ResponsiveGrid } from '@/components/ui/design-system/ResponsiveGrid';
+import { BentoCard, GradientCard, ResponsiveGrid } from '@koda/core/ui';
 
 interface MarketplaceViewProps {
   items: MarketplaceItem[];
@@ -94,7 +92,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({ items, handleB
       </div>
 
       {/* 2. TRENDING BANNER */}
-      <GradientCard noPadding className="p-8 cursor-pointer group">
+      <GradientCard className="p-8 cursor-pointer group">
         <div className="relative z-10 space-y-3 max-w-[80%]">
           <div className="flex items-center gap-2 mb-1">
             <span className="bg-white/20 px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest backdrop-blur-md text-white">Flash Sale</span>

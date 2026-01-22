@@ -1,7 +1,7 @@
 import React from 'react';
 import { Activity, HelpCircle, Target, ShieldCheck, MapPin, Map, CheckCircle2, Save, Trash2 } from 'lucide-react';
 import { BusinessProfile, BusinessType } from '@shared/types';
-import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { BentoCard } from '@koda/core/ui';
 
 interface BusinessEditFormProps {
     editForm: Partial<BusinessProfile>;
