@@ -10,7 +10,10 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       host: '0.0.0.0',
-      proxy: {} // No proxy needed, using @hono/vite-dev-server
+      proxy: {}, // No proxy needed, using @hono/vite-dev-server
+      hmr: {
+        overlay: false
+      }
     },
     plugins: [
       react(),
@@ -107,6 +110,7 @@ export default defineConfig(({ mode }) => {
         '@client': path.resolve(__dirname, './src/client'),
         '@server': path.resolve(__dirname, './src/server'),
         '@shared': path.resolve(__dirname, './src/shared'),
+        '@framework': path.resolve(__dirname, './packages/koda-core/src'),
       }
     }
   };

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Shield, ArrowLeft, Home, Lock, Brain, Server, Cookie } from 'lucide-react';
-import { getLegalDocBySlug } from '../lib/legal';
+import { getLegalDocBySlug } from '@/lib/legal';
 
 export const LegalLayout: React.FC = () => {
     const navigate = useNavigate();

@@ -4,6 +4,7 @@ import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import { db } from "../db/index";
 import { projects } from "../db/schema";
+import { Project } from "../../shared/types";
 import { projectSchema } from "../../shared/schemas";
 import { getSession } from "../middleware/session";
 
@@ -12,19 +13,11 @@ const app = new Hono()
         const session = await getSession(c);
         if (!session) return c.json({ error: "Unauthorized" }, 401);
 
-        // Optional: Filter by specific businessId if provided in query, otherwise return all accessible
-        // For now, valid business check is likely done at the DB level via implicit ownership logic if we had business_members.
-        // But since businesses are tied to userId, we can just return all projects for businesses owned by user?
-        // Wait, projects link to businessId.
-        // We should query projects where businessId is IN (businesses owned by user).
-        // OR, just trust the client sends businessId? No, that's insecure.
-
-        // Simpler for this phase: Client sends ?businessId. We verify user owns that businessId.
+        // Optional: Filter by specific businessId if provided in query
         const businessId = c.req.query('businessId');
 
         if (!businessId) {
-            // Return ALL projects for user (requires join or two steps)
-            // Step 1: Get user businesses
+            // Return ALL projects for user
             const userBusinesses = await db.query.businesses.findMany({
                 where: (b, { eq }) => eq(b.userId, session.id),
                 columns: { id: true }
@@ -44,7 +37,7 @@ const app = new Hono()
                 label: p.label || undefined,
                 isFavorite: p.isFavorite || false,
                 lastModified: p.lastModified.getTime(),
-                ...(p.data as any) // Flatten JSON data
+                ...(p.data as Partial<Project>) // Type-safe cast
             })));
         }
 
@@ -64,7 +57,7 @@ const app = new Hono()
             label: p.label || undefined,
             isFavorite: p.isFavorite || false,
             lastModified: p.lastModified.getTime(),
-            ...(p.data as any)
+            ...(p.data as Partial<Project>)
         })));
     })
     .post("/", zValidator("json", projectSchema), async (c) => {
@@ -84,9 +77,7 @@ const app = new Hono()
         const id = raw.id || Math.random().toString(36).substring(2, 9);
 
         // Extract core fields vs JSON fields
-        const { name, label, businessId, isFavorite, lastModified: _ignoreMod, id: _ignoreId, ...jsonData } = raw;
-
-
+        const { name, label, businessId, isFavorite, ...jsonData } = raw;
 
         // DB Data Object (Merge with defaults to satisfy strict schema)
         const dbData = {
@@ -127,10 +118,7 @@ const app = new Hono()
 
         if (!business) return c.json({ error: "Access denied" }, 403);
 
-        const { name, label, businessId: _ignoreBiz, isFavorite, lastModified: _ignoreMod, id: _ignoreId, ...jsonData } = raw;
-
-        // "Use" the ignored vars
-
+        const { name, label, isFavorite, ...jsonData } = raw;
 
         const dbData = {
             ...jsonData,
@@ -167,4 +155,4 @@ const app = new Hono()
         return c.json({ success: true });
     });
 
-export { app as projectRoutes };
+export { app as projectsRoutes };

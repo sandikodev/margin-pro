@@ -1,6 +1,6 @@
 import React from 'react';
 import { Bell, CheckCircle2, AlertCircle } from 'lucide-react';
-import { Modal } from '../ui/Modal';
+import { Modal } from '@/components/ui/Modal';
 
 interface NotificationModalProps {
   isOpen: boolean;

@@ -1,9 +1,10 @@
 
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Liability, CashflowRecord } from '@shared/types';
+import { Liability, CashflowRecord, BusinessProfile } from '@shared/types';
 import { FINANCIAL_DEFAULTS } from '@shared/constants';
-import { api } from '../lib/client';
+import { api } from '@/lib/client';
+import { queryKeys } from '@/lib/query-keys';
 
 export const useFinance = (activeBusinessId?: string) => {
   const queryClient = useQueryClient();
@@ -13,22 +14,24 @@ export const useFinance = (activeBusinessId?: string) => {
   // --- QUERIES ---
 
   const { data: liabilities = [] } = useQuery({
-    queryKey: ['liabilities', businessId],
+    queryKey: queryKeys.finance.liabilities(businessId),
     queryFn: async () => {
       if (!businessId) return [];
-      const res = await (api as any).finance.liabilities.$get({ query: { businessId } });
+      // @ts-expect-error - RPC inference
+      const res = await api.finance.liabilities.$get({ query: { businessId } });
       if (!res.ok) return [];
-      const data = await res.json();
-      return (data as unknown as any[]).map((l) => ({ ...l, amount: Number(l.amount) })) as Liability[];
+      const data = await res.json() as Liability[];
+      return data.map((l) => ({ ...l, amount: Number(l.amount) }));
     },
     enabled: !!businessId
   });
 
   const { data: cashflow = [] } = useQuery({
-    queryKey: ['cashflow', businessId],
+    queryKey: queryKeys.finance.cashflow(businessId),
     queryFn: async () => {
       if (!businessId) return [];
-      const res = await (api as any).finance.cashflow.$get({ query: { businessId } });
+      // @ts-expect-error - RPC inference
+      const res = await api.finance.cashflow.$get({ query: { businessId } });
       if (!res.ok) return [];
       return await res.json() as unknown as CashflowRecord[];
     },
@@ -36,22 +39,18 @@ export const useFinance = (activeBusinessId?: string) => {
   });
 
   const { data: financeSettings } = useQuery({
-    queryKey: ['business', businessId, 'finance-settings'],
+    queryKey: queryKeys.businesses.detail(businessId), // Use business detail for settings as they are part of it
     queryFn: async () => {
       if (!businessId) return {
         monthlyFixedCost: FINANCIAL_DEFAULTS.MONTHLY_FIXED_COST,
         currentSavings: FINANCIAL_DEFAULTS.CURRENT_SAVINGS
       };
-      const res = await (api as any).businesses[':id'].$get({ param: { id: businessId } });
-      if (!res.ok) return {
-        monthlyFixedCost: FINANCIAL_DEFAULTS.MONTHLY_FIXED_COST,
-        currentSavings: FINANCIAL_DEFAULTS.CURRENT_SAVINGS
-      };
-      const biz = await res.json();
-      const data = biz.data || {};
+      const res = await api.businesses[':id'].$get({ param: { id: businessId } });
+      if (!res.ok) return { ...FINANCIAL_DEFAULTS };
+      const biz = await res.json() as BusinessProfile;
       return {
-        monthlyFixedCost: data.monthlyFixedCost || FINANCIAL_DEFAULTS.MONTHLY_FIXED_COST,
-        currentSavings: data.currentSavings || FINANCIAL_DEFAULTS.CURRENT_SAVINGS
+        monthlyFixedCost: biz.monthlyFixedCost || FINANCIAL_DEFAULTS.MONTHLY_FIXED_COST,
+        currentSavings: biz.currentSavings || FINANCIAL_DEFAULTS.CURRENT_SAVINGS
       };
     },
     enabled: !!businessId,
@@ -62,7 +61,8 @@ export const useFinance = (activeBusinessId?: string) => {
 
   const createLiabilityMutation = useMutation({
     mutationFn: async (l: Liability) => {
-      const res = await (api as any).finance.liabilities.$post({ json: { ...l, businessId } });
+      // @ts-expect-error - RPC inference
+      const res = await api.finance.liabilities.$post({ json: { ...l, businessId } });
       return await res.json();
     },
     onMutate: async (newItem) => {
@@ -76,7 +76,8 @@ export const useFinance = (activeBusinessId?: string) => {
 
   const updateLiabilityMutation = useMutation({
     mutationFn: async (l: Liability) => {
-      const res = await (api as any).finance.liabilities[':id'].$put({
+      // @ts-expect-error - RPC type mismatch
+      const res = await api.finance.liabilities[':id'].$put({
         param: { id: l.id },
         json: { ...l, businessId }
       });
@@ -95,14 +96,16 @@ export const useFinance = (activeBusinessId?: string) => {
 
   const deleteLiabilityMutation = useMutation({
     mutationFn: async (id: string) => {
-      await (api as any).finance.liabilities[':id'].$delete({ param: { id } });
+      // @ts-expect-error - RPC inference
+      await api.finance.liabilities[':id'].$delete({ param: { id } });
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['liabilities', businessId] })
   });
 
   const createCashflowMutation = useMutation({
     mutationFn: async (c: CashflowRecord) => {
-      const res = await (api as any).finance.cashflow.$post({ json: { ...c, businessId } });
+      // @ts-expect-error - RPC inference
+      const res = await api.finance.cashflow.$post({ json: { ...c, businessId } });
       return await res.json();
     },
     onMutate: async (newItem) => {
@@ -116,7 +119,8 @@ export const useFinance = (activeBusinessId?: string) => {
 
   const deleteCashflowMutation = useMutation({
     mutationFn: async (id: string) => {
-      await (api as any).finance.cashflow[':id'].$delete({ param: { id } });
+      // @ts-expect-error - RPC inference
+      await api.finance.cashflow[':id'].$delete({ param: { id } });
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['cashflow', businessId] })
   });
@@ -124,36 +128,34 @@ export const useFinance = (activeBusinessId?: string) => {
   // Settings Mutation (Updates Business Data)
   const updateSettingsMutation = useMutation({
     mutationFn: async (settings: { monthlyFixedCost?: number, currentSavings?: number }) => {
-      const currentBizRes = await (api as any).businesses[':id'].$get({ param: { id: businessId } });
-      const currentBiz = await currentBizRes.json();
-      const existingData = currentBiz.data;
-
-      // Ensure we have data before merging
-      if (!existingData) throw new Error("Business not found");
+      const currentBizRes = await api.businesses[':id'].$get({ param: { id: businessId || '' } });
+      const currentBiz = await currentBizRes.json() as BusinessProfile;
 
       const payload = {
-        ...existingData,
+        ...currentBiz,
         ...settings
       };
 
-      await (api as any).businesses[':id'].$put({
-        param: { id: businessId },
-        json: payload
+      await api.businesses[':id'].$put({
+        param: { id: businessId || '' },
+        // RPC payload mismatch
+        json: payload as BusinessProfile
       });
     },
     onMutate: async (settings) => {
       await queryClient.cancelQueries({ queryKey: ['business', businessId, 'finance-settings'] });
       const prev = queryClient.getQueryData(['business', businessId, 'finance-settings']);
 
-      queryClient.setQueryData(['business', businessId, 'finance-settings'], (old: any) => ({
-        ...old,
+      queryClient.setQueryData(['business', businessId, 'finance-settings'], (old: { monthlyFixedCost: number; currentSavings: number } | undefined) => ({
+        monthlyFixedCost: old?.monthlyFixedCost || FINANCIAL_DEFAULTS.MONTHLY_FIXED_COST,
+        currentSavings: old?.currentSavings || FINANCIAL_DEFAULTS.CURRENT_SAVINGS,
         ...settings
       }));
       return { prev };
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['business', businessId, 'finance-settings'] });
-      queryClient.invalidateQueries({ queryKey: ['businesses'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.businesses.detail(businessId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.businesses.lists() });
     }
   });
 

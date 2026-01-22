@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { User } from '@shared/types';
-import { api } from '../lib/client';
+import { api } from '@/lib/client';
 import { AuthContext } from './auth-context';
-import { queryClient } from '../lib/query-client';
-import { STORAGE_KEYS } from '@shared/constants';
+import { queryClient } from '@/lib/query-client';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -14,11 +13,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await (api as any).auth.me.$get();
+        const res = await api.auth.me.$get();
         if (res.ok) {
           const data = await res.json();
           if (data.user) {
-            setUser(data.user as unknown as User);
+            setUser(data.user as User);
             setIsAuthenticated(true);
           }
         }
@@ -47,10 +46,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsAuthenticated(true);
   };
 
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const logout = async () => {
+    // Prevent duplicate logout calls
+    if (isLoggingOut) {
+      console.warn('Logout already in progress');
+      return;
+    }
+
+    setIsLoggingOut(true);
+
     try {
-      await (api as any).auth.logout.$post();
-    } catch (e) { console.error("Logout API failed", e); }
+      await api.auth.logout.$post();
+    } catch (e) {
+      console.error("Logout API failed", e);
+    }
 
     // Reset Client State
     queryClient.clear();
@@ -64,8 +75,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setUser(null);
     setIsAuthenticated(false);
+    setIsLoggingOut(false);
 
-    window.location.href = '/auth';
+    // Navigation is handled by the caller for better control
   };
 
   const hasRole = (requiredRole: User['role']) => {

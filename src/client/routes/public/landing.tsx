@@ -1,9 +1,8 @@
 import React from 'react';
-import { TrendingUp, ShieldCheck, Zap, ArrowRight, Star, Activity, HelpCircle, Instagram, Twitter, Linkedin, Mail, Eye, Menu, X, BookOpen, CreditCard, Globe } from 'lucide-react';
+import { TrendingUp, ShieldCheck, ArrowRight, Star, Activity, HelpCircle, Instagram, Linkedin, Mail, Eye, Menu, X, BookOpen, CreditCard, Globe } from 'lucide-react';
 import { EXTERNAL_LINKS, COMPANY } from '@shared/constants';
-import { BentoCard } from '../../components/ui/design-system/BentoCard';
-import { ResponsiveGrid } from '../../components/ui/design-system/ResponsiveGrid';
-import { GradientCard } from '../../components/ui/design-system/GradientCard';
+import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { GradientCard } from '@/components/ui/design-system/GradientCard';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface LandingPageProps {
@@ -17,7 +16,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onLogin,
    const [isScrolled, setIsScrolled] = React.useState(false);
    const [roiRevenue, setRoiRevenue] = React.useState(15000000); // 15jt default
 
-   const [floatingIcons, setFloatingIcons] = React.useState<any[]>([]);
+   const [floatingIcons, setFloatingIcons] = React.useState<{ id: number, x: string, duration: number, size: number, delay: number }[]>([]);
 
    React.useEffect(() => {
       setFloatingIcons([...Array(5)].map((_, i) => ({

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sliders, ArrowUpNarrowWide, ArrowDownNarrowWide, Check } from 'lucide-react';
-import { Modal } from '../ui/Modal';
+import { Modal } from '@/components/ui/Modal';
 
 export type SortOption = 'popular' | 'cheapest' | 'expensive' | 'rating';
 

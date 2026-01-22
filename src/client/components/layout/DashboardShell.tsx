@@ -1,72 +1,78 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Outlet } from 'react-router-dom';
-import { Project, BusinessProfile, Currency } from '@shared/types';
+import { useNavigate, useLocation, Outlet, useSearchParams } from 'react-router-dom';
+import { Project, BusinessProfile, Currency, User, ExchangeRates } from '@shared/types';
 
 // Layout
-import { Sidebar } from '../../components/layout/Sidebar';
-import { Header } from '../../components/layout/Header';
-import { MobileNav, TabId } from '../../components/layout/MobileNav';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { Header } from '@/components/layout/Header';
+import { MobileNav, TabId } from '@/components/layout/MobileNav';
 
 // Modals
-import { ProjectSelectorModal } from '../../components/modals/ProjectSelectorModal';
+import { ProjectSelectorModal } from '@/components/modals/ProjectSelectorModal';
 
 // Hooks
-import { useCurrency } from '../../hooks/useCurrency';
-import { useProjects } from '../../hooks/useProjects';
-import { useTTS } from '../../hooks/useTTS';
-import { useProfile } from '../../hooks/useProfile';
-import { useMarketplace } from '../../hooks/useMarketplace';
-import { useToast } from '../../context/toast-context';
+import { useCurrency } from '@/hooks/useCurrency';
+import { useProjects } from '@/hooks/useProjects';
+import { useTTS } from '@/hooks/useTTS';
+import { useProfile } from '@/hooks/useProfile';
+import { useAuth } from '@/hooks/useAuth';
+import { useMarketplace } from '@/hooks/useMarketplace';
+import { useToast } from '@/context/toast-context';
 import confetti from 'canvas-confetti';
-import { useKonamiCode } from '../../hooks/useKonamiCode';
+import { useKonamiCode } from '@/hooks/useKonamiCode';
 
 // Define the Context Type
 export interface DashboardOutletContext {
-    projects: Project[];
-    activeProject: Project | undefined;
-    activeProjectId: string;
-    setActiveProjectId: (id: string) => void;
-    updateProject: (id: string, updates: Partial<Project>) => void;
-    createNewProject: () => void; // Wrapped for UI
-    addProject: (p: Project) => void;
-    editProject: (id: string, updates: Partial<Project>) => void;
-    deleteProject: (id: string) => void;
-    activeBusiness: BusinessProfile | undefined;
-    activeBusinessId: string;
-    // Shared Utils
-    setActiveTab: (tab: string) => void;
-    // Profile
-    businesses: BusinessProfile[];
-    addBusiness: (b: BusinessProfile) => void;
-    switchBusiness: (id: string) => void;
-    updateBusiness: (id: string, u: Partial<BusinessProfile>) => void;
-    deleteBusiness: (id: string) => void;
-    // UI
-    isProfileEditing: boolean;
-    setIsProfileEditing: (val: boolean) => void;
-    // Currency
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    exchangeRates: any;
-    selectedCurrency: Currency;
+  projects: Project[];
+  activeProject: Project | undefined;
+  activeProjectId: string;
+  setActiveProjectId: (id: string) => void;
+  updateProject: (id: string, updates: Partial<Project>) => void;
+  createNewProject: () => void; // Wrapped for UI
+  addProject: (p: Project) => void;
+  editProject: (id: string, updates: Partial<Project>) => void;
+  deleteProject: (id: string) => void;
+  activeBusiness: BusinessProfile | undefined;
+  activeBusinessId: string;
+  // Shared Utils
+  setActiveTab: (tab: string) => void;
+  // Profile
+  businesses: BusinessProfile[];
+  addBusiness: (b: BusinessProfile) => void;
+  switchBusiness: (id: string) => void;
+  updateBusiness: (id: string, u: Partial<BusinessProfile>) => void;
+  deleteBusiness: (id: string) => void;
+  // UI
+  isProfileEditing: boolean;
+  setIsProfileEditing: (val: boolean) => void;
+  // Currency
+  exchangeRates: ExchangeRates;
+  selectedCurrency: Currency;
+  // Auth
+  user: User | null;
 }
 
 export const DashboardShell: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useAuth();
   const { showToast } = useToast();
 
   // --- DERIVE ACTIVE TAB FROM URL ---
   const getTabFromPath = (path: string): TabId => {
-      if (path.includes('/app/market')) return 'market';
-      if (path.includes('/app/profile')) return 'profile';
-      if (path.includes('/app/finance')) return 'cashflow';
-      if (path.includes('/app/calc')) return 'calc';
-      if (path.includes('/app/insights')) return 'insights';
-      if (path.includes('/app/academia') || path.includes('/app/edu')) return 'edu';
-      if (path.includes('/app/about')) return 'about';
-      if (path.includes('/app/changelog')) return 'changelog';
-      if (path.includes('/app/topup')) return 'topup';
-      return 'home';
+    if (path.includes('/app/market')) return 'market';
+    if (path.includes('/app/profile')) return 'profile';
+    if (path.includes('/app/finance')) return 'cashflow';
+    if (path.includes('/app/project')) return 'calc';
+    if (path.includes('/app/calc')) return 'calc';
+    if (path.includes('/app/insights')) return 'insights';
+    if (path.includes('/app/academia') || path.includes('/app/edu')) return 'edu';
+    if (path.includes('/app/about')) return 'about';
+    if (path.includes('/app/changelog')) return 'changelog';
+    if (path.includes('/app/topup')) return 'topup';
+    if (path.includes('/labs')) return 'lab';
+    return 'home';
   };
   const activeTab = getTabFromPath(location.pathname);
 
@@ -74,27 +80,34 @@ export const DashboardShell: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isProfileEditing, setIsProfileEditing] = useState(false);
   const [showProjectSelector, setShowProjectSelector] = useState(false);
-  
+
   // Hooks
   const profile = useProfile();
   const { credits } = useMarketplace(); // Fetch real credits for Header
-  const { 
-    projects, activeProject, activeProjectId, setActiveProjectId, 
+  const {
+    projects, activeProject, activeProjectId, setActiveProjectId,
     updateProject, editProject, createNewProject: createProjectHook, addProject,
     deleteProject, toggleFavorite, allProjects, importProjectWithAI, isImporting
-  } = useProjects(profile.activeBusinessId);
+  } = useProjects(profile.activeBusinessId || undefined, profile.activeBusiness);
 
   // Sync active project if needed
+  // Sync active project with URL
   useEffect(() => {
-    if (projects.length > 0) {
-      const currentExists = projects.find(p => p.id === activeProjectId);
-      if (!currentExists) {
-        setActiveProjectId(projects[0].id);
+    if (activeTab !== 'calc') return;
+
+    const idParam = searchParams.get('id');
+
+    if (idParam && idParam !== activeProjectId) {
+      // URL -> State (if it exists)
+      const exists = projects.find(p => p.id === idParam);
+      if (exists) {
+        setActiveProjectId(idParam);
       }
-    } else {
-      setActiveProjectId('');
+    } else if (!idParam && activeProjectId) {
+      // State -> URL
+      setSearchParams({ id: activeProjectId }, { replace: true });
     }
-  }, [profile.activeBusinessId, projects, activeProjectId, setActiveProjectId]);
+  }, [projects, activeProjectId, setActiveProjectId, searchParams, setSearchParams, activeTab]);
 
   const { selectedCurrency, setSelectedCurrency, exchangeRates, isRefreshingRates, fetchLiveRates, formatValue } = useCurrency();
   const { isSpeaking, handleAudioSummary: playSummary } = useTTS();
@@ -115,65 +128,69 @@ export const DashboardShell: React.FC = () => {
   const handleCreateNewProject = () => {
     const newId = createProjectHook();
     setActiveProjectId(newId);
-    navigate('/app/calc'); // Navigate instead of setState
+    navigate(`/app/project?id=${newId}`); // Navigate instead of setState
     setIsSidebarOpen(false);
     showToast("Project baru dibuat", "info");
   };
 
   const handleTabChange = (tab: string) => {
     // Legacy support for string args, map to routes
-    switch(tab) {
-        case 'home': navigate('/app'); break;
-        case 'calc': navigate('/app/calc'); break;
-        case 'insights': 
-            navigate('/app/insights'); 
-            setShowProjectSelector(true); // Keep selector logic
-            break;
-        case 'market': navigate('/app/market'); break;
-        case 'edu': navigate('/app/academia'); break;
-        case 'profile': navigate('/app/profile'); break;
-        case 'cashflow': navigate('/app/finance'); break;
-        case 'about': navigate('/app/about'); break;
-        case 'changelog': navigate('/app/changelog'); break;
-        case 'topup': navigate('/app/topup'); break;
-        default: navigate('/app');
+    switch (tab) {
+      case 'home': navigate('/app'); break;
+      case 'calc':
+        navigate(`/app/project${activeProjectId ? `?id=${activeProjectId}` : ''}`);
+        break;
+      case 'insights':
+        navigate('/app/insights');
+        setShowProjectSelector(true); // Keep selector logic
+        break;
+      case 'market': navigate('/app/market'); break;
+      case 'edu': navigate('/app/academia'); break;
+      case 'profile': navigate('/app/profile'); break;
+      case 'cashflow': navigate('/app/finance'); break;
+      case 'about': navigate('/app/about'); break;
+      case 'changelog': navigate('/app/changelog'); break;
+      case 'topup': navigate('/app/topup'); break;
+      case 'lab': navigate('/labs'); break;
+      default: navigate('/app');
     }
   };
 
   const handleAudioSummary = () => {
     if (!activeProject || !activeProject.costs) return;
-    const totalCost = activeProject.costs.reduce((a,b)=>a+b.amount,0);
+    const totalCost = activeProject.costs.reduce((a, b) => a + b.amount, 0);
     playSummary(activeProject, formatValue(totalCost), formatValue(activeProject.targetNet));
   };
 
   // --- CONTEXT VALUE ---
   const outletContext: DashboardOutletContext = {
-      projects,
-      activeProject,
-      activeProjectId,
-      setActiveProjectId,
-      updateProject: editProject,
-      createNewProject: handleCreateNewProject,
-      addProject,
-      editProject,
-      deleteProject,
-      activeBusiness: profile.activeBusiness,
-      activeBusinessId: profile.activeBusinessId,
-      setActiveTab: handleTabChange,
-      businesses: profile.businesses,
-      addBusiness: profile.addBusiness,
-      switchBusiness: profile.switchBusiness,
-      updateBusiness: profile.updateBusiness,
-      deleteBusiness: profile.deleteBusiness,
-      isProfileEditing,
-      setIsProfileEditing,
-      exchangeRates,
-      selectedCurrency
+    projects,
+    activeProject,
+    activeProjectId,
+    setActiveProjectId,
+    updateProject: editProject,
+    createNewProject: handleCreateNewProject,
+    addProject,
+    editProject,
+    deleteProject,
+    activeBusiness: profile.activeBusiness || undefined,
+    activeBusinessId: profile.activeBusinessId || '',
+    setActiveTab: handleTabChange,
+    businesses: profile.businesses,
+    addBusiness: profile.addBusiness,
+    switchBusiness: profile.switchBusiness,
+    updateBusiness: profile.updateBusiness,
+    deleteBusiness: profile.deleteBusiness,
+    isProfileEditing,
+    setIsProfileEditing,
+    exchangeRates: exchangeRates as ExchangeRates,
+    selectedCurrency,
+    user: user || null
   };
 
   return (
     <div className="h-[100dvh] w-full bg-slate-50 flex flex-col lg:flex-row overflow-hidden font-sans text-slate-900 fixed inset-0">
-      <Sidebar 
+      <Sidebar
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
         projects={projects}
@@ -195,11 +212,11 @@ export const DashboardShell: React.FC = () => {
       />
 
       <main className="flex-grow flex flex-col h-full overflow-hidden relative w-full">
-        <Header 
+        <Header
           setSidebarOpen={setIsSidebarOpen}
           activeTab={activeTab}
           activeProject={activeProject}
-          updateProject={updateProject} 
+          updateProject={updateProject}
           selectedCurrency={selectedCurrency}
           setSelectedCurrency={setSelectedCurrency}
           fetchLiveRates={fetchLiveRates}
@@ -207,36 +224,41 @@ export const DashboardShell: React.FC = () => {
           isSpeaking={isSpeaking}
           handleAudioSummary={handleAudioSummary}
           setActiveTab={handleTabChange}
-          credits={credits || 0} 
-                      // Header needs credits. We should pull useMarketplace just for credits in Header if needed, 
-                      // OR remove it from Header props if it fetches itself. 
-                      // Let's check Header.tsx... It takes credits as prop.
-                      // For now, let's keep it 0 or fetch it here cleanly if critical.
-                      // Optimization: Let's fetch lightweight credit balance here.
-                      // Actually, let useMarketplace() run here just for credits.
+          credits={credits || 0}
+          // Header needs credits. We should pull useMarketplace just for credits in Header if needed, 
+          // OR remove it from Header props if it fetches itself. 
+          // Let's check Header.tsx... It takes credits as prop.
+          // For now, let's keep it 0 or fetch it here cleanly if critical.
+          // Optimization: Let's fetch lightweight credit balance here.
+          // Actually, let useMarketplace() run here just for credits.
           activeBusiness={profile.activeBusiness}
+          user={user || undefined}
           isProfileEditing={isProfileEditing}
           onProfileBack={() => setIsProfileEditing(false)}
         />
 
-        <div className="flex-grow overflow-y-auto bg-slate-50/50 p-4 lg:p-6 lg:pr-32 scrollbar-hide pb-36 lg:pb-20 overscroll-y-contain w-full">
+        <div className="flex-grow overflow-y-auto bg-slate-50/50 p-4 lg:p-6 lg:pr-32 scrollbar-hide overscroll-y-contain w-full">
           <div className="max-w-7xl mx-auto w-full">
-             <Outlet context={outletContext} />
+            <Outlet context={outletContext} />
           </div>
         </div>
 
         <div className="pb-safe bg-slate-50/50">
-           <MobileNav activeTab={activeTab} setActiveTab={(t) => handleTabChange(t)} />
+          <MobileNav activeTab={activeTab} setActiveTab={(t) => handleTabChange(t)} />
         </div>
 
-        <ProjectSelectorModal 
+        <ProjectSelectorModal
           isOpen={showProjectSelector}
           onClose={() => setShowProjectSelector(false)}
           projects={projects}
           activeProjectId={activeProjectId}
           onSelect={(id) => {
             setActiveProjectId(id);
-            navigate('/app/insights'); // Direct nav
+            if (activeTab === 'calc') {
+              setSearchParams({ id });
+            } else {
+              navigate(`/app/project?id=${id}`);
+            }
             setShowProjectSelector(false);
           }}
           onCreateNew={handleCreateNewProject}

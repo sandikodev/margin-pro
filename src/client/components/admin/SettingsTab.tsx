@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Settings, Percent } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useConfig } from '../../hooks/useConfig';
-import { useToast } from '../../context/toast-context';
+import { useConfig } from '@/hooks/useConfig';
+import { useToast } from '@/context/toast-context';
 import { api } from '@/lib/client';
-import { BentoCard } from '../ui/design-system/BentoCard';
-import { DashboardSectionHeader } from '../ui/design-system/SectionHeader';
+import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 
 interface SettingsTabProps {
     addAuditLog: (action: string, details: string, type?: 'success' | 'info' | 'error') => void;
@@ -19,7 +19,8 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ addAuditLog }) => {
     const handleSaveSetting = async (key: string, value: string) => {
         setIsSaving(true);
         try {
-            await (api.admin.settings[':key'] as any).$put({ 
+            // @ts-expect-error - RPC inference
+            await (api.admin.settings[':key'] as never).$put({
                 param: { key },
                 json: { value }
             });
@@ -35,18 +36,18 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ addAuditLog }) => {
     };
 
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             className="space-y-8"
         >
-            <DashboardSectionHeader 
+            <DashboardSectionHeader
                 icon={Settings}
                 title="System Variables"
                 subtitle="Core constants governing calculation logic"
             />
-            
+
             <div className="grid grid-cols-1 gap-6">
                 <BentoCard className="p-8 border-indigo-100 flex items-center justify-between group hover:bg-indigo-50/10 transition-colors">
                     <div className="flex items-center gap-6">
@@ -60,9 +61,9 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ addAuditLog }) => {
                         </div>
                     </div>
                     <div className="flex items-center gap-4">
-                        <input 
-                            type="text" 
-                            defaultValue={settings.TAX_RATE} 
+                        <input
+                            type="text"
+                            defaultValue={settings.TAX_RATE}
                             disabled={isSaving}
                             className="bg-white border-2 border-slate-100 rounded-2xl px-6 py-3 font-black text-slate-800 outline-none focus:border-indigo-500 w-28 text-center text-lg shadow-sm disabled:opacity-50"
                             onBlur={(e) => handleSaveSetting('TAX_RATE', e.target.value)}

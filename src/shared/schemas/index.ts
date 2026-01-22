@@ -6,7 +6,7 @@ import { z } from "zod";
 export const businessSchema = z.object({
     id: z.string().optional(), // Server generated on insert, but explicit on update
     name: z.string().min(3, "Nama bisnis minimal 3 karakter"),
-    type: z.enum(['fnb_offline', 'fnb_online', 'retail', 'services', 'manufacturing', 'fashion', 'digital']),
+    type: z.enum(['fnb_offline', 'fnb_online', 'retail', 'services', 'manufacturing', 'fashion', 'digital', 'coffee']),
     description: z.string().optional(),
 
     // Contact
@@ -24,6 +24,9 @@ export const businessSchema = z.object({
     initialCapital: z.coerce.number().min(0),
     currentAssetValue: z.coerce.number().default(0),
     cashOnHand: z.coerce.number().default(0),
+
+    targetMargin: z.coerce.number().min(0).max(100).optional().default(30),
+    taxRate: z.coerce.number().min(0).max(100).optional().default(0),
 
     // Meta
     address: z.string().optional(),

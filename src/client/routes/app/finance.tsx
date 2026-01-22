@@ -1,13 +1,13 @@
 import React from 'react';
 import { Liability, CashflowRecord, Project, BusinessProfile } from '@shared/types';
-import { FinanceManager as FinanceComponent } from '../../components/features/finance/FinanceManager';
+import { FinanceManager as FinanceComponent } from '@/components/features/finance/FinanceManager';
 
 interface FinanceManagerProps {
   liabilities: Liability[];
   setLiabilities: React.Dispatch<React.SetStateAction<Liability[]>>;
   cashflow: CashflowRecord[];
   setCashflow: React.Dispatch<React.SetStateAction<CashflowRecord[]>>;
-  activeProject: Project;
+  activeProject: Project | undefined;
   formatValue: (val: number) => string;
   // Extended functions passed from parent/hook
   toggleLiabilityPaid?: (id: string) => void;

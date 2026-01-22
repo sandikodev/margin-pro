@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { api } from '../lib/client';
+import { api } from '@/lib/client';
 import { PlatformConfig, Platform } from '@shared/types';
 import { ConfigContext } from './ConfigContext';
 
@@ -13,9 +13,9 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         try {
             const res = await api.configs.$get();
             const data = await res.json();
-            
+
             setSettings(data.settings);
-            
+
             // Transform platform array to record
             const platformRecord = {} as Record<Platform, PlatformConfig>;
             data.platforms.forEach((p: Record<string, unknown>) => {

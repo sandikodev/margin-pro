@@ -2,11 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { getPostBySlug } from '../../../lib/blog';
-import { MarkdownRenderer } from '../../../components/content/MarkdownRenderer';
+import { getPostBySlug } from '@/lib/blog';
+import { MarkdownRenderer } from '@/components/content/MarkdownRenderer';
 
 // ... imports
-import { BlogPost } from '../../../lib/blog';
+import { BlogPost } from '@/lib/blog';
 
 export const BlogPostPage = () => {
     const { slug } = useParams();
@@ -41,7 +41,7 @@ export const BlogPostPage = () => {
         if (post) {
             // 1. Update Title & Meta
             document.title = `${post.title} | Margin Intelligence`;
-            
+
             // Helper to update/create meta tags
             const updateMeta = (name: string, content: string, attr = 'name') => {
                 let tag = document.querySelector(`meta[${attr}="${name}"]`);
@@ -55,13 +55,13 @@ export const BlogPostPage = () => {
 
             // Standard SEO
             updateMeta('description', post.excerpt);
-            
+
             // Open Graph
             updateMeta('og:title', post.title, 'property');
             updateMeta('og:description', post.excerpt, 'property');
             updateMeta('og:image', post.image ? window.location.origin + post.image : '', 'property');
             updateMeta('og:type', 'article', 'property');
-            
+
             // Twitter Card
             updateMeta('twitter:card', 'summary_large_image');
             updateMeta('twitter:title', post.title);
@@ -138,8 +138,8 @@ export const BlogPostPage = () => {
                     mx-auto h-20 flex items-center justify-between pointer-events-auto transition-all duration-500 ease-out
                     ${isScrolled ? 'w-full px-2 max-w-none' : 'max-w-6xl px-6'}
                 `}>
-                    <button 
-                        onClick={() => navigate('/blog')} 
+                    <button
+                        onClick={() => navigate('/blog')}
                         className="group flex items-center gap-3 px-4 py-2.5 rounded-full bg-slate-900/40 backdrop-blur-md border border-white/10 text-slate-300 hover:text-white hover:bg-slate-900/60 hover:border-white/20 transition-all hover:-translate-x-1"
                         aria-label="Back to Blog Hub"
                     >
@@ -155,18 +155,18 @@ export const BlogPostPage = () => {
             {post.image && (
                 <div className="relative w-full h-[60vh] lg:h-[70vh]">
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent z-10" />
-                    <img 
-                        src={post.image} 
-                        alt={post.title} 
+                    <img
+                        src={post.image}
+                        alt={post.title}
                         className="w-full h-full object-cover"
                     />
                     <div className="absolute bottom-0 left-0 w-full z-20 pb-12 px-6">
                         <div className="max-w-3xl mx-auto text-center">
-                             <span className="inline-block px-3 py-1 mb-6 rounded-full bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest shadow-xl">
+                            <span className="inline-block px-3 py-1 mb-6 rounded-full bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest shadow-xl">
                                 {post.category}
                             </span>
                             {/* Accessible Title Focus Target */}
-                            <h1 
+                            <h1
                                 ref={titleRef}
                                 tabIndex={-1}
                                 className="text-4xl md:text-6xl font-black tracking-tight text-white mb-6 leading-tight drop-shadow-2xl outline-none"
@@ -186,23 +186,23 @@ export const BlogPostPage = () => {
             )}
 
             {/* Content Layout with TOC */}
-            <div className="max-w-6xl mx-auto px-10 relative z-20">
+            <div className="max-w-6xl mx-auto md:px-10 relative z-20">
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-12 lg:gap-16">
-                    
+
                     {/* Main Article */}
-                    <article className={`${post.image ? '-mt-10' : 'pt-32'} min-w-0`}> 
+                    <article className={`${post.image ? '-mt-5' : 'pt-32'} min-w-0`}>
                         {/* Content Container (Card on mobile, transparent on desktop) */}
                         <div className="bg-slate-900/80 backdrop-blur-md p-6 md:p-0 md:bg-transparent rounded-2xl md:rounded-none ring-1 ring-white/10 md:ring-0">
                             <MarkdownRenderer content={cleanContent} />
                         </div>
-                        
+
                         {/* Bottom CTA */}
-                        <div className="mt-20 pt-10 border-t border-slate-800 flex flex-col md:flex-row gap-8 justify-between items-center bg-gradient-to-br from-indigo-900/20 to-slate-900 p-8 rounded-3xl border border-indigo-500/10">
+                        <div className="mt-20 mx-3 sm:mx-0 pt-10 border-t border-slate-800 flex flex-col md:flex-row gap-8 justify-between items-center bg-gradient-to-br from-indigo-900/20 to-slate-900 p-8 rounded-3xl border border-indigo-500/10">
                             <div>
                                 <h3 className="text-white font-bold mb-2 text-xl">Margin Intelligence</h3>
                                 <p className="text-slate-400 text-sm max-w-xs leading-relaxed">Stop guessing, start profiting. The tool for your brain.</p>
                             </div>
-                            <button 
+                            <button
                                 onClick={() => navigate({ pathname: '/auth', search: window.location.search }, { state: { mode: 'register' } })}
                                 className="bg-white text-slate-950 px-8 py-4 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-indigo-50 transition-colors shadow-lg shadow-white/10 w-full md:w-auto text-center"
                             >
@@ -214,7 +214,7 @@ export const BlogPostPage = () => {
                     {/* Desktop Table of Contents (Sticky) */}
                     <aside className="hidden lg:block h-full">
                         <div className="sticky top-32 space-y-8">
-                             <div>
+                            <div>
                                 <h4 className="text-xs font-black uppercase tracking-widest text-slate-500 mb-6 flex items-center gap-2">
                                     <span className="w-4 h-[1px] bg-slate-600"></span>
                                     On this page
@@ -224,8 +224,8 @@ export const BlogPostPage = () => {
                                         const title = header.replace(/^##\s+/, '');
                                         const id = title.toLowerCase().replace(/[^\w]+/g, '-');
                                         return (
-                                            <a 
-                                                key={i} 
+                                            <a
+                                                key={i}
                                                 href={`#${id}`}
                                                 className="block py-2 text-sm text-slate-400 hover:text-indigo-400 hover:translate-x-1 transition-all border-l-2 border-transparent hover:border-indigo-500 pl-4"
                                             >
@@ -234,19 +234,19 @@ export const BlogPostPage = () => {
                                         );
                                     })}
                                 </nav>
-                             </div>
+                            </div>
 
-                             {/* Mini CTA in Sidebar */}
-                             <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700/50">
+                            {/* Mini CTA in Sidebar */}
+                            <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700/50">
                                 <h5 className="text-white font-bold mb-2 text-sm">Need better margins?</h5>
                                 <p className="text-xs text-slate-400 mb-4 leading-relaxed">Simulate price changes and see the impact instantly.</p>
-                                <button 
+                                <button
                                     onClick={() => navigate({ pathname: '/pricing', search: window.location.search })}
                                     className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-colors"
                                 >
                                     Check Plans
                                 </button>
-                             </div>
+                            </div>
                         </div>
                     </aside>
                 </div>

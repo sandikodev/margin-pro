@@ -106,13 +106,26 @@ export const calculatePricingStrategies = (
   activeProject: Project | undefined,
   overrides: Record<Platform, PlatformOverrides>,
   promoPercent: number,
-  taxRate: number
+  businessTaxRate: number = 0.11,
+  businessTargetMargin: number = 20
 ): CalculationResult[] => {
   if (!activeProject) return [];
 
   const totalProductionCost = calculateTotalHPP(activeProject.costs, activeProject.productionConfig);
+
+  // Tax Rate: Project override > Business settings
+  const taxRate = activeProject.taxRate !== undefined ? activeProject.taxRate / 100 : businessTaxRate / 100;
+
   // Base Profit Target (from Manual Markup)
-  const manualTargetProfit = activeProject.targetNet || 0;
+  // Logic: If targetNet is 0, we can use targetMargin to suggest a profit
+  let manualTargetProfit = activeProject.targetNet || 0;
+
+  if (manualTargetProfit === 0 && (activeProject.targetMargin || businessTargetMargin)) {
+    const targetMarginPct = (activeProject.targetMargin || businessTargetMargin) / 100;
+    // Profit = Price * Margin -> Price = Cost / (1 - Margin) -> Profit = Price - Cost
+    // Or simpler: Profit = Cost * (Margin / (1 - Margin))
+    manualTargetProfit = targetMarginPct < 1 ? totalProductionCost * (targetMarginPct / (1 - targetMarginPct)) : 0;
+  }
 
   // Base Profit Target (from Competitor Price)
   // Logic: Market Price - HPP = The profit we want to secure (protect) on other platforms
@@ -120,7 +133,7 @@ export const calculatePricingStrategies = (
   const competitorBaseProfit = competitorPrice - totalProductionCost;
 
   return Object.values(Platform).map(platform => {
-    const pOverride = overrides[platform];
+    const pOverride = overrides[platform] || { commission: 0, fixedFee: 0, withdrawal: 0 };
     const comm = pOverride.commission / 100;
     const fixedFee = pOverride.fixedFee;
     const withdrawal = pOverride.withdrawal;

@@ -1,18 +1,19 @@
 
 import React, { useState } from 'react';
 import { Settings, Trash2, FilePlus, Share2, FileJson, Copy, FileText, ArrowLeft, Check } from 'lucide-react';
-import { Project } from '@shared/types';
-import { OperationalContext } from '../../components/calculator/OperationalContext';
-import { CostList } from '../../components/calculator/CostList';
-import { PricingStrategySection } from '../../components/calculator/PricingStrategySection';
-import { ExportActions } from '../../components/features/calculator/ExportActions';
-import { FloatingActionMenu, FloatingActionItem } from '../../components/ui/FloatingActionMenu';
-import { calculateTotalHPP } from '../../lib/utils';
-import { generateIntelligencePDF, downloadProjectJSON, copyProjectToClipboard } from '../../lib/export-service';
-import { useConfig } from '../../hooks/useConfig';
+import { Project, BusinessProfile } from '@shared/types';
+import { OperationalContext } from '@/components/calculator/OperationalContext';
+import { CostList } from '@/components/calculator/CostList';
+import { PricingStrategySection } from '@/components/calculator/PricingStrategySection';
+import { ExportActions } from '@/components/features/calculator/ExportActions';
+import { FloatingActionMenu, FloatingActionItem } from '@/components/ui/FloatingActionMenu';
+import { calculateTotalHPP } from '@/lib/utils';
+import { generateIntelligencePDF, downloadProjectJSON, copyProjectToClipboard } from '@/lib/export-service';
+import { useConfig } from '@/hooks/useConfig';
 
 interface ProductCalculatorProps {
   activeProject: Project;
+  activeBusiness: BusinessProfile | undefined;
   updateProject: (updates: Partial<Project>) => void;
   createNewProject: () => void;
   deleteProject: (id: string) => void;
@@ -21,11 +22,11 @@ interface ProductCalculatorProps {
 }
 
 export const ProductCalculator: React.FC<ProductCalculatorProps> = ({
-  activeProject, updateProject, createNewProject, deleteProject, formatValue, goToSimulation
+  activeProject, activeBusiness, updateProject, createNewProject, deleteProject, formatValue, goToSimulation
 }) => {
   const { platforms } = useConfig();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [fabMode, setFabMode] = useState<'main' | 'export'>('main'); 
+  const [fabMode, setFabMode] = useState<'main' | 'export'>('main');
   const [copySuccess, setCopySuccess] = useState(false);
 
   const totalEffectiveCost = calculateTotalHPP(activeProject.costs, activeProject.productionConfig);
@@ -33,8 +34,8 @@ export const ProductCalculator: React.FC<ProductCalculatorProps> = ({
 
   const handleDelete = () => {
     if (window.confirm(`Yakin ingin menghapus project "${activeProject.name}"?`)) {
-       deleteProject(activeProject.id);
-       setIsMenuOpen(false);
+      deleteProject(activeProject.id);
+      setIsMenuOpen(false);
     }
   };
 
@@ -109,20 +110,20 @@ export const ProductCalculator: React.FC<ProductCalculatorProps> = ({
 
   return (
     <div className="space-y-6 lg:space-y-8 animate-in fade-in duration-500 relative pb-32">
-      
+
       {/* EXPORT HEADER ACTIONS (Desktop Only) */}
       <div className="hidden lg:flex justify-end relative">
-         <ExportActions activeProject={activeProject} formatValue={formatValue} />
+        <ExportActions activeProject={activeProject} formatValue={formatValue} />
       </div>
 
-      <OperationalContext 
+      <OperationalContext
         activeProject={activeProject}
         updateProject={updateProject}
         prodConfig={prodConfig}
         style={{ viewTransitionName: `project-card-${activeProject.id}` } as React.CSSProperties}
       />
 
-      <CostList 
+      <CostList
         activeProject={activeProject}
         updateProject={updateProject}
         formatValue={formatValue}
@@ -130,18 +131,19 @@ export const ProductCalculator: React.FC<ProductCalculatorProps> = ({
         totalEffectiveCost={totalEffectiveCost}
       />
 
-      <PricingStrategySection 
+      <PricingStrategySection
         activeProject={activeProject}
+        activeBusiness={activeBusiness}
         updateProject={updateProject}
         formatValue={formatValue}
         prodConfig={prodConfig}
         totalEffectiveCost={totalEffectiveCost}
         onSimulate={goToSimulation}
       />
-      
+
       {/* FLOATING GEAR MENU (Mobile - Reusable Component) */}
       <div className="lg:hidden">
-        <FloatingActionMenu 
+        <FloatingActionMenu
           icon={Settings}
           isOpen={isMenuOpen}
           setIsOpen={(val) => {

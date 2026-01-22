@@ -4,10 +4,34 @@ import { zValidator } from "@hono/zod-validator";
 import { eq, and } from "drizzle-orm";
 import { db } from "../db/index";
 import { businesses } from "../db/schema";
+import { BusinessType } from "../../shared/types";
 import { businessSchema } from "../../shared/schemas";
 import { getSession } from "../middleware/session";
 
 const app = new Hono()
+    .get("/:id", async (c) => {
+        const session = await getSession(c);
+        if (!session) return c.json({ error: "Unauthorized" }, 401);
+
+        const id = c.req.param("id");
+        const b = await db.query.businesses.findFirst({
+            where: (b, { eq, and }) => and(eq(b.id, id), eq(b.userId, session.id))
+        });
+
+        if (!b) return c.json({ error: "Not found" }, 404);
+
+        return c.json({
+            id: b.id,
+            name: b.name,
+            type: b.type as BusinessType,
+            initialCapital: b.initialCapital || 0,
+            currentAssetValue: b.currentAssetValue || 0,
+            cashOnHand: b.cashOnHand || 0,
+            themeColor: b.themeColor || undefined,
+            avatarUrl: b.avatarUrl || undefined,
+            ...(b.data || {})
+        });
+    })
     .get("/", async (c) => {
         const session = await getSession(c);
         if (!session) return c.json({ error: "Unauthorized" }, 401);
@@ -18,7 +42,7 @@ const app = new Hono()
         const flatList = list.map(b => ({
             id: b.id,
             name: b.name,
-            type: b.type as any,
+            type: b.type as BusinessType,
             initialCapital: b.initialCapital || 0,
             currentAssetValue: b.currentAssetValue || 0,
             cashOnHand: b.cashOnHand || 0,
@@ -107,4 +131,4 @@ const app = new Hono()
         return c.json({ success: true });
     });
 
-export { app as businessRoutes };
+export { app as businessesRoutes };

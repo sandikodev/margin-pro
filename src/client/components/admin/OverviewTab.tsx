@@ -7,13 +7,13 @@ import {
   BarChart, Bar, XAxis, YAxis
 } from 'recharts';
 import { motion } from 'framer-motion';
-import { useConfig } from '../../hooks/useConfig';
+import { useConfig } from '@/hooks/useConfig';
 import { PlatformConfig, PlatformCategory } from '@shared/types';
-import { BentoCard } from '../ui/design-system/BentoCard';
-import { ResponsiveGrid } from '../ui/design-system/ResponsiveGrid';
-import { DashboardSectionHeader } from '../ui/design-system/SectionHeader';
+import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { ResponsiveGrid } from '@/components/ui/design-system/ResponsiveGrid';
+import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 import { api } from '@/lib/client';
-import { useToast } from '../../context/toast-context';
+import { useToast } from '@/context/toast-context';
 
 /* -------------------------------------------------------------------------------------------------
  * TYPES

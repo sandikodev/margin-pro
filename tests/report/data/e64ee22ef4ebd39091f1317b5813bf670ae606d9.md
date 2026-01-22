@@ -1,0 +1,51 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e8]:
+    - generic [ref=e9]:
+      - img
+      - generic [ref=e11]:
+        - img [ref=e12]
+        - generic [ref=e15]: Intelligence Pricing Engine
+    - heading "Stop Guessing. Start Profiting." [level=1] [ref=e16]:
+      - text: Stop Guessing.
+      - text: Start Profiting.
+    - paragraph [ref=e17]: "\"Margin Pro transformed our unit economics. It's not just a calculator, it's a cheat sheet for profitability.\""
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - img [ref=e21]
+        - img [ref=e25]
+        - img [ref=e29]
+        - img [ref=e33]
+      - generic [ref=e36]:
+        - generic [ref=e37]: 500+ Founders
+        - generic [ref=e38]: Trust Margin Pro
+  - generic [ref=e39]:
+    - button "Back" [ref=e41]:
+      - img [ref=e43]
+      - generic [ref=e45]: Back
+    - generic [ref=e47]:
+      - generic [ref=e49]:
+        - heading "Welcome Back." [level=1] [ref=e50]
+        - paragraph [ref=e51]: Enter your credentials to access your dashboard.
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - text: Email Address
+          - generic [ref=e54]:
+            - img [ref=e55]
+            - textbox "name@business.com" [active] [ref=e58]
+        - generic [ref=e59]:
+          - text: Password
+          - generic [ref=e60]:
+            - img [ref=e61]
+            - textbox "••••••••" [ref=e64]
+            - button [ref=e65]:
+              - img [ref=e66]
+        - button "Sign In" [ref=e69]:
+          - text: Sign In
+          - img [ref=e70]
+      - paragraph [ref=e73]:
+        - text: Don't have an account?
+        - button "Register Now" [ref=e74]
+```

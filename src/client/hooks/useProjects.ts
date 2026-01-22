@@ -1,12 +1,13 @@
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { GoogleGenAI } from "@google/genai";
-import { Project } from '@shared/types';
-import { cleanAIJSON } from '../lib/utils';
+import { Project, BusinessProfile } from '@shared/types';
+import { cleanAIJSON } from '@/lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../lib/client';
+import { api } from '@/lib/client';
 import { STORAGE_KEYS } from '@shared/constants';
-import { useToast } from '../context/toast-context';
+import { queryKeys } from '@/lib/query-keys';
+import { useToast } from '@/context/toast-context';
 
 const DEFAULT_PROJECT_STATE: Project = {
   id: 'temp-fallback',
@@ -18,7 +19,7 @@ const DEFAULT_PROJECT_STATE: Project = {
   lastModified: Date.now()
 };
 
-export const useProjects = (activeBusinessId?: string) => {
+export const useProjects = (activeBusinessId?: string, activeBusiness: BusinessProfile | null = null) => {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
 
@@ -32,8 +33,7 @@ export const useProjects = (activeBusinessId?: string) => {
 
   // --- QUERY ---
   const { data: allProjects = [], isLoading } = useQuery({
-    queryKey: ['projects', activeBusinessId], // Scoped by business?
-    // Actually, if we want to support multi-business switching quickly, better key is ['projects', { businessId }]
+    queryKey: queryKeys.projects.byBusiness(activeBusinessId),
     queryFn: async () => {
       if (!activeBusinessId) return [];
       const res = await api.projects.$get({
@@ -41,11 +41,13 @@ export const useProjects = (activeBusinessId?: string) => {
       });
       if (!res.ok) throw new Error("Failed to fetch projects");
       const data = await res.json();
-      // Ensure Production Config Defaults if server missed any
-      return data.map(p => ({
-        ...p,
-        productionConfig: p.productionConfig || { period: 'weekly', daysActive: 5, targetUnits: 40 }
-      })) as unknown as Project[];
+      return data.map(p => {
+        const project = p as Project;
+        return {
+          ...project,
+          productionConfig: project.productionConfig || { period: 'weekly', daysActive: 5, targetUnits: 40 }
+        };
+      });
     },
     enabled: !!activeBusinessId,
     staleTime: 1000 * 60 * 5, // 5 min
@@ -98,16 +100,16 @@ export const useProjects = (activeBusinessId?: string) => {
       // Ensure businessID is set
       if (!project.businessId && activeBusinessId) project.businessId = activeBusinessId;
 
-      const res = await api.projects.$post({ json: toApiPayload(project) });
+      const res = await api.projects.$post({ json: toApiPayload(project) as unknown as Parameters<typeof api.projects.$post>[0]['json'] });
       if (!res.ok) throw new Error("Failed to create");
       return await res.json();
     },
     onMutate: async (newProject) => {
-      await queryClient.cancelQueries({ queryKey: ['projects', activeBusinessId] });
-      const previous = queryClient.getQueryData(['projects', activeBusinessId]);
+      await queryClient.cancelQueries({ queryKey: queryKeys.projects.all });
+      const previous = queryClient.getQueryData<Project[]>(queryKeys.projects.byBusiness(activeBusinessId || ''));
 
       // Optimistic Update
-      queryClient.setQueryData<Project[]>(['projects', activeBusinessId], (old) => {
+      queryClient.setQueryData<Project[]>(queryKeys.projects.byBusiness(activeBusinessId), (old) => {
         return [newProject, ...(old || [])];
       });
 
@@ -116,11 +118,11 @@ export const useProjects = (activeBusinessId?: string) => {
       return { previous };
     },
     onError: (e, v, ctx) => {
-      if (ctx?.previous) queryClient.setQueryData(['projects', activeBusinessId], ctx.previous);
+      if (ctx?.previous) queryClient.setQueryData(queryKeys.projects.byBusiness(activeBusinessId), ctx.previous);
       showToast("Gagal membuat projek", "error");
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects', activeBusinessId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
     }
   });
 
@@ -128,29 +130,30 @@ export const useProjects = (activeBusinessId?: string) => {
     mutationFn: async ({ id, json }: { id: string, json: Partial<Project> }) => {
       const res = await api.projects[':id'].$put({
         param: { id },
-        json: toApiPayload(json)
-      } as any);
+        // RPC inference can be finicky
+        json: toApiPayload(json) as never
+      });
       if (!res.ok) throw new Error("Failed to update");
       return await res.json();
     },
     onMutate: async ({ id, json }) => {
-      await queryClient.cancelQueries({ queryKey: ['projects', activeBusinessId] });
-      const previous = queryClient.getQueryData(['projects', activeBusinessId]);
+      await queryClient.cancelQueries({ queryKey: queryKeys.projects.all });
+      const previous = queryClient.getQueryData(queryKeys.projects.byBusiness(activeBusinessId));
 
-      queryClient.setQueryData<Project[]>(['projects', activeBusinessId], (old) => {
+      queryClient.setQueryData<Project[]>(queryKeys.projects.byBusiness(activeBusinessId), (old) => {
         return (old || []).map(p => p.id === id ? { ...p, ...json, lastModified: Date.now() } : p);
       });
 
       return { previous };
     },
     onError: (e, v, ctx) => {
-      if (ctx?.previous) queryClient.setQueryData(['projects', activeBusinessId], ctx.previous);
+      if (ctx?.previous) queryClient.setQueryData(queryKeys.projects.byBusiness(activeBusinessId), ctx.previous);
     },
     onSettled: () => {
       // Debounce invalidation? No need for now.
       // Actually, invalidation here causes re-fetch which might overwrite lastModified if clock skew?
       // Optimistic UI holds true until re-fetch.
-      queryClient.invalidateQueries({ queryKey: ['projects', activeBusinessId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
     }
   });
 
@@ -161,10 +164,10 @@ export const useProjects = (activeBusinessId?: string) => {
       return await res.json();
     },
     onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: ['projects', activeBusinessId] });
-      const previous = queryClient.getQueryData(['projects', activeBusinessId]);
+      await queryClient.cancelQueries({ queryKey: queryKeys.projects.all });
+      const previous = queryClient.getQueryData(queryKeys.projects.byBusiness(activeBusinessId));
 
-      queryClient.setQueryData<Project[]>(['projects', activeBusinessId], (old) => {
+      queryClient.setQueryData<Project[]>(queryKeys.projects.byBusiness(activeBusinessId), (old) => {
         const list = (old || []).filter(p => p.id !== id);
         // Handle active switch if deleted
         if (id === activeProjectId && list.length > 0) setActiveProjectId(list[0].id);
@@ -174,7 +177,7 @@ export const useProjects = (activeBusinessId?: string) => {
       return { previous };
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects', activeBusinessId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
     }
   });
 
@@ -211,18 +214,19 @@ export const useProjects = (activeBusinessId?: string) => {
         { id: 'c_fixed', name: 'Biaya Tetap Operasional', amount: 0, allocation: 'unit' }
       ],
       productionConfig: { period: 'weekly', daysActive: 5, targetUnits: 40 },
-      pricingStrategy: 'competitor',
+      pricingStrategy: 'markup', // Use markup by default if we have targetMargin
       competitorPrice: 12000,
-      targetNet: 3000,
+      targetMargin: activeBusiness?.targetMargin || 30, // Default to 30 if none
+      taxRate: activeBusiness?.taxRate || 11, // Default to 11 if none
+      targetNet: 0,
       lastModified: Date.now(),
       isFavorite: false
     };
 
     createMutation.mutate(newP);
 
-    // setActiveProjectId(id); // Done in onMutate now
-    return id; // Return ID for immediate usage if needed
-  }, [activeBusinessId, createMutation]);
+    return id;
+  }, [activeBusinessId, activeBusiness, createMutation]);
 
   const addProject = useCallback((project: Project) => {
     const finalProject = { ...project };

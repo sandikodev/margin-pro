@@ -1,20 +1,37 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../lib/client';
-import { useToast } from '../context/toast-context';
+import { api } from '@/lib/client';
+import { useToast } from '@/context/toast-context';
+import { useAuth } from '@/hooks/useAuth';
+import { queryKeys } from '@/lib/query-keys';
+
+interface TransactionHistoryItem {
+  id: string;
+  name: string;
+  price: number;
+  type: 'spend' | 'topup';
+  date: number;
+}
+
+interface MarketplaceBalance {
+  credits: number;
+  history: TransactionHistoryItem[];
+}
 
 export const useMarketplace = () => {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const { isAuthenticated } = useAuth();
 
   // --- QUERY ---
   const { data } = useQuery({
-    queryKey: ['marketplace-balance'],
+    queryKey: queryKeys.marketplace.balance(),
     queryFn: async () => {
       const res = await api.marketplace.balance.$get();
       if (!res.ok) throw new Error("Failed to fetch balance");
-      return await res.json();
+      const balanceData = await res.json();
+      return balanceData as MarketplaceBalance;
     },
+    enabled: isAuthenticated, // Only fetch when authenticated
     // Polling if needed? Nah, just invalidate on mutate
     staleTime: 1000 * 60 * 5
   });
@@ -26,18 +43,18 @@ export const useMarketplace = () => {
         json: { amount, itemName }
       });
       if (!res.ok) {
-        const err = await res.json();
-        const msg = (err as any).error || (err as any).message || "Transaction failed";
+        const err = await res.json() as { error?: string; message?: string };
+        const msg = err.error || err.message || "Transaction failed";
         throw new Error(msg);
       }
       return await res.json();
     },
     onMutate: async ({ amount }) => {
-      await queryClient.cancelQueries({ queryKey: ['marketplace-balance'] });
-      const prev = queryClient.getQueryData(['marketplace-balance']);
+      await queryClient.cancelQueries({ queryKey: queryKeys.marketplace.balance() });
+      const prev = queryClient.getQueryData(queryKeys.marketplace.balance());
 
       // Optimistic
-      queryClient.setQueryData(['marketplace-balance'], (old: any) => ({
+      queryClient.setQueryData(['marketplace-balance'], (old: MarketplaceBalance | undefined) => ({
         credits: (old?.credits || 0) - amount,
         history: old?.history || []
       }));
@@ -45,10 +62,10 @@ export const useMarketplace = () => {
       return { prev };
     },
     onError: (err, v, ctx) => {
-      if (ctx?.prev) queryClient.setQueryData(['marketplace-balance'], ctx.prev);
+      if (ctx?.prev) queryClient.setQueryData(queryKeys.marketplace.balance(), ctx.prev);
       showToast("Gagal transaksi: " + err.message, "error");
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['marketplace-balance'] })
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.marketplace.balance() })
   });
 
   const topUpMutation = useMutation({
@@ -57,7 +74,7 @@ export const useMarketplace = () => {
       if (!res.ok) throw new Error("Topup Failed");
       return await res.json();
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ['marketplace-balance'] })
+    onSettled: () => queryClient.invalidateQueries({ queryKey: queryKeys.marketplace.balance() })
   });
 
   // --- PUBLIC ---

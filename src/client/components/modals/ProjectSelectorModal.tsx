@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Layers, Search, ChevronRight, TrendingUp, CheckCircle2, Clock, Calculator, AlertCircle, Sparkles } from 'lucide-react';
 import { Project } from '@shared/types';
-import { Modal } from '../ui/Modal';
+import { Modal } from '@/components/ui/Modal';
 
 interface ProjectSelectorModalProps {
   isOpen: boolean;

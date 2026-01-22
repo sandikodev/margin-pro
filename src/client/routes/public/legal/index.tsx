@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Lock, FileText, ArrowRight, Brain, Server, Cookie } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getAllLegalDocs, LegalDocument } from '../../../lib/legal';
+import { getAllLegalDocs, LegalDocument } from '@/lib/legal';
+import { CustomSearchIcon, CustomChevronIcon, CustomMailIcon } from '@/components/ui/icons/CustomIcons';
 
 export const LegalIndexPage: React.FC = () => {
     const navigate = useNavigate();
@@ -36,15 +37,15 @@ export const LegalIndexPage: React.FC = () => {
         setOpenFaqIndex(openFaqIndex === index ? null : index);
     };
 
-    const filteredDocs = docs.filter(doc => 
-        doc.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    const filteredDocs = docs.filter(doc =>
+        doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         doc.summary.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     return (
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-20">
             {/* Hero Section */}
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
@@ -66,11 +67,11 @@ export const LegalIndexPage: React.FC = () => {
                     <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-2xl opacity-20 group-hover:opacity-40 blur transition duration-500"></div>
                     <div className="relative bg-slate-900 border border-white/10 rounded-2xl flex items-center p-2 focus-within:border-indigo-500/50 transition-colors">
                         <div className="pl-4 text-slate-500">
-                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            <CustomSearchIcon />
                         </div>
-                        <input 
-                            type="text" 
-                            placeholder="Cari dokumen..." 
+                        <input
+                            type="text"
+                            placeholder="Cari dokumen..."
                             className="bg-transparent text-white w-full px-4 py-2 md:py-3 text-sm md:text-base focus:outline-none placeholder:text-slate-600"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -83,11 +84,11 @@ export const LegalIndexPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-8 mb-20 md:mb-32">
                 {filteredDocs.map((doc, idx) => {
                     const Icon = getIcon(doc.icon);
-                    
+
                     let styles = {
-                         hoverBorder: 'group-hover:border-indigo-500/50',
-                         hoverShadow: 'group-hover:shadow-indigo-500/20',
-                         iconBg: 'bg-indigo-500/10 text-indigo-400'
+                        hoverBorder: 'group-hover:border-indigo-500/50',
+                        hoverShadow: 'group-hover:shadow-indigo-500/20',
+                        iconBg: 'bg-indigo-500/10 text-indigo-400'
                     };
 
                     if (doc.icon === 'Lock') {
@@ -97,7 +98,7 @@ export const LegalIndexPage: React.FC = () => {
                     } else if (doc.icon === 'Server') {
                         styles = { hoverBorder: 'group-hover:border-cyan-500/50', hoverShadow: 'group-hover:shadow-cyan-500/20', iconBg: 'bg-cyan-500/10 text-cyan-400' };
                     } else if (doc.icon === 'Cookie') {
-                         styles = { hoverBorder: 'group-hover:border-amber-500/50', hoverShadow: 'group-hover:shadow-amber-500/20', iconBg: 'bg-amber-500/10 text-amber-400' };
+                        styles = { hoverBorder: 'group-hover:border-amber-500/50', hoverShadow: 'group-hover:shadow-amber-500/20', iconBg: 'bg-amber-500/10 text-amber-400' };
                     }
 
                     return (
@@ -112,7 +113,7 @@ export const LegalIndexPage: React.FC = () => {
                             <div className={`w-10 h-10 md:w-14 md:h-14 ${styles.iconBg} rounded-xl md:rounded-2xl flex items-center justify-center shrink-0 md:mb-8`}>
                                 <Icon className="w-5 h-5 md:w-7 md:h-7" strokeWidth={2.5} />
                             </div>
-                            
+
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between md:hidden mb-1">
                                     <h2 className="text-base font-bold text-white truncate pr-2">
@@ -120,17 +121,17 @@ export const LegalIndexPage: React.FC = () => {
                                     </h2>
                                     <ArrowRight size={14} className="text-slate-500" />
                                 </div>
-                                
+
                                 <div className="hidden md:flex items-start justify-between mb-8">
                                     <div className="px-3 py-1 bg-white/5 rounded-full border border-white/5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                                         Last Updated: {doc.lastUpdated}
                                     </div>
                                 </div>
-                                
+
                                 <h2 className="hidden md:block text-3xl font-black text-white mb-4 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-slate-300 transition-all">
                                     {doc.title}
                                 </h2>
-                                
+
                                 <p className="text-xs md:text-base text-slate-400 md:leading-relaxed md:mb-8 md:min-h-[3rem] line-clamp-1 md:line-clamp-3">
                                     {doc.summary}
                                 </p>
@@ -154,15 +155,15 @@ export const LegalIndexPage: React.FC = () => {
                             { q: "Bisakah saya menghapus akun?", a: "Ya, Anda memiliki kontrol penuh untuk menghapus akun dan data permanen kapan saja." },
                             { q: "Apakah AI menggunakan data saya?", a: "Tidak. Data spesifik bisnis Anda tidak digunakan untuk melatih model publik." }
                         ].map((item, i) => (
-                            <div 
-                                key={i} 
+                            <div
+                                key={i}
                                 onClick={() => toggleFaq(i)}
                                 className="bg-white/5 border border-white/10 rounded-xl p-4 md:p-6 hover:bg-white/10 transition-all cursor-pointer"
                             >
                                 <div className="flex items-center justify-between">
                                     <h4 className="font-bold text-white text-sm md:text-base pr-4">{item.q}</h4>
                                     <div className={`text-slate-400 transition-transform duration-300 ${openFaqIndex === i ? 'rotate-180' : ''}`}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                                        <CustomChevronIcon />
                                     </div>
                                 </div>
                                 <div className={`grid transition-all duration-300 ease-in-out ${openFaqIndex === i ? 'grid-rows-[1fr] opacity-100 mt-3 pb-1' : 'grid-rows-[0fr] opacity-0'}`}>
@@ -179,7 +180,7 @@ export const LegalIndexPage: React.FC = () => {
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-emerald-600/20 rounded-3xl blur-3xl" />
                     <div className="relative bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-3xl p-6 md:p-10 h-full flex flex-col justify-center text-center">
                         <div className="w-12 h-12 md:w-16 md:h-16 bg-white/10 rounded-xl md:rounded-2xl flex items-center justify-center mx-auto mb-4 md:mb-6 text-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:w-8 md:h-8"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            <CustomMailIcon className="md:w-8 md:h-8" />
                         </div>
                         <h3 className="text-xl md:text-3xl font-black text-white mb-2 md:mb-4">Butuh Bantuan Legal?</h3>
                         <p className="text-sm md:text-base text-slate-400 mb-6 md:mb-8 max-w-sm mx-auto leading-relaxed">

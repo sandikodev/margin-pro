@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import { Liability, CashflowRecord, Project, BusinessProfile } from '@shared/types';
-import { calculateFinancialHealth } from '../lib/utils';
+import { calculateFinancialHealth } from '@/lib/utils';
 
 interface UseFinanceAnalyticsProps {
     cashflow: CashflowRecord[];
     liabilities: Liability[];
     activeBusiness?: BusinessProfile;
-    activeProject: Project;
+    activeProject?: Project;
     monthlyFixedCost: number;
     simDailySalesQty: number;
     currentSavings: number;

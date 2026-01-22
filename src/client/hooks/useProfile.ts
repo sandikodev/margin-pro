@@ -1,14 +1,17 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { BusinessProfile } from '@shared/types';
 import { STORAGE_KEYS } from '@shared/constants';
-import { api } from '../lib/client';
-import { useToast } from '../context/toast-context';
+import { api } from '@/lib/client';
+import { queryKeys } from '@/lib/query-keys';
+import { useToast } from '@/context/toast-context';
+
+import { useAuth } from '@/hooks/useAuth';
 
 export const useProfile = () => {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const { isAuthenticated } = useAuth();
 
   // Local UI State
   const [activeBusinessId, setActiveBusinessId] = useState<string | null>(() => {
@@ -18,15 +21,15 @@ export const useProfile = () => {
   const [isProfileEditing, setIsProfileEditing] = useState(false);
 
   // --- QUERY: Get Businesses ---
-  // --- QUERY: Get Businesses ---
-  const { data: businesses = [], isLoading } = useQuery({
-    queryKey: ['businesses'],
+  const { data: businesses = [], isLoading, isFetching } = useQuery({
+    queryKey: queryKeys.businesses.lists(),
     queryFn: async () => {
       const res = await api.businesses.$get();
       if (!res.ok) throw new Error("Failed to fetch businesses");
       const data = await res.json();
-      return (data as any).data || data as unknown as BusinessProfile[];
+      return data as unknown as BusinessProfile[];
     },
+    enabled: isAuthenticated, // Only fetch when authenticated
     staleTime: 1000 * 60 * 5, // 5 min
   });
 
@@ -62,13 +65,13 @@ export const useProfile = () => {
     },
     onMutate: async (newBiz) => {
       // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ['businesses'] });
+      await queryClient.cancelQueries({ queryKey: queryKeys.businesses.all });
 
       // Snapshot previous value
-      const previousBusinesses = queryClient.getQueryData<BusinessProfile[]>(['businesses']);
+      const previousBusinesses = queryClient.getQueryData<BusinessProfile[]>(queryKeys.businesses.lists());
 
       // Optimistically update
-      queryClient.setQueryData<BusinessProfile[]>(['businesses'], (old) => {
+      queryClient.setQueryData<BusinessProfile[]>(queryKeys.businesses.lists(), (old) => {
         return [...(old || []), newBiz]; // Client provided ID is trusted for optimist view
       });
 
@@ -80,12 +83,12 @@ export const useProfile = () => {
     onError: (err, newBiz, context) => {
       // Rollback
       if (context?.previousBusinesses) {
-        queryClient.setQueryData(['businesses'], context.previousBusinesses);
+        queryClient.setQueryData(queryKeys.businesses.lists(), context.previousBusinesses);
       }
       showToast("Gagal membuat bisnis: " + err.message, 'error');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['businesses'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.businesses.all });
     },
     onSuccess: (data, variables) => {
       showToast(`Bisnis "${variables.name}" berhasil dibuat`, 'success');
@@ -96,7 +99,7 @@ export const useProfile = () => {
     mutationFn: async (updates: Partial<BusinessProfile> & { id: string }) => {
       // Fetch current to merge (PUT requires full object usually, or we fix server to PATCH)
       // For now, client-side merge is safest without changing server.
-      const currentRes = await (api as any).businesses[':id'].$get({ param: { id: updates.id } });
+      const currentRes = await api.businesses[':id'].$get({ param: { id: updates.id } });
       if (!currentRes.ok) throw new Error("Failed to fetch current business for update");
       const currentData = await currentRes.json();
 
@@ -105,18 +108,19 @@ export const useProfile = () => {
         ...updates
       } as BusinessProfile;
 
-      const res = await (api as any).businesses[':id'].$put({
+      const res = await api.businesses[':id'].$put({
         param: { id: updates.id },
+        // Hono RPC inference can be finicky with deep paths
         json: fullPayload
       });
       if (!res.ok) throw new Error("Failed to update");
       return await res.json();
     },
     onMutate: async (updates) => {
-      await queryClient.cancelQueries({ queryKey: ['businesses'] });
-      const previousBusinesses = queryClient.getQueryData<BusinessProfile[]>(['businesses']);
+      await queryClient.cancelQueries({ queryKey: queryKeys.businesses.all });
+      const previousBusinesses = queryClient.getQueryData<BusinessProfile[]>(queryKeys.businesses.lists());
 
-      queryClient.setQueryData<BusinessProfile[]>(['businesses'], (old) => {
+      queryClient.setQueryData<BusinessProfile[]>(queryKeys.businesses.lists(), (old) => {
         return (old || []).map(b => b.id === updates.id ? { ...b, ...updates } : b);
       });
 
@@ -124,12 +128,12 @@ export const useProfile = () => {
     },
     onError: (err, updates, context) => {
       if (context?.previousBusinesses) {
-        queryClient.setQueryData(['businesses'], context.previousBusinesses);
+        queryClient.setQueryData(queryKeys.businesses.lists(), context.previousBusinesses);
       }
       showToast("Gagal update: " + err.message, 'error');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['businesses'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.businesses.all });
     },
     onSuccess: () => {
       showToast("Profil bisnis diperbarui", 'success');
@@ -144,7 +148,7 @@ export const useProfile = () => {
       return await res.json();
     },
     onSuccess: (data, id) => {
-      queryClient.invalidateQueries({ queryKey: ['businesses'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.businesses.all });
       showToast("Bisnis dihapus", 'info');
       if (activeBusinessId === id) setActiveBusinessId(null);
     }
@@ -171,6 +175,7 @@ export const useProfile = () => {
     setIsProfileEditing,
 
     // Loading State
-    isLoading
+    isLoading,
+    isFetching
   };
 };

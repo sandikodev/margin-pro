@@ -12,11 +12,30 @@ if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
+// --- HYDRATION ---
+const hydrationDataElement = document.getElementById('__QUERY_HYDRATION_DATA__');
+if (hydrationDataElement) {
+  try {
+    const hydrationData = JSON.parse(hydrationDataElement.textContent || '{}');
+    Object.entries(hydrationData).forEach(([key, value]) => {
+      // Keys are stored as JSON-stringified arrays
+      try {
+        const parsedKey = JSON.parse(key);
+        queryClient.setQueryData(parsedKey, value);
+      } catch (err) {
+        console.error('Failed to parse hydration key', key, err);
+      }
+    });
+  } catch (e) {
+    console.error('Failed to parse hydration data', e);
+  }
+}
+
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <PersistQueryClientProvider 
-      client={queryClient} 
+    <PersistQueryClientProvider
+      client={queryClient}
       persistOptions={{ persister }}
     >
       <ConfigProvider>

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { FileText, Clock, Check } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useToast } from '../../context/toast-context';
+import { useToast } from '@/context/toast-context';
 import { api } from '@/lib/client';
-import { BentoCard } from '../ui/design-system/BentoCard';
-import { DashboardSectionHeader } from '../ui/design-system/SectionHeader';
+import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 import { cn } from '@/lib/utils';
 
 export interface AdminInvoice {
@@ -21,37 +21,38 @@ export const InvoicesTab: React.FC = () => {
     const [invoices, setInvoices] = useState<AdminInvoice[]>([]);
     const [isLoading, setIsLoading] = useState(false);
 
-    const fetchInvoices = async () => {
+    const fetchInvoices = React.useCallback(async () => {
         setIsLoading(true);
         try {
-            const res = await (api.admin.invoices as any).$get();
+            // @ts-expect-error - RPC inference
+            const res = await (api.admin.invoices as never).$get();
             if (res.ok) {
                 const data = await res.json();
                 setInvoices(data as AdminInvoice[]);
             }
-        } catch (e) { 
+        } catch (e) {
             console.error("Failed to fetch invoices", e);
             showToast("Failed to fetch invoices", "error");
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [showToast]);
 
     useEffect(() => {
         fetchInvoices();
-    }, []);
+    }, [fetchInvoices]);
 
     const totalRevenue = invoices.reduce((acc, curr) => curr.status === 'PAID' ? acc + curr.amount : acc, 0);
 
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             className="space-y-8"
         >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <DashboardSectionHeader 
+                <DashboardSectionHeader
                     icon={FileText}
                     title="Financial Overview"
                     subtitle="Track incoming payments and invoice status"
@@ -79,7 +80,7 @@ export const InvoicesTab: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-50">
-                             {isLoading ? (
+                            {isLoading ? (
                                 <tr>
                                     <td colSpan={5} className="px-8 py-20 text-center">
                                         <div className="flex flex-col items-center gap-4 text-slate-300 animate-pulse">
@@ -118,8 +119,8 @@ export const InvoicesTab: React.FC = () => {
                                             <span className={cn(
                                                 "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border",
                                                 inv.status === 'PAID' ? 'bg-emerald-100 text-emerald-600 border-emerald-200' :
-                                                inv.status === 'PENDING' ? 'bg-amber-100 text-amber-600 border-amber-200' :
-                                                'bg-rose-100 text-rose-600 border-rose-200'
+                                                    inv.status === 'PENDING' ? 'bg-amber-100 text-amber-600 border-amber-200' :
+                                                        'bg-rose-100 text-rose-600 border-rose-200'
                                             )}>
                                                 {inv.status}
                                             </span>

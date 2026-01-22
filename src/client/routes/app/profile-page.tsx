@@ -1,12 +1,11 @@
 import React from 'react';
 import { MerchantProfile } from './profile';
-import { useMarketplace } from '../../hooks/useMarketplace';
-import { useSettings } from '../../hooks/useSettings';
-import { useAuth } from '../../hooks/useAuth';
-import { useToast } from '../../context/toast-context';
+import { useMarketplace } from '@/hooks/useMarketplace';
+import { useSettings } from '@/hooks/useSettings';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/context/toast-context';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../../lib/client';
-import { BusinessProfile } from '@shared/types';
+import { BusinessProfile, User } from '@shared/types';
 
 interface ProfilePageProps {
     businesses: BusinessProfile[];
@@ -20,10 +19,11 @@ interface ProfilePageProps {
     initialTab: 'outlets' | 'account' | 'ledger';
     isEditingProfile: boolean;
     setIsEditingProfile: (val: boolean) => void;
+    user: User | null;
 }
 
 export const ProfilePage: React.FC<ProfilePageProps> = ({
-    businesses, activeBusiness, activeBusinessId, addBusiness, switchBusiness, updateBusiness, deleteBusiness, onTopUpClick, initialTab, isEditingProfile, setIsEditingProfile
+    businesses, activeBusiness, activeBusinessId, addBusiness, switchBusiness, updateBusiness, deleteBusiness, onTopUpClick, initialTab, isEditingProfile, setIsEditingProfile, user
 }) => {
     const { credits, transactionHistory } = useMarketplace();
     const { settings, toggleLanguage } = useSettings();
@@ -32,16 +32,15 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
     const navigate = useNavigate();
 
     const handleLogout = async () => {
-        try { await api.auth.logout.$post(); } catch (e) { console.error(e); }
-        logout();
+        await logout(); // Single call, handles API and state cleanup
         localStorage.removeItem('margins_pro_is_demo');
         showToast("Anda telah keluar sesi.", "info");
-        navigate('/');
+        navigate('/auth'); // Consistent redirect to auth page
     };
 
     return (
-        <MerchantProfile 
-            credits={credits} 
+        <MerchantProfile
+            credits={credits}
             transactionHistory={transactionHistory}
             settings={settings}
             toggleLanguage={toggleLanguage}
@@ -56,7 +55,8 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({
             updateBusiness={updateBusiness}
             deleteBusiness={deleteBusiness}
             initialTab={initialTab}
-            onLogout={handleLogout} 
+            onLogout={handleLogout}
+            user={user || undefined}
         />
     );
 }

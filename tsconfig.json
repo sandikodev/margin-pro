@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2022",
+    "strict": true,
     "experimentalDecorators": true,
     "useDefineForClassFields": false,
     "module": "ESNext",
@@ -23,7 +24,9 @@
       "@/*": ["./src/client/*"],
       "@client/*": ["./src/client/*"],
       "@server/*": ["./src/server/*"],
-      "@shared/*": ["./src/shared/*"]
+      "@shared/*": ["./src/shared/*"],
+      "@framework": ["./packages/koda-core/src/index.ts"],
+      "@framework/*": ["./packages/koda-core/src/*"]
     },
     "allowImportingTsExtensions": true,
     "noEmit": true

@@ -23,8 +23,7 @@ export const useTTS = () => {
 
       const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
       if (base64Audio) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
         const audioCtx = new AudioContextClass({ sampleRate: 24000 });
         const binary = atob(base64Audio);
         const bytes = new Uint8Array(binary.length);

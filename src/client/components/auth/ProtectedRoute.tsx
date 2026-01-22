@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation, Outlet } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 import { User } from '@shared/types';
 
 interface ProtectedRouteProps {
@@ -9,17 +9,17 @@ interface ProtectedRouteProps {
   redirectTo?: string;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  requiredRole, 
-  redirectTo = '/auth' 
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  children,
+  requiredRole,
+  redirectTo = '/auth'
 }) => {
   const { isAuthenticated, isLoading, hasRole } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
     // Show nothing or a spinner while ensuring auth state is restored
-    return <div className="min-h-screen bg-slate-50" />; 
+    return <div className="min-h-screen bg-slate-50" />;
   }
 
   if (!isAuthenticated) {

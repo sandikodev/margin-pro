@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { useMidtrans } from '../../hooks/useMidtrans';
+import { useMidtrans } from '@/hooks/useMidtrans';
 import { Check, Star, Shield, History, Clock, FileText, ArrowRight, Activity, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useToast } from '../../context/toast-context';
-import { useAuth } from '../../hooks/useAuth';
+import { useToast } from '@/context/toast-context';
+import { useAuth } from '@/hooks/useAuth';
 import { SUBSCRIPTION_PRICING } from '@shared/constants';
 import { Invoice, User } from '@shared/types';
 import { useNavigate } from 'react-router-dom';
-import { BentoCard } from '../../components/ui/design-system/BentoCard';
-import { GradientCard } from '../../components/ui/design-system/GradientCard';
+import { BentoCard } from '@/components/ui/design-system/BentoCard';
 import { cn } from '@/lib/utils';
-import { DashboardSectionHeader } from '../../components/ui/design-system/SectionHeader';
+import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 
 // --- SUB COMPONENTS ---
 
@@ -27,11 +26,11 @@ interface PricingCardProps {
     onAction: () => void;
 }
 
-const PricingCard: React.FC<PricingCardProps> = ({ 
-    tier, price, unit, features, isPopular, isLifetime, isLoading, user, isLoaded, onAction 
+const PricingCard: React.FC<PricingCardProps> = ({
+    tier, price, unit, features, isPopular, isLifetime, isLoading, user, isLoaded, onAction
 }) => {
     const isStarter = tier === 'starter';
-    const isCurrentPlan = isStarter && (!user || (user && !('isPro' in user))); 
+    const isCurrentPlan = isStarter && (!user || (user && !('isPro' in user)));
 
     const Container = isPopular ? motion.div : 'div';
     const containerProps = isPopular ? {
@@ -42,7 +41,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
 
     return (
         <Container {...containerProps}>
-            <BentoCard 
+            <BentoCard
                 className={cn(
                     "h-full flex flex-col relative overflow-hidden transition-all duration-300",
                     isPopular ? "!border-indigo-500/50 shadow-2xl shadow-indigo-500/10 bg-slate-900" : "bg-slate-900/50 hover:bg-slate-900 border-slate-800",
@@ -65,9 +64,9 @@ const PricingCard: React.FC<PricingCardProps> = ({
                 <div className="mb-8">
                     <div className={cn(
                         "inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-4",
-                        isPopular ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30" : 
-                        isLifetime ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" : 
-                        "bg-slate-800 text-slate-400 border border-slate-700"
+                        isPopular ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30" :
+                            isLifetime ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" :
+                                "bg-slate-800 text-slate-400 border border-slate-700"
                     )}>
                         {isPopular ? 'Most Popular' : isLifetime ? 'Lifetime Deal' : 'Starter'}
                     </div>
@@ -81,34 +80,34 @@ const PricingCard: React.FC<PricingCardProps> = ({
                 <ul className="space-y-4 flex-1 mb-8">
                     {features.map(f => (
                         <li key={f} className="flex items-start gap-3 text-sm font-bold text-slate-300">
-                             <div className={cn(
-                                 "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0",
-                                 isPopular ? "bg-indigo-500/20 text-indigo-400" : isLifetime ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800 text-slate-500"
-                             )}>
-                                <Check className="w-3 h-3" /> 
-                             </div>
+                            <div className={cn(
+                                "mt-0.5 w-5 h-5 rounded-full flex items-center justify-center shrink-0",
+                                isPopular ? "bg-indigo-500/20 text-indigo-400" : isLifetime ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800 text-slate-500"
+                            )}>
+                                <Check className="w-3 h-3" />
+                            </div>
                             <span className="leading-tight">{f}</span>
                         </li>
                     ))}
                 </ul>
 
                 {/* Action Button */}
-                <button 
+                <button
                     onClick={onAction}
                     disabled={isLoading || isCurrentPlan || (isPopular && !isLoaded)}
                     className={cn(
                         "w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all relative z-10 flex items-center justify-center gap-2",
                         isCurrentPlan ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700" :
-                        isPopular ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:scale-95" :
-                        isLifetime ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:scale-95" :
-                        "bg-white text-slate-950 hover:bg-indigo-50 hover:-translate-y-0.5 active:scale-95"
+                            isPopular ? "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:scale-95" :
+                                isLifetime ? "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 hover:-translate-y-0.5 active:scale-95" :
+                                    "bg-white text-slate-950 hover:bg-indigo-50 hover:-translate-y-0.5 active:scale-95"
                     )}
                 >
-                    {isLoading ? 'Processing...' : 
-                     isCurrentPlan ? 'Current Plan' : 
-                     !user ? (isStarter ? 'Start Free' : 'Get Started') :
-                     'Upgrade Now'}
-                     
+                    {isLoading ? 'Processing...' :
+                        isCurrentPlan ? 'Current Plan' :
+                            !user ? (isStarter ? 'Start Free' : 'Get Started') :
+                                'Upgrade Now'}
+
                     {!isLoading && !isCurrentPlan && <ArrowRight className="w-4 h-4" />}
                 </button>
             </BentoCard>
@@ -117,11 +116,13 @@ const PricingCard: React.FC<PricingCardProps> = ({
 };
 
 // --- HELPER DATA ---
-const TIERS = [
-    { id: 'starter', label: 'Starter', price: 'Rp 0' },
-    { id: 'pro_monthly', label: 'Pro', price: 'Rp 150k' },
-    { id: 'pro_lifetime', label: 'Lifetime', price: 'Rp 2.5jt' }
-] as const;
+// Using centralized pricing constants
+import { PRICING_OPTIONS } from '@/constants/pricing';
+const TIERS = PRICING_OPTIONS.map(tier => ({
+    id: tier.id,
+    label: tier.label,
+    price: tier.priceFormatted
+}));
 
 // --- MAIN PAGE ---
 
@@ -132,7 +133,7 @@ export const PricingPage = () => {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [invoices, setInvoices] = useState<Invoice[]>([]);
-    
+
     // Mobile Tab State
     const [activeTab, setActiveTab] = useState<typeof TIERS[number]['id']>('pro_monthly');
 
@@ -154,7 +155,7 @@ export const PricingPage = () => {
         try {
             const payload = {
                 id: Math.random().toString(36).substr(2, 9),
-                tier: tier, 
+                tier: tier,
                 amount: tier === 'pro_monthly' ? SUBSCRIPTION_PRICING.PRO_MONTHLY : SUBSCRIPTION_PRICING.PRO_LIFETIME,
                 currency: 'IDR',
                 status: 'pending',
@@ -189,7 +190,7 @@ export const PricingPage = () => {
             };
             setInvoices(prev => [newInvoice, ...prev]);
 
-            pay(snapToken, 
+            pay(snapToken,
                 (_result) => {
                     showToast('Payment Successful! Welcome to Pro.', 'success');
                     setInvoices(prev => prev.map(inv => inv.id === invoiceId ? { ...inv, status: 'PAID' } : inv));
@@ -215,12 +216,12 @@ export const PricingPage = () => {
         <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-indigo-500/30">
             {/* Header / Nav */}
             <div className="max-w-7xl mx-auto px-6 py-8 flex items-center justify-between">
-                <button 
-                    onClick={() => navigate('/')} 
+                <button
+                    onClick={() => navigate('/')}
                     className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
                 >
                     <div className="w-8 h-8 rounded-full border border-slate-800 bg-slate-900 group-hover:bg-slate-800 flex items-center justify-center transition-colors">
-                         <ArrowLeft className="w-4 h-4" />
+                        <ArrowLeft className="w-4 h-4" />
                     </div>
                     <span className="text-xs font-bold uppercase tracking-widest hidden md:block">Back to Home</span>
                 </button>
@@ -231,13 +232,13 @@ export const PricingPage = () => {
             </div>
 
             <div className="max-w-7xl mx-auto px-6 pb-20 space-y-16">
-                
+
                 {/* Hero */}
                 <div className="text-center space-y-6 max-w-3xl mx-auto pt-10">
                     {!user && (
-                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-black uppercase tracking-widest animate-in fade-in slide-in-from-top-4">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-black uppercase tracking-widest animate-in fade-in slide-in-from-top-4">
                             <Star className="w-3 h-3 fill-indigo-300" /> Public Pricing
-                         </div>
+                        </div>
                     )}
                     <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-[0.95] animate-in fade-in slide-in-from-bottom-4 delay-100">
                         Unlock <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-violet-400">Pro Power.</span>
@@ -249,7 +250,7 @@ export const PricingPage = () => {
 
                 {/* MOBILE SEGMENTED CONTROL */}
                 <div className="md:hidden flex justify-center sticky top-4 z-30">
-                     <div className="bg-slate-900/80 backdrop-blur-md p-1.5 rounded-2xl flex items-center shadow-xl border border-white/10">
+                    <div className="bg-slate-900/80 backdrop-blur-md p-1.5 rounded-2xl flex items-center shadow-xl border border-white/10">
                         {TIERS.map(t => {
                             const isActive = activeTab === t.id;
                             return (
@@ -262,7 +263,7 @@ export const PricingPage = () => {
                                     )}
                                 >
                                     {isActive && (
-                                        <motion.div 
+                                        <motion.div
                                             layoutId="activeTab"
                                             className="absolute inset-0 bg-white rounded-xl shadow-sm"
                                             transition={{ type: "spring", stiffness: 500, damping: 30 }}
@@ -272,12 +273,12 @@ export const PricingPage = () => {
                                 </button>
                             );
                         })}
-                     </div>
+                    </div>
                 </div>
 
                 {/* DESKTOP GRID (Hidden on Mobile) */}
                 <div className="hidden md:grid md:grid-cols-3 gap-8 max-w-6xl mx-auto items-stretch">
-                    <PricingCard 
+                    <PricingCard
                         tier="starter"
                         price="Rp 0"
                         unit="/ forever"
@@ -285,7 +286,7 @@ export const PricingPage = () => {
                         user={user}
                         onAction={() => handleAction('starter')}
                     />
-                     <PricingCard 
+                    <PricingCard
                         tier="pro_monthly"
                         price="Rp 150k"
                         unit="/ month"
@@ -296,7 +297,7 @@ export const PricingPage = () => {
                         isLoaded={isLoaded}
                         onAction={() => handleAction('pro_monthly')}
                     />
-                     <PricingCard 
+                    <PricingCard
                         tier="pro_lifetime"
                         price="Rp 2.5jt"
                         unit="/ once"
@@ -315,7 +316,7 @@ export const PricingPage = () => {
                         <AnimatePresence mode="wait">
                             {activeTab === 'starter' && (
                                 <motion.div key="starter" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
-                                    <PricingCard 
+                                    <PricingCard
                                         tier="starter"
                                         price="Rp 0"
                                         unit="/ forever"
@@ -327,7 +328,7 @@ export const PricingPage = () => {
                             )}
                             {activeTab === 'pro_monthly' && (
                                 <motion.div key="pro" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }}>
-                                    <PricingCard 
+                                    <PricingCard
                                         tier="pro_monthly"
                                         price="Rp 150k"
                                         unit="/ month"
@@ -341,8 +342,8 @@ export const PricingPage = () => {
                                 </motion.div>
                             )}
                             {activeTab === 'pro_lifetime' && (
-                                 <motion.div key="lifetime" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }}>
-                                    <PricingCard 
+                                <motion.div key="lifetime" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }}>
+                                    <PricingCard
                                         tier="pro_lifetime"
                                         price="Rp 2.5jt"
                                         unit="/ once"
@@ -353,7 +354,7 @@ export const PricingPage = () => {
                                         isLoaded={isLoaded}
                                         onAction={() => handleAction('pro_lifetime')}
                                     />
-                                 </motion.div>
+                                </motion.div>
                             )}
                         </AnimatePresence>
                     </div>
@@ -361,29 +362,29 @@ export const PricingPage = () => {
 
                 {/* INVOICE HISTORY (Auth Only) */}
                 {user && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         className="max-w-4xl mx-auto pt-20 border-t border-slate-800"
                     >
-                         <DashboardSectionHeader 
-                             icon={History} 
-                             title="Billing History" 
-                             subtitle={`Manage your invoices for ${user.email}`} 
-                         />
+                        <DashboardSectionHeader
+                            icon={History}
+                            title="Billing History"
+                            subtitle={`Manage your invoices for ${user.email}`}
+                        />
 
-                         <div className="mt-8">
-                             {invoices.length === 0 ? (
+                        <div className="mt-8">
+                            {invoices.length === 0 ? (
                                 <BentoCard className="py-20 flex flex-col items-center justify-center text-center gap-6 border-dashed border-slate-800 bg-slate-900/30">
-                                     <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center border border-slate-800">
-                                         <FileText className="w-8 h-8 text-slate-600" />
-                                     </div>
-                                     <div>
-                                         <h4 className="text-white font-bold text-lg mb-1">No billing history found</h4>
-                                         <p className="text-slate-500 text-sm">Once you upgrade, your invoices will appear here.</p>
-                                     </div>
+                                    <div className="w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center border border-slate-800">
+                                        <FileText className="w-8 h-8 text-slate-600" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-white font-bold text-lg mb-1">No billing history found</h4>
+                                        <p className="text-slate-500 text-sm">Once you upgrade, your invoices will appear here.</p>
+                                    </div>
                                 </BentoCard>
-                             ) : (
+                            ) : (
                                 <div className="space-y-4">
                                     {invoices.map(inv => (
                                         <BentoCard key={inv.id} className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-slate-700 transition-colors">
@@ -391,11 +392,11 @@ export const PricingPage = () => {
                                                 <div className={cn(
                                                     "w-12 h-12 rounded-2xl flex items-center justify-center border",
                                                     inv.status === 'PAID' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' :
-                                                    inv.status === 'PENDING' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
-                                                    'bg-rose-500/10 border-rose-500/20 text-rose-500'
+                                                        inv.status === 'PENDING' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
+                                                            'bg-rose-500/10 border-rose-500/20 text-rose-500'
                                                 )}>
-                                                    {inv.status === 'PAID' ? <Check size={20} /> : 
-                                                     inv.status === 'PENDING' ? <Clock size={20} /> : <FileText size={20} />}
+                                                    {inv.status === 'PAID' ? <Check size={20} /> :
+                                                        inv.status === 'PENDING' ? <Clock size={20} /> : <FileText size={20} />}
                                                 </div>
                                                 <div>
                                                     <div className="font-bold text-white text-lg">Invoice #{inv.id.slice(0, 8)}</div>
@@ -412,10 +413,10 @@ export const PricingPage = () => {
                                                     <div className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Total Amount</div>
                                                 </div>
                                                 <div className={cn(
-                                                     "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border",
-                                                     inv.status === 'PAID' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' :
-                                                     inv.status === 'PENDING' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
-                                                     'bg-rose-500/10 border-rose-500/20 text-rose-500'
+                                                    "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border",
+                                                    inv.status === 'PAID' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500' :
+                                                        inv.status === 'PENDING' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
+                                                            'bg-rose-500/10 border-rose-500/20 text-rose-500'
                                                 )}>
                                                     {inv.status}
                                                 </div>
@@ -423,15 +424,15 @@ export const PricingPage = () => {
                                         </BentoCard>
                                     ))}
                                 </div>
-                             )}
-                         </div>
+                            )}
+                        </div>
                     </motion.div>
                 )}
 
                 <div className="flex justify-center gap-8 text-slate-600 opacity-50 pt-10">
-                     <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
                         <Shield className="w-3 h-3" /> Secured by Midtrans
-                     </span>
+                    </span>
                 </div>
             </div>
         </div>

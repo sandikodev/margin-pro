@@ -2,7 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
 import { Eye, EyeOff, ArrowRight, Loader2, ArrowLeft, Mail, Lock, User as UserIcon, Sparkles } from 'lucide-react';
 import { User } from '@shared/types';
-import { useToast } from '../../context/toast-context';
+import { useToast } from '@/context/toast-context';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { GradientCard } from '@/components/ui/design-system/GradientCard';
@@ -22,7 +22,7 @@ interface AuthPageProps {
 export const AuthPage: React.FC<AuthPageProps> = ({
     onSuccess,
     onBack,
-    initialMode = 'register',
+    initialMode = 'login',
     initialEmail = '',
     initialPassword = '',
     initialReferralCode = '',

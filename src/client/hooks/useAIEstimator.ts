@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { CostItem } from '@shared/types';
-import { cleanAIJSON } from '../lib/utils';
-import { useToast } from '../context/toast-context';
+import { cleanAIJSON } from '@/lib/utils';
+import { useToast } from '@/context/toast-context';
 
 export const useAIEstimator = () => {
     const [isGenerating, setIsGenerating] = useState(false);

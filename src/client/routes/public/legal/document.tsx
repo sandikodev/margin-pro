@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Loader2, Printer } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getLegalDocBySlug, LegalDocument } from '../../../lib/legal';
-import { MarkdownRenderer } from '../../../components/content/MarkdownRenderer';
+import { getLegalDocBySlug, LegalDocument } from '@/lib/legal';
+import { MarkdownRenderer } from '@/components/content/MarkdownRenderer';
 
 export const LegalDocumentPage: React.FC = () => {
     const { slug } = useParams();

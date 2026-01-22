@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Search, LayoutDashboard, Settings, Layers, Languages, Cpu, FileText, Brush, Download, AlertCircle, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -13,19 +13,18 @@ interface AdminCommandPaletteProps {
 }
 
 export const AdminCommandPalette: React.FC<AdminCommandPaletteProps> = ({ isOpen, onClose, setActiveTab, exportDictionary, setFilterMissing }) => {
-    const [searchTerm, setSearchTerm] = useState('');
 
     return (
         <AnimatePresence>
             {isOpen && (
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-start justify-center pt-[15vh] p-6"
                     onClick={onClose}
                 >
-                    <motion.div 
+                    <motion.div
                         initial={{ scale: 0.9, opacity: 0, y: -20 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.9, opacity: 0, y: -20 }}
@@ -34,11 +33,10 @@ export const AdminCommandPalette: React.FC<AdminCommandPaletteProps> = ({ isOpen
                     >
                         <div className="p-6 border-b border-slate-100 flex items-center gap-4 bg-slate-50">
                             <Search className="w-6 h-6 text-indigo-600" />
-                            <input 
+                            <input
                                 autoFocus
-                                placeholder="Type a command or search settings..." 
+                                placeholder="Type a command or search settings..."
                                 className="flex-1 bg-transparent border-none outline-none text-lg font-bold text-slate-800"
-                                onChange={(e) => setSearchTerm(e.target.value)}
                             />
                             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">ESC to Close</div>
                         </div>
@@ -55,7 +53,7 @@ export const AdminCommandPalette: React.FC<AdminCommandPaletteProps> = ({ isOpen
                                         { id: 'invoices', label: 'Jump to Invoices', icon: FileText },
                                         { id: 'branding', label: 'Jump to Design', icon: Brush },
                                     ].map(cmd => (
-                                        <button 
+                                        <button
                                             key={cmd.id}
                                             onClick={() => { setActiveTab(cmd.id as AdminTab); onClose(); }}
                                             className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 text-slate-600 hover:text-indigo-600 transition-all text-xs font-bold"

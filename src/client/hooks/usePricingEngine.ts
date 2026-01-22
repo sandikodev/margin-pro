@@ -1,16 +1,20 @@
 import { useState, useMemo } from 'react';
-import { Platform, Project, PlatformOverrides, Currency } from '@shared/types';
-import { calculatePricingStrategies } from '../lib/utils';
-import { useConfig } from './useConfig';
+import { Platform, Project, PlatformOverrides, Currency, BusinessProfile } from '@shared/types';
+import { calculatePricingStrategies } from '@/lib/utils';
+import { useConfig } from '@/hooks/useConfig';
 
 export const usePricingEngine = (
   activeProject: Project | undefined,
   selectedCurrency: Currency,
-  exchangeRates: Record<string, number>
+  exchangeRates: Record<string, number>,
+  activeBusiness?: BusinessProfile
 ) => {
-  const { platforms: platformData, settings, isLoading } = useConfig();
+  const { platforms: platformData, isLoading } = useConfig();
   const [promoPercent, setPromoPercent] = useState<number>(0);
-  const taxRate = parseFloat(settings.TAX_RATE || '0.11');
+
+  // Use business tax rate as fallback
+  const businessTaxRate = activeBusiness?.taxRate ?? 11; // 11% default
+  const businessTargetMargin = activeBusiness?.targetMargin ?? 20; // 20% default
 
   // 1. Store only explicit user overrides (initially empty or partial)
   const [userOverrides, setUserOverrides] = useState<Partial<Record<Platform, PlatformOverrides>>>({});
@@ -42,8 +46,8 @@ export const usePricingEngine = (
   const results = useMemo(() => {
     if (!activeProject || !activeProject.costs) return [];
     if (Object.keys(overrides).length === 0) return [];
-    return calculatePricingStrategies(activeProject, overrides, promoPercent, taxRate);
-  }, [activeProject, promoPercent, overrides, taxRate]);
+    return calculatePricingStrategies(activeProject, overrides, promoPercent, businessTaxRate, businessTargetMargin);
+  }, [activeProject, promoPercent, overrides, businessTaxRate, businessTargetMargin]);
 
   // Derived Data for Charts
   const chartData = useMemo(() => results.map(r => ({

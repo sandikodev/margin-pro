@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { useFinanceAnalytics } from '../hooks/useFinanceAnalytics';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { CashflowRecord, Liability, Project, BusinessProfile } from '@shared/types';
 import { FINANCIAL_DEFAULTS } from '@shared/constants';
 

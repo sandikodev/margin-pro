@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { Languages, AlertCircle, Search, Download } from 'lucide-react';
+import { Languages, AlertCircle, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useConfig } from '../../hooks/useConfig';
-import { useToast } from '../../context/toast-context';
+import { useConfig } from '@/hooks/useConfig';
+import { useToast } from '@/context/toast-context';
 import { api } from '@/lib/client';
-import { BentoCard } from '../ui/design-system/BentoCard';
-import { DashboardSectionHeader } from '../ui/design-system/SectionHeader';
+import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 
 interface TranslationsTabProps {
     addAuditLog: (action: string, details: string, type?: 'success' | 'info' | 'error') => void;
@@ -20,7 +20,8 @@ export const TranslationsTab: React.FC<TranslationsTabProps> = ({ addAuditLog, f
 
     const handleSaveTranslation = async (key: string, umkm: string, pro: string) => {
         try {
-            await (api.admin.translations[':key'] as any).$put({
+            // @ts-expect-error - RPC deep path inference
+            await (api.admin.translations[':key'] as never).$put({
                 param: { key },
                 json: { umkm, pro }
             });
@@ -38,7 +39,7 @@ export const TranslationsTab: React.FC<TranslationsTabProps> = ({ addAuditLog, f
             const matchesSearch = key.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 val.umkm.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 val.pro.toLowerCase().includes(searchTerm.toLowerCase());
-            
+
             if (filterMissing) {
                 // Heuristic: if it matches the key, it's likely untranslated or placeholder
                 return matchesSearch && (!val.umkm || !val.pro || val.umkm === key || val.pro === key);
@@ -48,36 +49,36 @@ export const TranslationsTab: React.FC<TranslationsTabProps> = ({ addAuditLog, f
     }, [translations, searchTerm, filterMissing]);
 
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             className="space-y-8"
         >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <DashboardSectionHeader 
+                <DashboardSectionHeader
                     icon={Languages}
                     title="Terminology Lexicon"
                     subtitle="Control feature labels for UMKM and PRO modes"
                 />
-                
+
                 <div className="flex items-center gap-3">
-                        <button 
-                            onClick={() => setFilterMissing(!filterMissing)}
-                            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center gap-2 ${filterMissing ? 'bg-amber-100 border-amber-200 text-amber-700' : 'bg-white border-slate-200 text-slate-400 hover:border-indigo-200'}`}
-                        >
-                            <AlertCircle className="w-3 h-3" /> {filterMissing ? 'Showing Missing only' : 'Filter Missing'}
-                        </button>
-                        <div className="relative group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
-                            <input 
-                                type="text" 
-                                placeholder="Search terms..."
-                                className="pl-12 pr-6 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:bg-white w-full md:w-80 font-bold text-sm shadow-sm transition-all"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
+                    <button
+                        onClick={() => setFilterMissing(!filterMissing)}
+                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all flex items-center gap-2 ${filterMissing ? 'bg-amber-100 border-amber-200 text-amber-700' : 'bg-white border-slate-200 text-slate-400 hover:border-indigo-200'}`}
+                    >
+                        <AlertCircle className="w-3 h-3" /> {filterMissing ? 'Showing Missing only' : 'Filter Missing'}
+                    </button>
+                    <div className="relative group">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                        <input
+                            type="text"
+                            placeholder="Search terms..."
+                            className="pl-12 pr-6 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:bg-white w-full md:w-80 font-bold text-sm shadow-sm transition-all"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
                 </div>
             </div>
 
@@ -110,16 +111,16 @@ export const TranslationsTab: React.FC<TranslationsTabProps> = ({ addAuditLog, f
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 defaultValue={t.umkm}
                                                 className="w-full bg-transparent text-sm font-bold text-slate-700 outline-none focus:text-indigo-600 transition-colors"
                                                 onBlur={(e) => handleSaveTranslation(key, e.target.value, t.pro)}
                                             />
                                         </td>
                                         <td className="px-8 py-6">
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 defaultValue={t.pro}
                                                 className="w-full bg-transparent text-sm font-bold text-indigo-700 outline-none focus:ring-1 ring-indigo-200 rounded px-2 py-1"
                                                 onBlur={(e) => handleSaveTranslation(key, t.umkm, e.target.value)}
@@ -132,12 +133,12 @@ export const TranslationsTab: React.FC<TranslationsTabProps> = ({ addAuditLog, f
                     </table>
                 </div>
                 <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                         Displaying {filteredTranslations.length} of {Object.keys(translations).length} total concepts
-                        </div>
-                        <div className="w-40 h-2 bg-slate-200 rounded-full overflow-hidden">
-                            <div className="h-full bg-indigo-500 rounded-full" style={{ width: '100%' }} />
-                        </div>
+                    </div>
+                    <div className="w-40 h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-indigo-500 rounded-full" style={{ width: '100%' }} />
+                    </div>
                 </div>
             </BentoCard>
         </motion.div>

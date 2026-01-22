@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { db } from "../db/index";
 import { systemSettings, platforms, translations } from "../db/schema";
 
-export const configRoutes = new Hono()
+export const configsRoutes = new Hono()
     .get("/", async (c) => {
         const [settings, allPlatforms, allTranslations] = await Promise.all([
             db.select().from(systemSettings),

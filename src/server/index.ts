@@ -1,33 +1,49 @@
 import "./env";
-import { Hono } from "hono";
+import { Hono, type Context, type Next } from "hono";
+import { koda } from "@framework";
 import { cors } from "hono/cors";
-import { auth } from "./routes/auth";
-import { projectRoutes } from "./routes/projects";
-import { configRoutes } from "./routes/configs";
+import { BusinessProfile, BusinessType } from "@shared/types";
+import { authRoutes } from "./routes/auth";
+import { businessesRoutes } from "./routes/businesses";
+import { projectsRoutes } from "./routes/projects";
+import { configsRoutes } from "./routes/configs";
 import { adminRoutes } from "./routes/admin";
-import { paymentRoutes } from "./routes/payment";
+import { paymentsRoutes } from "./routes/payment";
 import { financeRoutes } from "./routes/finance";
 import { marketplaceRoutes } from "./routes/marketplace";
+import { db } from "./db/index";
+import { users, businesses as businessesTable } from "./db/schema";
+import { eq } from "drizzle-orm";
 import { getSession } from "./middleware/session";
 
-import { securityHeaders, requestLogger, apiLimiter } from "./middleware/security";
+import { requestLogger } from "./middleware/security";
 
-const app = new Hono();
-
-import { businessRoutes } from "./routes/businesses";
+const app = koda();
 
 app.use("*", cors());
-app.use("*", securityHeaders);
 app.use("*", requestLogger);
-app.use("/api/*", apiLimiter); // General API Rate Limit
+
+// Koda Security Posture (HSTS, CSP, Rate Limiting)
+app.use("/api/*", ...koda.security({
+    rateLimit: { windowMs: 60 * 1000, limit: 100 },
+    csp: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://*.google.com", "https://*.gstatic.com", "https://app.midtrans.com"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+        connectSrc: ["'self'", "https://*.googleapis.com", "https://*.turso.io", "https://app.midtrans.com", "https://api.midtrans.com", "https://api.sandbox.midtrans.com"],
+    }
+}));
 
 // --- GLOBAL ERROR HANDLING ---
-app.onError((err, c) => {
-    console.error(`[Global Error] ${err.message}`, err);
-    return c.json({ error: err.message || "Internal Server Error" }, 500);
+app.onError((err: Error, c: Context) => {
+    const message = err instanceof Error ? err.message : "Internal Server Error";
+    console.error(`[Global Error] ${message}`, err);
+    return c.json({ error: message }, 500);
 });
 
-app.notFound((c) => {
+app.notFound((c: Context) => {
     return c.json({ error: "Endpoint not found" }, 404);
 });
 
@@ -35,15 +51,15 @@ app.notFound((c) => {
 // The .basePath() method creates a new Hono instance with the prefix
 const apiApp = new Hono()
     .basePath("/api")
-    .get("/health", (c) => c.json({ status: "ok", runtime: "bun" }))
-    .route("/auth", auth)
-    .route("/businesses", businessRoutes)
-    .route("/projects", projectRoutes)
+    .get("/health", (c: Context) => c.json({ status: "ok", runtime: "bun" }))
+    .route("/auth", authRoutes)
+    .route("/businesses", businessesRoutes)
+    .route("/projects", projectsRoutes)
     .route("/finance", financeRoutes)
     .route("/marketplace", marketplaceRoutes)
-    .route("/configs", configRoutes)
+    .route("/configs", configsRoutes)
     .route("/admin", adminRoutes)
-    .route("/midtrans", paymentRoutes);
+    .route("/midtrans", paymentsRoutes);
 
 // Mount the API app to the main app root
 app.route("/", apiApp);
@@ -54,7 +70,7 @@ export const api = apiApp;
 // --- SEO & Auth Replacement Logic ---
 
 // Middleware to inject SEO tags & Handle Auth Replacements
-app.get("*", async (c, next) => {
+app.get("*", async (c: Context, next: Next) => {
     const url = new URL(c.req.url);
 
     // Skip API routes
@@ -83,45 +99,44 @@ app.get("*", async (c, next) => {
     const description = "Hitung profit margin, simulasi harga, dan atur keuangan bisnis kuliner & retail anda.";
     const image = "https://placehold.co/1200x630/4f46e5/white?text=Margin+Pro";
 
-    let html = "";
-    const isVercel = !!process.env.VERCEL;
+    const image = "https://placehold.co/1200x630/4f46e5/white?text=Margin+Pro";
 
-    if (isVercel) {
-        // Vercel (Edge or Serverless)
-        // Fetch index.html from origin (Vercel static hosting)
+    let html = "";
+    
+    // Deployment-Agnostic Asset Fetching logic
+    if (koda.env.runtime === 'edge') {
         const baseUrl = new URL(c.req.url).origin;
         try {
             const res = await fetch(`${baseUrl}/index.html`);
             if (res.ok) {
                 html = await res.text();
             } else {
-                html = `<html><body><h1>Error loading app</h1><p>Vercel Status: ${res.status}</p><p>URL: ${baseUrl}/index.html</p><p>Reason: If this is a preview deployment, ensure "Deployment Protection" is disabled in Vercel settings so the Edge Function can fetch its own assets.</p></body></html>`;
+                html = `<html><body><h1>Error loading app</h1><p>Edge runtime fetch error: ${res.status}</p></body></html>`;
             }
         } catch (e) {
             html = `<html><body><h1>Edge Fetch Error</h1><p>${String(e)}</p></body></html>`;
         }
-    } else if (process.env.NODE_ENV === "production") {
-        // Local Production (Bun)
-        const bun = (globalThis as any).Bun;
-        html = bun ? await bun.file("./dist/index.html").text() : "";
     } else {
-        // Local Development (Bun)
-        const bun = (globalThis as any).Bun;
-        html = bun ? await bun.file("index.html").text() : "";
+        // Bun/Node Local modes
+        const targetFile = koda.env.isDev ? "index.html" : "./dist/index.html";
+        const bun = (globalThis as unknown as { Bun?: { file: (p: string) => { text: () => Promise<string> } } }).Bun;
+        html = bun ? await bun.file(targetFile).text() : "";
 
-        // Inject Vite Client & React Preamble
-        html = html.replace(
-            "<head>",
-            `<head>
-    <script type="module">
-      import RefreshRuntime from "/@react-refresh"
-      RefreshRuntime.injectIntoGlobalHook(window)
-      window.$RefreshReg$ = () => {}
-      window.$RefreshSig$ = () => (type) => type
-      window.__vite_plugin_react_preamble_installed__ = true
-    </script>
-    <script type="module" src="/@vite/client"></script>`
-        );
+        if (koda.env.isDev) {
+            // Inject Vite Client & React Preamble
+            html = html.replace(
+                "<head>",
+                `<head>
+        <script type="module">
+          import RefreshRuntime from "/@react-refresh"
+          RefreshRuntime.injectIntoGlobalHook(window)
+          window.$RefreshReg$ = () => {}
+          window.$RefreshSig$ = () => (type) => type
+          window.__vite_plugin_react_preamble_installed__ = true
+        </script>
+        <script type="module" src="/@vite/client"></script>`
+            );
+        }
     }
 
     // Inject SEO Tags
@@ -131,8 +146,41 @@ app.get("*", async (c, next) => {
         .replace(/<meta property="og:description" content=".*?">/, `<meta property="og:description" content="${description}">`)
         .replace(/<meta property="og:image" content=".*?">/, `<meta property="og:image" content="${image}">`);
 
+    // --- SSR HYDRATION DATA ---
+    const hydrationData: Record<string, unknown> = {};
+
+    if (session) {
+        // Prefetch basic user info
+        const user = await db.query.users.findFirst({
+            where: eq(users.id, session.id),
+            columns: { id: true, name: true, email: true, role: true, permissions: true }
+        });
+        if (user) {
+            hydrationData['["auth","me"]'] = { user };
+
+            // Prefetch businesses
+            const userBusinesses = await db.select().from(businessesTable).where(eq(businessesTable.userId, session.id));
+            hydrationData['["businesses","list"]'] = userBusinesses.map((b): BusinessProfile => ({
+                id: b.id,
+                name: b.name,
+                type: b.type as BusinessType,
+                initialCapital: b.initialCapital || 0,
+                currentAssetValue: b.currentAssetValue || 0,
+                cashOnHand: b.cashOnHand || 0,
+                themeColor: b.themeColor || undefined,
+                avatarUrl: b.avatarUrl || undefined,
+                establishedDate: b.data?.establishedDate || 0,
+                ...(b.data || {})
+            }));
+        }
+    }
+
+    // Inject Hydration Script
+    const hydrationScript = `<script id="__QUERY_HYDRATION_DATA__" type="application/json">${JSON.stringify(hydrationData)}</script>`;
+    html = html.replace("</body>", `${hydrationScript}\n</body>`);
+
     return c.html(html);
 });
 
-export type AppType = typeof api;
+export type AppType = typeof apiApp;
 export default app;

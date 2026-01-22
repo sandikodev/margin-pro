@@ -79,6 +79,8 @@ export interface Project {
   author?: string;
   price?: number;
   isFavorite?: boolean;
+  targetMargin?: number; // Override business target margin
+  taxRate?: number; // Override business tax rate
 }
 
 export interface MarketplaceItem extends Project {
@@ -152,7 +154,7 @@ export interface User {
   referralCode?: string;
   referredBy?: string;
   affiliateEarnings?: number;
-  permissions?: string; // JSON string
+  permissions?: string[];
 }
 
 export interface Business extends BusinessProfile {
@@ -187,7 +189,7 @@ export interface AppSettings {
 
 // --- UNIVERSAL BUSINESS PROFILING ---
 
-export type BusinessType = 'fnb_offline' | 'fnb_online' | 'retail' | 'services' | 'manufacturing' | 'fashion' | 'digital';
+export type BusinessType = 'fnb_offline' | 'fnb_online' | 'retail' | 'services' | 'manufacturing' | 'fashion' | 'digital' | 'coffee';
 
 export interface BusinessProfile {
   id: string;
@@ -208,9 +210,15 @@ export interface BusinessProfile {
   currentAssetValue: number;
   cashOnHand: number;
 
+  targetMargin?: number; // Target profit margin in %
+  taxRate?: number; // Tax rate in % (e.g. PPN)
+
   address?: string;
   establishedDate: number;
 
   themeColor?: string;
   avatarUrl?: string; // New Field for Photo Upload
+
+  monthlyFixedCost?: number;
+  currentSavings?: number;
 }

@@ -12,6 +12,9 @@ const envSchema = z.object({
     // AI
     GEMINI_API_KEY: z.string().optional(),
 
+    // Payments
+    MIDTRANS_SERVER_KEY: z.string().optional(),
+
     // Environment
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
     PORT: z.coerce.number().default(8000),
@@ -23,6 +26,7 @@ const processEnv = {
     TURSO_AUTH_TOKEN: process.env.TURSO_AUTH_TOKEN,
     JWT_SECRET: process.env.JWT_SECRET,
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+    MIDTRANS_SERVER_KEY: process.env.MIDTRANS_SERVER_KEY,
     NODE_ENV: process.env.NODE_ENV,
     PORT: process.env.PORT
 };

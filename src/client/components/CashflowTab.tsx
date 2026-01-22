@@ -3,8 +3,8 @@ import React, { useState, useMemo } from 'react';
 import { Banknote, AlertTriangle, Plus, TrendingUp, ArrowDownRight, ArrowUpRight, Calculator, CheckCircle2, Trash2, Target, Sliders, ShieldAlert, Hourglass, ShieldCheck } from 'lucide-react';
 import { Liability, CashflowRecord, Project } from '@shared/types';
 import { FINANCIAL_DEFAULTS } from '@shared/constants';
-import { calculateLoanPayment, calculateFinancialHealth } from '../utils';
-import { useToast } from '../context/toast-context';
+import { calculateLoanPayment, calculateFinancialHealth } from '@/lib/utils';
+import { useToast } from '@/context/toast-context';
 
 interface FinanceManagerProps {
   liabilities: Liability[];

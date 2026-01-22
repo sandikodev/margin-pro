@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { User, Search, User as UserIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useToast } from '../../context/toast-context';
+import { useToast } from '@/context/toast-context';
 import { api } from '@/lib/client';
 import { User as UserModel } from '@shared/types';
-import { BentoCard } from '../ui/design-system/BentoCard';
-import { DashboardSectionHeader } from '../ui/design-system/SectionHeader';
+import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 import { cn } from '@/lib/utils';
 
 interface UsersTabProps {
@@ -18,30 +18,32 @@ export const UsersTab: React.FC<UsersTabProps> = ({ addAuditLog }) => {
     const [userSearch, setUserSearch] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const fetchUsers = async () => {
+    const fetchUsers = React.useCallback(async () => {
         setIsLoading(true);
         try {
-            const res = await (api.admin.users as any).$get();
+            // @ts-expect-error - RPC inference
+            const res = await (api.admin.users as never).$get();
             if (res.ok) {
                 const data = await res.json();
                 setUsers(data as UserModel[]);
             }
-        } catch (e) { 
+        } catch (e) {
             console.error("Failed to fetch users", e);
             showToast("Failed to fetch users", "error");
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [showToast]);
 
     useEffect(() => {
         fetchUsers();
-    }, []);
+    }, [fetchUsers]);
 
     const handleRoleUpdate = async (userId: string, newRole: string) => {
         if (!confirm(`Are you sure you want to change this user's role to ${newRole}?`)) return;
         try {
-            await (api.admin.users[':id'] as any).$put({
+            // @ts-expect-error - RPC inference
+            await (api.admin.users[':id'] as never).$put({
                 param: { id: userId },
                 json: { role: newRole }
             });
@@ -50,40 +52,40 @@ export const UsersTab: React.FC<UsersTabProps> = ({ addAuditLog }) => {
             addAuditLog('User Role Update', `Changed user ${userId} to ${newRole}`, 'success');
         } catch {
             showToast('Failed to update role', 'error');
-        } 
+        }
     };
 
     const filteredUsers = useMemo(() => {
-         if (!userSearch) return users;
-         return users.filter(u => 
-            u.name?.toLowerCase().includes(userSearch.toLowerCase()) || 
+        if (!userSearch) return users;
+        return users.filter(u =>
+            u.name?.toLowerCase().includes(userSearch.toLowerCase()) ||
             u.email?.toLowerCase().includes(userSearch.toLowerCase()) ||
             u.referralCode?.toLowerCase().includes(userSearch.toLowerCase())
-         );
+        );
     }, [users, userSearch]);
 
     return (
-        <motion.div 
+        <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             className="space-y-8"
         >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <DashboardSectionHeader 
+                <DashboardSectionHeader
                     icon={UserIcon}
                     title="User Management"
                     subtitle="Monitor registrations and manage access levels"
                 />
                 <div className="relative group">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-                        <input 
-                            type="text" 
-                            placeholder="Search user..."
-                            className="pl-12 pr-6 py-3 bg-slate-900/5 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:bg-white w-full md:w-80 font-bold text-sm shadow-sm transition-all"
-                            value={userSearch}
-                            onChange={(e) => setUserSearch(e.target.value)}
-                        />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <input
+                        type="text"
+                        placeholder="Search user..."
+                        className="pl-12 pr-6 py-3 bg-slate-900/5 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:bg-white w-full md:w-80 font-bold text-sm shadow-sm transition-all"
+                        value={userSearch}
+                        onChange={(e) => setUserSearch(e.target.value)}
+                    />
                 </div>
             </div>
 
@@ -132,12 +134,12 @@ export const UsersTab: React.FC<UsersTabProps> = ({ addAuditLog }) => {
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <select 
+                                            <select
                                                 className={cn(
                                                     "px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider border outline-none cursor-pointer transition-all",
-                                                    user.role === 'admin' 
-                                                    ? 'bg-rose-50 text-rose-600 border-rose-200 hover:border-rose-300' 
-                                                    : 'bg-slate-50 text-slate-500 border-slate-200 hover:border-indigo-300'
+                                                    user.role === 'admin'
+                                                        ? 'bg-rose-50 text-rose-600 border-rose-200 hover:border-rose-300'
+                                                        : 'bg-slate-50 text-slate-500 border-slate-200 hover:border-indigo-300'
                                                 )}
                                                 value={user.role}
                                                 onChange={(e) => handleRoleUpdate(user.id, e.target.value)}
@@ -162,7 +164,7 @@ export const UsersTab: React.FC<UsersTabProps> = ({ addAuditLog }) => {
                                         </td>
                                         <td className="px-8 py-6">
                                             <span className="text-xs font-bold text-slate-400">
-                                                {new Date(user.createdAt).toLocaleDateString()}
+                                                {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}
                                             </span>
                                         </td>
                                     </tr>

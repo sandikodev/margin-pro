@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { User, Mail, Phone, Save, Upload, CheckCircle2 } from 'lucide-react';
-import { useProfile } from '../../../hooks/useProfile';
+import { useProfile } from '@/hooks/useProfile';
 
 export const AccountSettings: React.FC = () => {
   const { activeBusiness, updateBusiness } = useProfile();

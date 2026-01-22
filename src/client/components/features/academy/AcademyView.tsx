@@ -1,10 +1,10 @@
 import React from 'react';
 import { GraduationCap, Lightbulb, Calculator, Target, ShieldCheck, BookOpen, ExternalLink, Globe } from 'lucide-react';
 import { Platform, PlatformConfig } from '@shared/types';
-import { useConfig } from '../../../hooks/useConfig';
-import { GradientCard } from '../../ui/design-system/GradientCard';
-import { BentoCard } from '../../ui/design-system/BentoCard';
-import { DashboardSectionHeader } from '../../ui/design-system/SectionHeader';
+import { useConfig } from '@/hooks/useConfig';
+import { GradientCard } from '@/components/ui/design-system/GradientCard';
+import { BentoCard } from '@/components/ui/design-system/BentoCard';
+import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 
 interface AcademyViewProps {
   onOpenAbout?: () => void;
@@ -42,7 +42,7 @@ export const AcademyView: React.FC<AcademyViewProps> = ({ onOpenAbout }) => {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 pb-20">
+    <div className="space-y-8 animate-in fade-in duration-500">
       <GradientCard className="p-10 lg:p-14 flex flex-col md:flex-row items-center gap-10">
           <div className="p-8 bg-white/10 rounded-[2.5rem] backdrop-blur-md shadow-2xl border border-white/10 ring-8 ring-white/5 shrink-0">
             <GraduationCap className="w-16 h-16 text-indigo-200" />

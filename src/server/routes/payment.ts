@@ -12,7 +12,7 @@ const MIDTRANS_APP_URL = process.env.NODE_ENV === 'production'
     ? "https://app.midtrans.com/snap/v1/transactions"
     : "https://app.sandbox.midtrans.com/snap/v1/transactions"; // Sandbox
 
-export const paymentRoutes = new Hono()
+export const paymentsRoutes = new Hono()
     .post("/invoices", zValidator("json", z.object({
         amount: z.number().min(1000), // Min 1000 IDR
         items: z.array(z.object({

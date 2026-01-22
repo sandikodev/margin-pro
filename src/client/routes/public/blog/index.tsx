@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2 } from 'lucide-react';
-import { getAllPosts, BlogPost } from '../../../lib/blog';
+import { getAllPosts, BlogPost } from '@/lib/blog';
 
 export const BlogIndex = () => {
     const navigate = useNavigate();

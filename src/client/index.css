@@ -26,8 +26,13 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 @keyframes infinite-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .animate-infinite-scroll {
@@ -35,8 +40,15 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 @keyframes gradient-x {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 .animate-gradient-x {
@@ -45,4 +57,29 @@ input[type="range"]::-webkit-slider-thumb {
 
 .pause {
   animation-play-state: paused;
+}
+
+/* KaTeX Math Block Overflow Handling */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5rem 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.katex-display>.katex {
+  white-space: nowrap;
+}
+
+/* Make math blocks responsive on mobile */
+@media (max-width: 768px) {
+  .katex-display {
+    font-size: 0.9em;
+  }
+}
+
+/* Text wrapping utility */
+.overflow-wrap-anywhere {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }

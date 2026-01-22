@@ -2,9 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { Zap, TrendingUp, Terminal, Sliders } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip, ResponsiveContainer } from 'recharts';
-import { useConfig } from '../../hooks/useConfig';
+import { useConfig } from '@/hooks/useConfig';
 import { PlatformConfig } from '@shared/types';
-import { DashboardSectionHeader } from '../ui/design-system/SectionHeader';
+import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
 
 interface AuditEntry {
   id: string;
