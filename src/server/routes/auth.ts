@@ -21,8 +21,8 @@ export const authRoutes = new Hono()
     .use("/register", authLimiter)
 
     .post("/login", zValidator("json", z.object({
-        email: z.string().email(),
-        password: z.string()
+        email: z.string().trim().email().toLowerCase(),
+        password: z.string().max(100)
     })), async (c) => {
         const { email, password } = c.req.valid("json");
 
@@ -60,10 +60,10 @@ export const authRoutes = new Hono()
     })
 
     .post("/register", zValidator("json", z.object({
-        name: z.string(),
-        email: z.string().email(),
-        password: z.string().min(6),
-        referralCode: z.string().optional()
+        name: z.string().trim().min(2).max(100),
+        email: z.string().trim().email().toLowerCase(),
+        password: z.string().min(6).max(100),
+        referralCode: z.string().trim().optional()
     })), async (c) => {
         const { name, email, password, referralCode } = c.req.valid("json");
 

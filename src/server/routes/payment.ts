@@ -91,12 +91,22 @@ export const paymentsRoutes = new Hono()
           }
         */
 
-        const { order_id, transaction_status, fraud_status, payment_type } = body;
+        const { order_id, transaction_status, fraud_status, payment_type, signature_key, gross_amount, status_code } = body;
+
+        // 0. Verify Signature
+        // Formula: SHA512(order_id + status_code + gross_amount + ServerKey)
+        const { kodaCrypto } = await import("@framework");
+        const localSignature = await kodaCrypto.sha512(order_id + status_code + gross_amount + MIDTRANS_SERVER_KEY);
+
+        if (signature_key !== localSignature) {
+            console.error(`[Security Warning] Invalid Midtrans Signature for order ${order_id}`);
+            return c.json({ error: "Invalid Signature" }, 401);
+        }
 
         // 1. Log Transaction
         await db.insert(transactions).values({
-            orderId: order_id, // Midtrans technically sends transaction_id too, but we key on our OrderID usually or their OrderID depending on flow. Midtrans allows custom OrderID.
-            invoiceId: order_id, // We used invoiceId as order_id
+            orderId: order_id,
+            invoiceId: order_id,
             transactionStatus: transaction_status,
             fraudStatus: fraud_status,
             paymentType: payment_type,
