@@ -1,7 +1,7 @@
 import React from 'react';
 import { Settings2, ShieldCheck } from 'lucide-react';
 import { BentoCard } from '@koda/ui';
-import { Carousel, CarouselItem } from '@/components/ui/Carousel';
+import { Carousel, CarouselItem } from '@koda/ui';
 import { CalculationResult, Platform, Project, PlatformConfig } from '@shared/types';
 
 interface PlatformCardProps {

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Outlet, useSearchParams } from 'react-router-dom';
 import { Project, BusinessProfile, Currency, User, ExchangeRates } from '@shared/types';
+import { Home, LayoutGrid, User as UserIcon, Settings, LogOut, ChevronLeft, ChevronRight, Menu, X, Plus, Sparkles, Receipt, Bell, Search, Info } from 'lucide-react';
+import { FloatingActionMenu, FloatingActionItem } from '@koda/ui';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Layout
 import { Sidebar } from '@/components/layout/Sidebar';
@@ -90,7 +93,6 @@ export const DashboardShell: React.FC = () => {
     deleteProject, toggleFavorite, allProjects, importProjectWithAI, isImporting
   } = useProjects(profile.activeBusinessId || undefined, profile.activeBusiness);
 
-  // Sync active project if needed
   // Sync active project with URL
   useEffect(() => {
     if (activeTab !== 'calc') return;
@@ -98,13 +100,11 @@ export const DashboardShell: React.FC = () => {
     const idParam = searchParams.get('id');
 
     if (idParam && idParam !== activeProjectId) {
-      // URL -> State (if it exists)
       const exists = projects.find(p => p.id === idParam);
       if (exists) {
         setActiveProjectId(idParam);
       }
     } else if (!idParam && activeProjectId) {
-      // State -> URL
       setSearchParams({ id: activeProjectId }, { replace: true });
     }
   }, [projects, activeProjectId, setActiveProjectId, searchParams, setSearchParams, activeTab]);
@@ -128,13 +128,12 @@ export const DashboardShell: React.FC = () => {
   const handleCreateNewProject = () => {
     const newId = createProjectHook();
     setActiveProjectId(newId);
-    navigate(`/app/project?id=${newId}`); // Navigate instead of setState
+    navigate(`/app/project?id=${newId}`);
     setIsSidebarOpen(false);
     showToast("Project baru dibuat", "info");
   };
 
   const handleTabChange = (tab: string) => {
-    // Legacy support for string args, map to routes
     switch (tab) {
       case 'home': navigate('/app'); break;
       case 'calc':
@@ -142,7 +141,7 @@ export const DashboardShell: React.FC = () => {
         break;
       case 'insights':
         navigate('/app/insights');
-        setShowProjectSelector(true); // Keep selector logic
+        setShowProjectSelector(true);
         break;
       case 'market': navigate('/app/market'); break;
       case 'edu': navigate('/app/academia'); break;
@@ -162,7 +161,6 @@ export const DashboardShell: React.FC = () => {
     playSummary(activeProject, formatValue(totalCost), formatValue(activeProject.targetNet));
   };
 
-  // --- CONTEXT VALUE ---
   const outletContext: DashboardOutletContext = {
     projects,
     activeProject,
@@ -225,12 +223,6 @@ export const DashboardShell: React.FC = () => {
           handleAudioSummary={handleAudioSummary}
           setActiveTab={handleTabChange}
           credits={credits || 0}
-          // Header needs credits. We should pull useMarketplace just for credits in Header if needed, 
-          // OR remove it from Header props if it fetches itself. 
-          // Let's check Header.tsx... It takes credits as prop.
-          // For now, let's keep it 0 or fetch it here cleanly if critical.
-          // Optimization: Let's fetch lightweight credit balance here.
-          // Actually, let useMarketplace() run here just for credits.
           activeBusiness={profile.activeBusiness}
           user={user || undefined}
           isProfileEditing={isProfileEditing}
