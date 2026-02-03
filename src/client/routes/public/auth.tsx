@@ -6,6 +6,7 @@ import { useToast } from '@/context/toast-context';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { GradientCard } from '@koda/ui';
+import { trackEvent, TRACKING_EVENTS } from '@/utils/tracking';
 
 // --- FRONTEND AUTH LOGIC ---
 
@@ -114,6 +115,10 @@ export const AuthPage: React.FC<AuthPageProps> = ({
             const data = await res.json();
 
             if (!res.ok) throw new Error(data.error || 'Authentication failed');
+
+            if (activeMode === 'register') {
+                trackEvent(TRACKING_EVENTS.LEAD, { method: 'email' });
+            }
 
             onSuccess(data.user);
         } catch (err) {
