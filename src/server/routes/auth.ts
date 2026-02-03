@@ -1,7 +1,8 @@
 import { hash, compare } from "bcrypt-ts";
 import { Hono } from "hono";
 import { z } from "zod";
-import { zValidator } from "@hono/zod-validator";
+import { koda } from "@framework";
+// import { zValidator } from "@hono/zod-validator";
 import { setCookie, deleteCookie } from "hono/cookie";
 import { sign } from "hono/jwt";
 import { db } from "../db/index";
@@ -20,7 +21,7 @@ export const authRoutes = new Hono()
     .use("/login", authLimiter)
     .use("/register", authLimiter)
 
-    .post("/login", zValidator("json", z.object({
+    .post("/login", koda.validator("json", z.object({
         email: z.string().trim().email().toLowerCase(),
         password: z.string().max(100)
     })), async (c) => {
@@ -59,7 +60,7 @@ export const authRoutes = new Hono()
         });
     })
 
-    .post("/register", zValidator("json", z.object({
+    .post("/register", koda.validator("json", z.object({
         name: z.string().trim().min(2).max(100),
         email: z.string().trim().email().toLowerCase(),
         password: z.string().min(6).max(100),

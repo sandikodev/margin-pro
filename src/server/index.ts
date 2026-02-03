@@ -1,7 +1,8 @@
 import "./env";
 import { Hono, type Context, type Next } from "hono";
 import { koda } from "@framework";
-import { cors } from "hono/cors";
+// import { cors } from "hono/cors"; // Removed direct dependency
+
 import { BusinessProfile, BusinessType } from "@shared/types";
 import { authRoutes } from "./routes/auth";
 import { businessesRoutes } from "./routes/businesses";
@@ -20,7 +21,7 @@ import { requestLogger } from "./middleware/security";
 
 const app = koda();
 
-app.use("*", cors());
+app.use("*", koda.cors());
 app.use("*", requestLogger);
 
 // Koda Security Posture (HSTS, CSP, Rate Limiting)
@@ -184,4 +185,4 @@ app.get("*", async (c: Context, next: Next) => {
 });
 
 export type AppType = typeof apiApp;
-export default app;
+export default koda.serve(app);

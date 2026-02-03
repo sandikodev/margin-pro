@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import { z } from "zod";
-import { zValidator } from "@hono/zod-validator";
+import { koda } from "@framework";
+// import { zValidator } from "@hono/zod-validator";
+
 import { db } from "../db/index";
 import { users, creditTransactions } from "../db/schema";
 import { getSession } from "../middleware/session";
@@ -33,7 +35,7 @@ export const marketplaceRoutes = new Hono()
             }))
         });
     })
-    .post("/spend", zValidator("json", z.object({
+    .post("/spend", koda.validator("json", z.object({
         amount: z.number().positive(),
         itemName: z.string()
     })), async (c) => {
@@ -75,7 +77,7 @@ export const marketplaceRoutes = new Hono()
         return c.json({ success: true, credits: updatedUser?.credits || 0 });
     })
     // Mock Topup for Demo
-    .post("/topup", zValidator("json", z.object({
+    .post("/topup", koda.validator("json", z.object({
         amount: z.number().positive()
     })), async (c) => {
         const session = await getSession(c);

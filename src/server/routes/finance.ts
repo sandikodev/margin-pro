@@ -1,6 +1,7 @@
 
 import { Hono } from "hono";
-import { zValidator } from "@hono/zod-validator";
+import { koda } from "@framework";
+// import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
 import { db } from "../db/index";
 import { liabilities, cashflow } from "../db/schema";
@@ -39,7 +40,7 @@ app.get("/liabilities", async (c) => {
     })));
 });
 
-app.post("/liabilities", zValidator("json", liabilitySchema), async (c) => {
+app.post("/liabilities", koda.validator("json", liabilitySchema), async (c) => {
     const session = await getSession(c);
     if (!session) return c.json({ error: "Unauthorized" }, 401);
 
@@ -67,7 +68,7 @@ app.post("/liabilities", zValidator("json", liabilitySchema), async (c) => {
     return c.json({ success: true, id });
 });
 
-app.put("/liabilities/:id", zValidator("json", liabilitySchema), async (c) => {
+app.put("/liabilities/:id", koda.validator("json", liabilitySchema), async (c) => {
     const session = await getSession(c);
     if (!session) return c.json({ error: "Unauthorized" }, 401);
 

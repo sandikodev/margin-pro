@@ -1,7 +1,8 @@
 
 import { Hono } from "hono";
 import { z } from "zod";
-import { zValidator } from "@hono/zod-validator";
+import { koda } from "@framework";
+// import { zValidator } from "@hono/zod-validator";
 import { db } from "../db/index";
 import { invoices, transactions } from "../db/schema";
 import { eq } from "drizzle-orm";
@@ -13,7 +14,7 @@ const MIDTRANS_APP_URL = process.env.NODE_ENV === 'production'
     : "https://app.sandbox.midtrans.com/snap/v1/transactions"; // Sandbox
 
 export const paymentsRoutes = new Hono()
-    .post("/invoices", zValidator("json", z.object({
+    .post("/invoices", koda.validator("json", z.object({
         amount: z.number().min(1000), // Min 1000 IDR
         items: z.array(z.object({
             id: z.string(),

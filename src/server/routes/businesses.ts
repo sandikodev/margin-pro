@@ -1,6 +1,7 @@
 
 import { Hono } from "hono";
-import { zValidator } from "@hono/zod-validator";
+import { koda } from "@framework";
+// import { zValidator } from "@hono/zod-validator";
 import { eq, and } from "drizzle-orm";
 import { db } from "../db/index";
 import { businesses } from "../db/schema";
@@ -54,7 +55,7 @@ const app = new Hono()
 
         return c.json(flatList);
     })
-    .post("/", zValidator("json", businessSchema), async (c) => {
+    .post("/", koda.validator("json", businessSchema), async (c) => {
         const session = await getSession(c);
         if (!session) return c.json({ error: "Unauthorized" }, 401);
 
@@ -82,7 +83,7 @@ const app = new Hono()
 
         return c.json({ success: true, id });
     })
-    .put("/:id", zValidator("json", businessSchema), async (c) => {
+    .put("/:id", koda.validator("json", businessSchema), async (c) => {
         const session = await getSession(c);
         if (!session) return c.json({ error: "Unauthorized" }, 401);
 
