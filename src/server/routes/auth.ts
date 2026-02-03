@@ -16,7 +16,7 @@ if (JWT_SECRET === "fallback_secret_for_dev_only_change_in_prod" && process.env.
     throw new Error("FATAL: You are using the default insecure JWT_SECRET in production. Change it immediately.");
 }
 
-export const authRoutes = new Hono()
+export const authRoutes = koda.router()
     .use("*", sessionMiddleware) // Apply session middleware to everything here (mostly for /me)
     .use("/login", authLimiter)
     .use("/register", authLimiter)

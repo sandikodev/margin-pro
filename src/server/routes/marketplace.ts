@@ -8,7 +8,7 @@ import { users, creditTransactions } from "../db/schema";
 import { getSession } from "../middleware/session";
 import { eq, desc } from "drizzle-orm";
 
-export const marketplaceRoutes = new Hono()
+export const marketplaceRoutes = koda.router()
     .get("/balance", async (c) => {
         const session = await getSession(c);
         if (!session) return c.json({ error: "Unauthorized" }, 401);

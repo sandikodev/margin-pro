@@ -3,7 +3,9 @@ import { Hono } from "hono";
 import { db } from "../db/index";
 import { systemSettings, platforms, translations } from "../db/schema";
 
-export const configsRoutes = new Hono()
+import { koda } from "@framework";
+
+export const configsRoutes = koda.router()
     .get("/", async (c) => {
         const [settings, allPlatforms, allTranslations] = await Promise.all([
             db.select().from(systemSettings),

@@ -9,11 +9,11 @@ import { liabilitySchema, cashflowSchema } from "../../shared/schemas";
 import { TransactionCategory } from "../../shared/types";
 import { getSession } from "../middleware/session";
 
-const app = new Hono();
+export const financeRoutes = koda.router();
 
 // --- LIABILITIES ---
 
-app.get("/liabilities", async (c) => {
+financeRoutes.get("/liabilities", async (c) => {
     const session = await getSession(c);
     if (!session) return c.json({ error: "Unauthorized" }, 401);
 
@@ -40,7 +40,7 @@ app.get("/liabilities", async (c) => {
     })));
 });
 
-app.post("/liabilities", koda.validator("json", liabilitySchema), async (c) => {
+financeRoutes.post("/liabilities", koda.validator("json", liabilitySchema), async (c) => {
     const session = await getSession(c);
     if (!session) return c.json({ error: "Unauthorized" }, 401);
 
@@ -68,7 +68,7 @@ app.post("/liabilities", koda.validator("json", liabilitySchema), async (c) => {
     return c.json({ success: true, id });
 });
 
-app.put("/liabilities/:id", koda.validator("json", liabilitySchema), async (c) => {
+financeRoutes.put("/liabilities/:id", koda.validator("json", liabilitySchema), async (c) => {
     const session = await getSession(c);
     if (!session) return c.json({ error: "Unauthorized" }, 401);
 
@@ -96,7 +96,7 @@ app.put("/liabilities/:id", koda.validator("json", liabilitySchema), async (c) =
     return c.json({ success: true });
 });
 
-app.delete("/liabilities/:id", async (c) => {
+financeRoutes.delete("/liabilities/:id", async (c) => {
     const session = await getSession(c);
     if (!session) return c.json({ error: "Unauthorized" }, 401);
     const id = c.req.param("id");
@@ -116,7 +116,7 @@ app.delete("/liabilities/:id", async (c) => {
 
 // --- CASHFLOW ---
 
-app.get("/cashflow", async (c) => {
+financeRoutes.get("/cashflow", async (c) => {
     const session = await getSession(c);
     if (!session) return c.json({ error: "Unauthorized" }, 401);
 
@@ -137,7 +137,7 @@ app.get("/cashflow", async (c) => {
     })));
 });
 
-app.post("/cashflow", zValidator("json", cashflowSchema), async (c) => {
+financeRoutes.post("/cashflow", koda.validator("json", cashflowSchema), async (c) => {
     const session = await getSession(c);
     if (!session) return c.json({ error: "Unauthorized" }, 401);
 
@@ -164,7 +164,7 @@ app.post("/cashflow", zValidator("json", cashflowSchema), async (c) => {
     return c.json({ success: true, id });
 });
 
-app.delete("/cashflow/:id", async (c) => {
+financeRoutes.delete("/cashflow/:id", async (c) => {
     const session = await getSession(c);
     if (!session) return c.json({ error: "Unauthorized" }, 401);
     const id = c.req.param("id");
@@ -181,4 +181,4 @@ app.delete("/cashflow/:id", async (c) => {
     return c.json({ success: true });
 });
 
-export { app as financeRoutes };
+// export { app as financeRoutes }; // Removed in favor of direct export above

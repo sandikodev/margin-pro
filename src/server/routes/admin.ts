@@ -8,7 +8,7 @@ import { systemSettings, platforms, translations, users, invoices } from "../db/
 import { eq, desc } from "drizzle-orm";
 import { sessionMiddleware, requireRole } from "../middleware/session";
 
-export const adminRoutes = new Hono()
+export const adminRoutes = koda.router()
     .use("*", sessionMiddleware)
     .use("*", requireRole(["super_admin"]))
 

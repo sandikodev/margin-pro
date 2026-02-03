@@ -13,7 +13,7 @@ const MIDTRANS_APP_URL = process.env.NODE_ENV === 'production'
     ? "https://app.midtrans.com/snap/v1/transactions"
     : "https://app.sandbox.midtrans.com/snap/v1/transactions"; // Sandbox
 
-export const paymentsRoutes = new Hono()
+export const paymentsRoutes = koda.router()
     .post("/invoices", koda.validator("json", z.object({
         amount: z.number().min(1000), // Min 1000 IDR
         items: z.array(z.object({

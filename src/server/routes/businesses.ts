@@ -9,7 +9,7 @@ import { BusinessType } from "../../shared/types";
 import { businessSchema } from "../../shared/schemas";
 import { getSession } from "../middleware/session";
 
-const app = new Hono()
+export const businessesRoutes = koda.router()
     .get("/:id", async (c) => {
         const session = await getSession(c);
         if (!session) return c.json({ error: "Unauthorized" }, 401);
@@ -131,5 +131,3 @@ const app = new Hono()
 
         return c.json({ success: true });
     });
-
-export { app as businessesRoutes };
