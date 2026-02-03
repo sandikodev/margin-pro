@@ -140,9 +140,12 @@ app.get("*", async (c: Context, next: Next) => {
     // Inject SEO Tags
     html = html.replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
         .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="${description}">`)
-        .replace(/<meta property="og:title" content=".*?">/, `<meta property="og:title" content="${title}">`)
-        .replace(/<meta property="og:description" content=".*?">/, `<meta property="og:description" content="${description}">`)
-        .replace(/<meta property="og:image" content=".*?">/, `<meta property="og:image" content="${image}">`);
+        .replace(/<meta property="og:title" content=".*?">/g, `<meta property="og:title" content="${title}">`)
+        .replace(/<meta property="og:description" content=".*?">/g, `<meta property="og:description" content="${description}">`)
+        .replace(/<meta property="og:image" content=".*?">/g, `<meta property="og:image" content="${image}">`)
+        .replace(/<meta property="twitter:title" content=".*?">/g, `<meta property="twitter:title" content="${title}">`)
+        .replace(/<meta property="twitter:description" content=".*?">/g, `<meta property="twitter:description" content="${description}">`)
+        .replace(/<meta property="twitter:image" content=".*?">/g, `<meta property="twitter:image" content="${image}">`);
 
     // --- SSR HYDRATION DATA ---
     const hydrationData: Record<string, unknown> = {};
