@@ -1,3 +1,9 @@
+/**
+ * 📈 Margins Pro: Professional SaaS Application
+ * Project Ownership: PT Koneksi Jaringan Indonesia
+ * Engineering Team: Kopikonfig
+ * Architecture: Powered by Koda Zenith
+ */
 import React, { Suspense } from 'react';
 import { RouterProvider } from 'react-router-dom';
 
@@ -22,7 +28,7 @@ export const App: React.FC = () => {
     return (
         <ToastProvider>
             <AuthProvider>
-                <Suspense fallback={<FullPageLoader />}>
+                <Suspense fallback={<div style={{ padding: 20, color: 'blue' }}>System Loading (Router Suspense)...</div>}>
                     <RouterProvider router={router} />
                 </Suspense>
             </AuthProvider>

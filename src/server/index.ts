@@ -1,3 +1,9 @@
+/**
+ * 📈 Margins Pro: Professional SaaS Application
+ * Project Ownership: PT Koneksi Jaringan Indonesia
+ * Engineering Team: Kopikonfig
+ * Architecture: Powered by Koda Zenith
+ */
 import "./env";
 import { Hono, type Context, type Next } from "hono";
 import { koda } from "@framework";
@@ -45,7 +51,15 @@ app.onError((err: Error, c: Context) => {
 });
 
 app.notFound((c: Context) => {
-    return c.json({ error: "Endpoint not found" }, 404);
+    // Only return 404 for API routes. 
+    // For other routes, let the downstream handler (Vite) decide.
+    if (c.req.path.startsWith("/api")) {
+        return c.json({ error: "Endpoint not found" }, 404);
+    }
+    // Returning undefined/calling nothing might work depending on adapter,
+    // but returning a 404 text is standard Hono. 
+    // If Vite overrides this, great. If not, at least it's not JSON.
+    return c.text("Not Found", 404);
 });
 
 // --- RPC Routes ---
@@ -76,6 +90,19 @@ app.get("*", async (c: Context, next: Next) => {
 
     // Skip API routes
     if (url.pathname.startsWith("/api")) {
+        return next();
+    }
+
+    // Only serve HTML for requests that explicitly accept valid HTML 
+    // AND are not API/static/koda internal paths.
+    // This allows Vite to handle .tsx imports correctly (which accept application/javascript or */*)
+    const accept = c.req.header("accept") || "";
+    if (!accept.includes("text/html")) {
+        return next();
+    }
+
+    // Double safety: Skip explicit static extensions if Accept header is ambiguous
+    if (url.pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js|jsx|ts|tsx|json|wasm|map)$/)) {
         return next();
     }
 
@@ -119,21 +146,36 @@ app.get("*", async (c: Context, next: Next) => {
         // Bun/Node Local modes
         const targetFile = koda.env.isDev ? "index.html" : "./dist/index.html";
         const bun = (globalThis as unknown as { Bun?: { file: (p: string) => { text: () => Promise<string> } } }).Bun;
-        html = bun ? await bun.file(targetFile).text() : "";
+
+        try {
+            if (bun) {
+                html = await bun.file(targetFile).text();
+            } else {
+                // Fallback for Node (if ever used)
+                const fs = await import('fs/promises');
+                html = await fs.readFile(targetFile, 'utf-8');
+            }
+        } catch (e) {
+            html = `<html><body style="background:red; color:white; padding:50px;"><h1>CRITICAL SERVER ERROR</h1><pre>${String(e)}</pre></body></html>`;
+        }
+
+        if (!html || html.length === 0) {
+            html = `<html><body style="background:blue; color:white; padding:50px;"><h1>SERVER ERROR: EMPTY HTML</h1><p>The server read the file but got 0 bytes.</p></body></html>`;
+        }
 
         if (koda.env.isDev) {
             // Inject Vite Client & React Preamble
             html = html.replace(
                 "<head>",
                 `<head>
-        <script type="module">
-          import RefreshRuntime from "/@react-refresh"
-          RefreshRuntime.injectIntoGlobalHook(window)
-          window.$RefreshReg$ = () => {}
-          window.$RefreshSig$ = () => (type) => type
-          window.__vite_plugin_react_preamble_installed__ = true
-        </script>
-        <script type="module" src="/@vite/client"></script>`
+    <script type="module">
+      import RefreshRuntime from "/@react-refresh"
+      RefreshRuntime.injectIntoGlobalHook(window)
+      window.$RefreshReg$ = () => {}
+      window.$RefreshSig$ = () => (type) => type
+      window.__vite_plugin_react_preamble_installed__ = true
+    </script>
+    <script type="module" src="/@vite/client"></script>`
             );
         }
     }

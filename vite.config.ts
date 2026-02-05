@@ -2,7 +2,7 @@ import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import devServer from '@hono/vite-dev-server';
+import { koda } from '@koda/vite';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
@@ -10,33 +10,23 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       host: '0.0.0.0',
-      proxy: {}, // No proxy needed, using @hono/vite-dev-server
+      proxy: {}, // No proxy needed, handled by koda()
       hmr: {
         overlay: false
+      },
+      fs: {
+        // Allow serving files from one level up to the project root
+        allow: ['..', '.']
       }
     },
     plugins: [
       react(),
       tailwindcss(),
-      devServer({
-        entry: 'src/server/index.ts',
-        exclude: [
-          /.*\.css/,
-          /.*\.svg/,
-          /.*\.png/,
-          /.*\.jpg/,
-          /.*\.jpeg/,
-          /.*\.gif/,
-          /.*\.webp/,
-          /.*\.woff2?/,
-          /.*\.ttf/,
-          /.*\.otf/,
-          /.*\.eot/,
-          /^\/@vite\/client/,
-          /^\/@react-refresh/,
-          /^\/src\/.*/,
-          /^\/node_modules\/.*/,
-        ],
+      koda({
+        server: {
+          entry: 'src/server/index.ts',
+          bundler: 'tsdown',
+        },
       }),
     ],
     test: {
@@ -113,6 +103,13 @@ export default defineConfig(({ mode }) => {
         '@framework': path.resolve(__dirname, './packages/koda/packages/server/src'),
         '@koda/core': path.resolve(__dirname, './packages/koda/packages/core/src'),
         '@koda/ui': path.resolve(__dirname, './packages/koda/packages/ui/src'),
+        '@koda/signals/react': path.resolve(__dirname, './packages/koda/packages/signals/src/react.ts'),
+        '@koda/signals/vue': path.resolve(__dirname, './packages/koda/packages/signals/src/vue.ts'),
+        '@koda/signals/solid': path.resolve(__dirname, './packages/koda/packages/signals/src/solid.ts'),
+        '@koda/signals/preact': path.resolve(__dirname, './packages/koda/packages/signals/src/preact.ts'),
+        '@koda/signals': path.resolve(__dirname, './packages/koda/packages/signals/src'),
+        '@koda/turbo': path.resolve(__dirname, './packages/koda/packages/turbo/src'),
+        '@apex': path.resolve(__dirname, './.koda'),
       }
     }
   };
