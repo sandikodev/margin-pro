@@ -84,22 +84,30 @@ export const OnboardingWizard: React.FC<OnboardingProps> = ({ onComplete }) => {
                      <p className="text-sm text-slate-500">Kami akan menyesuaikan parameter perhitungan untuk Anda.</p>
                   </div>
                   <div className="grid grid-cols-1 gap-3">
-                     {businessTypes.map((type) => (
-                        <button
-                           key={type.id}
-                           onClick={() => setData({ ...data, type: type.id as BusinessProfile['type'] })}
-                           className={`p-4 rounded-2xl border-2 text-left flex items-center gap-4 transition-all active:scale-95 ${data.type === type.id ? 'border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600' : 'border-slate-100 bg-white hover:border-indigo-200'}`}
-                        >
-                           <div className={`p-3 rounded-xl ${data.type === type.id ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                              <type.icon className="w-5 h-5" />
-                           </div>
-                           <div>
-                              <h4 className={`font-black text-sm ${data.type === type.id ? 'text-indigo-900' : 'text-slate-800'}`}>{type.label}</h4>
-                              <p className="text-[10px] text-slate-500 font-medium">{type.desc}</p>
-                           </div>
-                           {data.type === type.id && <Check className="w-5 h-5 text-indigo-600 ml-auto" />}
-                        </button>
-                     ))}
+                     {businessTypes.map((type) => {
+                        const isActive = data.type === type.id;
+                        const btnClass = `p-4 rounded-2xl border-2 text-left flex items-center gap-4 transition-all active:scale-[0.98] ${isActive
+                              ? 'border-indigo-600 bg-indigo-50 ring-1 ring-indigo-600'
+                              : 'border-slate-100 bg-white hover:border-indigo-200'
+                           }`;
+
+                        return (
+                           <button
+                              key={type.id}
+                              onClick={() => setData({ ...data, type: type.id as BusinessProfile['type'] })}
+                              className={btnClass}
+                           >
+                              <div className={`p-3 rounded-xl ${isActive ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                                 <type.icon className="w-5 h-5" />
+                              </div>
+                              <div>
+                                 <h4 className={`font-black text-sm ${isActive ? 'text-indigo-900' : 'text-slate-800'}`}>{type.label}</h4>
+                                 <p className="text-[10px] text-slate-500 font-medium">{type.desc}</p>
+                              </div>
+                              {isActive && <Check className="w-5 h-5 text-indigo-600 ml-auto" />}
+                           </button>
+                        );
+                     })}
                   </div>
                </div>
             )}

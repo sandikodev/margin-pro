@@ -6,7 +6,7 @@ import { OperationalContext } from '@/components/calculator/OperationalContext';
 import { CostList } from '@/components/calculator/CostList';
 import { PricingStrategySection } from '@/components/calculator/PricingStrategySection';
 import { ExportActions } from '@/components/features/calculator/ExportActions';
-import { FloatingActionMenu, FloatingActionItem } from '@/components/ui/FloatingActionMenu';
+import { FloatingActionMenu, FloatingActionItem } from '@koda/ui';
 import { calculateTotalHPP } from '@/lib/utils';
 import { generateIntelligencePDF, downloadProjectJSON, copyProjectToClipboard } from '@/lib/export-service';
 import { useConfig } from '@/hooks/useConfig';
