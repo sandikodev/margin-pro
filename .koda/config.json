@@ -1,0 +1,6 @@
+{
+  "server": {
+    "entry": "src/server/index.ts",
+    "bundler": "tsdown"
+  }
+}

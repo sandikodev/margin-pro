@@ -1,9 +1,8 @@
 import React from 'react';
 import { Wallet, ShoppingCart, Package, Zap, Building2, HelpCircle, Plus } from 'lucide-react';
 import { CashflowRecord, TransactionCategory } from '@shared/types';
-import { BentoCard } from '@koda/ui';
+import { BentoCard, FloatingActionMenu, FloatingActionItem } from '@koda/ui';
 import { DashboardSectionHeader } from '@/components/ui/design-system/SectionHeader';
-import { FloatingActionMenu, FloatingActionItem } from '@/components/ui/FloatingActionMenu';
 
 interface JournalTabProps {
     groupedCashflow: Record<string, CashflowRecord[]>;

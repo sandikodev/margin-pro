@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Home, ArrowLeft, Terminal, Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useErrorDX } from '@framework/dx';
+import { useErrorDX } from '@koda/core/dx';
 
 export const PublicErrorPage: React.FC = () => {
     const {

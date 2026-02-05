@@ -10,11 +10,10 @@ import { Liability, CashflowRecord, Project, TransactionCategory, BusinessProfil
 import { FINANCIAL_DEFAULTS } from '@shared/constants';
 import { calculateLoanPayment } from '@/lib/utils';
 import { Modal } from '@/components/ui/Modal';
-import { FloatingActionItem } from '@/components/ui/FloatingActionMenu';
+import { BentoCard, FloatingActionItem } from '@koda/ui';
 import { TabNavigation, TabItem } from '@/components/ui/TabNavigation';
 import { useToast } from '@/context/toast-context';
 import { useFinanceAnalytics } from '@/hooks/useFinanceAnalytics';
-import { BentoCard } from '@koda/ui';
 
 // Modular Components
 import { JournalTab } from './components/JournalTab';

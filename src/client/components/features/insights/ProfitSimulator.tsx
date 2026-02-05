@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { LayoutGrid, Utensils, Store, Box, Globe, Sliders, PieChart } from 'lucide-react';
 import { CalculationResult, Platform, Project, PlatformOverrides, Currency, BusinessProfile } from '@shared/types';
 import { calculateTotalHPP } from '@/lib/utils';
-import { FloatingActionMenu } from '@/components/ui/FloatingActionMenu';
+import { FloatingActionMenu } from '@koda/ui';
 import { TabNavigation, TabItem } from '@/components/ui/TabNavigation';
 import { useConfig } from '@/hooks/useConfig';
 

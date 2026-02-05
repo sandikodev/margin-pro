@@ -8,10 +8,10 @@ import { useCurrency } from './hooks/useCurrency';
 import { useMarketplace } from './hooks/useMarketplace';
 import type { DashboardOutletContext } from './components/layout/DashboardShell';
 
-// Public Routes
-import { LandingPage } from './routes/public/landing';
-import { AuthPage } from './routes/public/auth';
-import { DemoTour } from './routes/public/demo-tour';
+// Public Routes (Views)
+import { LandingPage } from './components/views/LandingPage';
+import { AuthPage } from './components/views/AuthPage';
+import { DemoTour } from './components/views/DemoTour';
 
 // Lazy Apps
 const OnboardingWizard = React.lazy(() => import('./routes/app/onboarding').then(module => ({ default: module.OnboardingWizard })));
