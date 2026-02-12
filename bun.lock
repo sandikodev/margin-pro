@@ -71,12 +71,39 @@
         "vitest": "^4.0.17",
       },
     },
+    "packages/koda/packages/bridge": {
+      "name": "@koda/bridge",
+      "version": "0.1.0",
+      "dependencies": {
+        "@koda/signals": "workspace:*",
+      },
+      "peerDependencies": {
+        "react": ">=18",
+        "react-dom": ">=18",
+      },
+    },
+    "packages/koda/packages/cli": {
+      "name": "@koda/cli",
+      "version": "0.1.0",
+      "bin": {
+        "koda": "./src/index.ts",
+      },
+      "dependencies": {
+        "@koda/core": "workspace:*",
+        "commander": "^13.1.0",
+        "picocolors": "^1.1.1",
+      },
+    },
+    "packages/koda/packages/compiler": {
+      "name": "@koda/compiler",
+      "version": "0.1.0",
+      "devDependencies": {
+        "typescript": "~5.8.2",
+      },
+    },
     "packages/koda/packages/core": {
       "name": "@koda/core",
       "version": "0.1.0",
-      "bin": {
-        "koda": "./src/cli/index.ts",
-      },
       "dependencies": {
         "@types/marked": "^6.0.0",
         "clsx": "^2.1.1",
@@ -96,10 +123,31 @@
         "react-dom": "^19.0.0",
       },
     },
+    "packages/koda/packages/server": {
+      "name": "@koda/server",
+      "version": "0.1.0",
+      "dependencies": {
+        "@koda/core": "workspace:*",
+        "hono": "^4.11.4",
+        "hono-rate-limiter": "^0.5.3",
+      },
+    },
+    "packages/koda/packages/signals": {
+      "name": "@koda/signals",
+      "version": "0.1.0",
+    },
+    "packages/koda/packages/tokens": {
+      "name": "@koda/tokens",
+      "version": "0.1.0",
+      "devDependencies": {
+        "typescript": "~5.8.2",
+      },
+    },
     "packages/koda/packages/ui": {
       "name": "@koda/ui",
       "version": "0.1.0",
       "dependencies": {
+        "@koda/signals": "workspace:*",
         "clsx": "^2.1.0",
         "framer-motion": "^12.26.2",
         "lucide-react": "^0.473.0",
@@ -324,7 +372,19 @@
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
 
+    "@koda/bridge": ["@koda/bridge@workspace:packages/koda/packages/bridge"],
+
+    "@koda/cli": ["@koda/cli@workspace:packages/koda/packages/cli"],
+
+    "@koda/compiler": ["@koda/compiler@workspace:packages/koda/packages/compiler"],
+
     "@koda/core": ["@koda/core@workspace:packages/koda/packages/core"],
+
+    "@koda/server": ["@koda/server@workspace:packages/koda/packages/server"],
+
+    "@koda/signals": ["@koda/signals@workspace:packages/koda/packages/signals"],
+
+    "@koda/tokens": ["@koda/tokens@workspace:packages/koda/packages/tokens"],
 
     "@koda/ui": ["@koda/ui@workspace:packages/koda/packages/ui"],
 
@@ -766,7 +826,7 @@
 
     "comma-separated-tokens": ["comma-separated-tokens@2.0.3", "", {}, "sha512-Fu4hJdvzeylCfQPp9SGWidpzrMs7tTrlu6Vb8XGaRGck8QSNZJJp538Wrb60Lax4fPwR64ViY468OIUTbRlGZg=="],
 
-    "commander": ["commander@8.3.0", "", {}, "sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww=="],
+    "commander": ["commander@13.1.0", "", {}, "sha512-/rFeCpNJQbhSZjGVwO9RFV3xPqbnERS8MmIQzCtD/zl6gpJuV/bMLuN92oG3F7d8oDEHHRrujSXNUr8fpjntKw=="],
 
     "concat-map": ["concat-map@0.0.1", "", {}, "sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg=="],
 
@@ -1709,6 +1769,8 @@
     "eslint/minimatch": ["minimatch@3.1.2", "", { "dependencies": { "brace-expansion": "^1.1.7" } }, "sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw=="],
 
     "hast-util-from-html/parse5": ["parse5@7.3.0", "", { "dependencies": { "entities": "^6.0.0" } }, "sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw=="],
+
+    "katex/commander": ["commander@8.3.0", "", {}, "sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww=="],
 
     "libsql/detect-libc": ["detect-libc@2.0.2", "", {}, "sha512-UX6sGumvvqSaXgdKGUsgZWqcUyIXZ/vZTrlRT/iobiKhGL0zL4d3osHj3uqllWJK+i+sixDS/3COVEOFbupFyw=="],
 
