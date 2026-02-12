@@ -69,15 +69,15 @@ export async function renderStream(request: Request, template: string) {
                         controller.enqueue(value);
                     }
 
-                    controller.enqueue(encoder.encode('</div>'));
-
-                    // 💉 Institutional Grade Hydration: Restore data injection
+                    // 💉 Institutional Grade Hydration: Inject data BEFORE closing div
                     try {
                         const hydrationScript = `<script>window.__staticRouterHydrationData = ${JSON.stringify(context)};</script>`;
                         controller.enqueue(encoder.encode(hydrationScript));
                     } catch (serializationError) {
                         console.error('🏔️ [Zenith SSR] Hydration Serialization Error:', serializationError);
                     }
+
+                    controller.enqueue(encoder.encode('</div>'));
 
                     controller.enqueue(encoder.encode(tail));
                     controller.close();
