@@ -4,13 +4,13 @@ import { z } from "zod";
 // --- Business Profile Schema ---
 
 export const businessSchema = z.object({
-    id: z.string().optional(), // Server generated on insert, but explicit on update
-    name: z.string().min(3, "Nama bisnis minimal 3 karakter"),
+    id: z.string().optional(), 
+    name: z.string().trim().min(3, "Nama bisnis minimal 3 karakter").max(100, "Nama bisnis terlalu panjang"),
     type: z.enum(['fnb_offline', 'fnb_online', 'retail', 'services', 'manufacturing', 'fashion', 'digital', 'coffee']),
-    description: z.string().optional(),
+    description: z.string().trim().max(500, "Deskripsi terlalu panjang").optional(),
 
     // Contact
-    ownerName: z.string().optional(),
+    ownerName: z.string().trim().max(100).optional(),
     email: z.string().email("Format email salah").optional().or(z.literal('')),
     phone: z.string().optional(),
 
