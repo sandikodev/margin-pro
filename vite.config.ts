@@ -13,10 +13,6 @@ export default defineConfig(({ mode }) => {
       proxy: {}, // No proxy needed, handled by koda()
       hmr: {
         overlay: false
-      },
-      fs: {
-        // Allow serving files from one level up to the project root
-        allow: ['..', '.']
       }
     },
     plugins: [
@@ -26,7 +22,11 @@ export default defineConfig(({ mode }) => {
         server: {
           entry: 'src/server/index.ts',
           bundler: 'tsdown',
+          exclude: ['/packages/**']
         },
+        ui: {
+          rigidity: 'strict'
+        }
       }),
     ],
     test: {
@@ -36,11 +36,27 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+    },
+    optimizeDeps: {
+      include: ['react-router', 'react-router-dom'],
+    },
+    ssr: {
+      // Force bundling of these packages during SSR to avoid CommonJS/ESM issues
+      noExternal: ['react-router', 'react-router-dom'],
+      resolve: {
+        conditions: ['module', 'import', 'default'],
+        externalConditions: ['node']
+      }
     },
     build: {
       chunkSizeWarningLimit: 1000,
       rollupOptions: {
+        external: [
+          // Server-only modules (should not be bundled for client)
+          /^@\/lib\/blog$/,
+          /^@\/lib\/legal$/,
+        ],
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
@@ -92,24 +108,6 @@ export default defineConfig(({ mode }) => {
             }
           }
         }
-      }
-    },
-    resolve: {
-      alias: {
-        '@': path.resolve(__dirname, './src/client'),
-        '@client': path.resolve(__dirname, './src/client'),
-        '@server': path.resolve(__dirname, './src/server'),
-        '@shared': path.resolve(__dirname, './src/shared'),
-        '@framework': path.resolve(__dirname, './packages/koda/packages/server/src'),
-        '@koda/core': path.resolve(__dirname, './packages/koda/packages/core/src'),
-        '@koda/ui': path.resolve(__dirname, './packages/koda/packages/ui/src'),
-        '@koda/signals/react': path.resolve(__dirname, './packages/koda/packages/signals/src/react.ts'),
-        '@koda/signals/vue': path.resolve(__dirname, './packages/koda/packages/signals/src/vue.ts'),
-        '@koda/signals/solid': path.resolve(__dirname, './packages/koda/packages/signals/src/solid.ts'),
-        '@koda/signals/preact': path.resolve(__dirname, './packages/koda/packages/signals/src/preact.ts'),
-        '@koda/signals': path.resolve(__dirname, './packages/koda/packages/signals/src'),
-        '@koda/turbo': path.resolve(__dirname, './packages/koda/packages/turbo/src'),
-        '@apex': path.resolve(__dirname, './.koda'),
       }
     }
   };

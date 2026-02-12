@@ -24,7 +24,24 @@ export default tseslint.config(
                 { allowConstantExport: true },
             ],
             "@typescript-eslint/no-explicit-any": "warn",
-            "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }]
+            "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+
+            // ESM Enforcement - Koda Zenith is ESM-only
+            "no-restricted-syntax": [
+                "error",
+                {
+                    "selector": "CallExpression[callee.name='require']",
+                    "message": "🏔️ Koda Zenith is ESM-only. Use 'import' instead of 'require()'"
+                },
+                {
+                    "selector": "MemberExpression[object.name='module'][property.name='exports']",
+                    "message": "🏔️ Koda Zenith is ESM-only. Use 'export' instead of 'module.exports'"
+                },
+                {
+                    "selector": "Identifier[name='__dirname'], Identifier[name='__filename']",
+                    "message": "🏔️ Koda Zenith is ESM-only. Use 'import.meta.url' instead of '__dirname/__filename'"
+                }
+            ]
         },
     },
 );

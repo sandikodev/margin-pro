@@ -13,6 +13,8 @@
         "@koda/cli": "workspace:*",
         "@koda/core": "workspace:*",
         "@koda/server": "workspace:*",
+        "@koda/signals": "workspace:*",
+        "@koda/turbo": "workspace:*",
         "@koda/ui": "workspace:*",
         "@koda/vite": "workspace:*",
         "@libsql/client": "^0.17.0",
@@ -26,6 +28,7 @@
         "clsx": "^2.1.1",
         "drizzle-orm": "^0.45.1",
         "framer-motion": "^12.26.2",
+        "hono": "4.11.4",
         "hono-rate-limiter": "^0.5.3",
         "jspdf": "^4.0.0",
         "katex": "^0.16.27",
@@ -34,6 +37,7 @@
         "react": "^19.2.3",
         "react-dom": "^19.2.3",
         "react-markdown": "^10.1.0",
+        "react-router": "7.12.0",
         "react-router-dom": "^7.12.0",
         "recharts": "^3.6.0",
         "rehype-katex": "^7.0.1",
@@ -92,7 +96,7 @@
     },
     "packages/koda/packages/cli": {
       "name": "@koda/cli",
-      "version": "0.1.0",
+      "version": "0.1.0-zenith",
       "bin": {
         "koda": "./src/index.ts",
       },
@@ -154,6 +158,24 @@
         "@types/node": "^20.0.0",
       },
     },
+    "packages/koda/packages/runtime": {
+      "name": "@koda/runtime",
+      "version": "0.1.0",
+      "dependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "react-router-dom": "^7.0.0",
+      },
+      "devDependencies": {
+        "@types/react": "^19.2.9",
+        "@types/react-dom": "^19.0.4",
+        "typescript": "~5.8.2",
+      },
+      "peerDependencies": {
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+      },
+    },
     "packages/koda/packages/server": {
       "name": "@koda/server",
       "version": "0.1.0",
@@ -166,13 +188,20 @@
     },
     "packages/koda/packages/signals": {
       "name": "@koda/signals",
-      "version": "0.1.0",
+      "version": "0.1.0-zenith",
     },
     "packages/koda/packages/tokens": {
       "name": "@koda/tokens",
       "version": "0.1.0",
       "devDependencies": {
         "typescript": "~5.8.2",
+      },
+    },
+    "packages/koda/packages/turbo": {
+      "name": "@koda/turbo",
+      "version": "0.1.0-zenith",
+      "dependencies": {
+        "@koda/core": "workspace:*",
       },
     },
     "packages/koda/packages/ui": {
@@ -433,11 +462,15 @@
 
     "@koda/create-app": ["@koda/create-app@workspace:packages/koda/packages/create-app"],
 
+    "@koda/runtime": ["@koda/runtime@workspace:packages/koda/packages/runtime"],
+
     "@koda/server": ["@koda/server@workspace:packages/koda/packages/server"],
 
     "@koda/signals": ["@koda/signals@workspace:packages/koda/packages/signals"],
 
     "@koda/tokens": ["@koda/tokens@workspace:packages/koda/packages/tokens"],
+
+    "@koda/turbo": ["@koda/turbo@workspace:packages/koda/packages/turbo"],
 
     "@koda/ui": ["@koda/ui@workspace:packages/koda/packages/ui"],
 
