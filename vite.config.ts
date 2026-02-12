@@ -35,6 +35,9 @@ export default defineConfig(({ mode }) => {
           /^\/@vite\/client/,
           /^\/@react-refresh/,
           /^\/src\/.*/,
+          /^\/packages\/.*/,
+          /^\/@fs\/.*/,
+          /^\/@id\/.*/,
           /^\/node_modules\/.*/,
         ],
       }),
@@ -110,9 +113,10 @@ export default defineConfig(({ mode }) => {
         '@client': path.resolve(__dirname, './src/client'),
         '@server': path.resolve(__dirname, './src/server'),
         '@shared': path.resolve(__dirname, './src/shared'),
-        '@framework': path.resolve(__dirname, './packages/koda/packages/core/src'),
-        '@koda/core': path.resolve(__dirname, './packages/koda/packages/core/src'),
-        '@koda/ui': path.resolve(__dirname, './packages/koda/packages/ui/src'),
+        '@framework/dx': path.resolve(__dirname, './packages/koda/packages/core/src/dx'),
+        '@framework': path.resolve(__dirname, './packages/koda/packages/server/src/index.ts'),
+        '@koda/core': path.resolve(__dirname, './packages/koda/packages/core/src/index.ts'),
+        '@koda/ui': path.resolve(__dirname, './packages/koda/packages/ui/src/index.ts'),
       }
     }
   };

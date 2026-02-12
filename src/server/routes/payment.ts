@@ -106,7 +106,7 @@ export const paymentsRoutes = new Hono()
         // 1. Log Transaction
         await db.insert(transactions).values({
             orderId: order_id,
-            invoiceId: order_id
+            invoiceId: order_id,
             transactionStatus: transaction_status,
             fraudStatus: fraud_status,
             paymentType: payment_type,

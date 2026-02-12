@@ -78,6 +78,19 @@ app.get("*", async (c: Context, next: Next) => {
         return next();
     }
 
+    // Only serve HTML for requests that explicitly accept valid HTML 
+    // AND are not API/static/koda internal paths.
+    // This allows Vite to handle .tsx imports correctly (which accept application/javascript or */*)
+    const accept = c.req.header("accept") || "";
+    if (!accept.includes("text/html")) {
+        return next();
+    }
+
+    // Double safety: Skip explicit static extensions if Accept header is ambiguous
+    if (url.pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js|jsx|ts|tsx|json|wasm|map)$/)) {
+        return next();
+    }
+
     // Auth redirection logic
     const session = await getSession(c);
     const isProtectedPath = url.pathname.startsWith("/app") || url.pathname.startsWith("/system");
