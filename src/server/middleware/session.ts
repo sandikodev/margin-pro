@@ -3,7 +3,8 @@ import { Context, Next } from "hono";
 import { getCookie } from "hono/cookie";
 import { verify } from "hono/jwt";
 
-const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_dev_only_change_in_prod";
+import { env } from "../config/env";
+const JWT_SECRET = env.JWT_SECRET;
 
 export type SessionUser = {
     id: string;

@@ -1,8 +1,8 @@
 import { Context, Next } from "hono";
 import { secureHeaders } from "hono/secure-headers";
 import { rateLimiter } from "hono-rate-limiter";
-import { logger } from "../lib/logger";
-import { env } from "../env";
+import { logger } from "../core/logger";
+import { env } from "../config/env";
 
 // 1. Secure Headers
 export const securityHeaders = secureHeaders({

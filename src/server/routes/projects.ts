@@ -5,8 +5,8 @@ import { koda } from "@framework";
 import { eq } from "drizzle-orm";
 import { db } from "../db/index";
 import { projects } from "../db/schema";
-import { Project } from "../../shared/types";
-import { projectSchema } from "../../shared/schemas";
+import { Project } from "@shared/types";
+import { projectSchema } from "@shared/schemas";
 import { getSession } from "../middleware/session";
 
 export const projectsRoutes = koda.router()

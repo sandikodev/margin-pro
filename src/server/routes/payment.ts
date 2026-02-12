@@ -8,8 +8,11 @@ import { invoices, transactions } from "../db/schema";
 import { eq } from "drizzle-orm";
 
 // --- CONFIG ---
-const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY || "";
-const MIDTRANS_APP_URL = process.env.NODE_ENV === 'production'
+import { env } from "../config/env";
+// const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY || "";
+const MIDTRANS_SERVER_KEY = env.MIDTRANS_SERVER_KEY || "";
+
+const MIDTRANS_APP_URL = env.NODE_ENV === 'production'
     ? "https://app.midtrans.com/snap/v1/transactions"
     : "https://app.sandbox.midtrans.com/snap/v1/transactions"; // Sandbox
 

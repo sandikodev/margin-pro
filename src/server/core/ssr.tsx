@@ -51,6 +51,15 @@ export async function renderStream(request: Request, template: string) {
                 onError(error: unknown) {
                     console.error('[Zenith SSR] Streaming Error:', error);
                 },
+                onShellError(error: unknown) {
+                    console.error('[Zenith SSR] Shell Error:', error);
+                },
+                onShellReady() {
+                    console.log('[Zenith SSR] Shell Ready');
+                },
+                onAllReady() {
+                    console.log('[Zenith SSR] All Ready');
+                }
             }
         );
 

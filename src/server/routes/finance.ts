@@ -5,8 +5,8 @@ import { koda } from "@framework";
 import { eq } from "drizzle-orm";
 import { db } from "../db/index";
 import { liabilities, cashflow } from "../db/schema";
-import { liabilitySchema, cashflowSchema } from "../../shared/schemas";
-import { TransactionCategory } from "../../shared/types";
+import { liabilitySchema, cashflowSchema } from "@shared/schemas";
+import { TransactionCategory } from "@shared/types";
 import { getSession } from "../middleware/session";
 
 export const financeRoutes = koda.router();

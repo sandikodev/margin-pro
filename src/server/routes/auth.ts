@@ -11,12 +11,10 @@ import { eq } from "drizzle-orm";
 import { sessionMiddleware, getSession } from "../middleware/session";
 import { authLimiter } from "../middleware/security";
 
-const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_dev_only_change_in_prod";
-if (JWT_SECRET === "fallback_secret_for_dev_only_change_in_prod" && process.env.NODE_ENV === "production") {
-    throw new Error("FATAL: You are using the default insecure JWT_SECRET in production. Change it immediately.");
-}
+import { env } from "../config/env";
+const JWT_SECRET = env.JWT_SECRET;
 
-export const authRoutes = koda.router()
+export const authRoutes = koda.api()
     .use("*", sessionMiddleware) // Apply session middleware to everything here (mostly for /me)
     .use("/login", authLimiter)
     .use("/register", authLimiter)
@@ -48,7 +46,7 @@ export const authRoutes = koda.router()
         // Set Cookie
         setCookie(c, "auth_token", token, {
             path: "/",
-            secure: process.env.NODE_ENV === "production",
+            secure: env.NODE_ENV === "production",
             httpOnly: true,
             maxAge: 60 * 60 * 24 * 7,
             sameSite: "Strict",
@@ -113,7 +111,7 @@ export const authRoutes = koda.router()
 
         setCookie(c, "auth_token", token, {
             path: "/",
-            secure: process.env.NODE_ENV === "production",
+            secure: env.NODE_ENV === "production",
             httpOnly: true,
             maxAge: 60 * 60 * 24 * 7,
             sameSite: "Strict",
@@ -180,7 +178,7 @@ export const authRoutes = koda.router()
 
         setCookie(c, "auth_token", token, {
             path: "/",
-            secure: process.env.NODE_ENV === "production",
+            secure: env.NODE_ENV === "production",
             httpOnly: true,
             maxAge: 60 * 60 * 2, // 2 Hours
             sameSite: "Strict",

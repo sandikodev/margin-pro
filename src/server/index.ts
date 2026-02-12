@@ -2,35 +2,22 @@
  * 📈 Margins Pro: Professional SaaS Application
  * Project Ownership: PT Koneksi Jaringan Indonesia
  * Engineering Team: Kopikonfig
- * Architecture: Powered by Koda Zenith
+ * Architecture: Powered by Koda Zenith (Refactored)
  */
-import "./env";
-import { Hono, type Context, type Next } from "hono";
+import "./config/env";
 import { koda } from "@framework";
-// import { cors } from "hono/cors"; // Removed direct dependency
-
-import { BusinessProfile, BusinessType } from "@shared/types";
-import { authRoutes } from "./routes/auth";
-import { businessesRoutes } from "./routes/businesses";
-import { projectsRoutes } from "./routes/projects";
-import { configsRoutes } from "./routes/configs";
-import { adminRoutes } from "./routes/admin";
-import { paymentsRoutes } from "./routes/payment";
-import { financeRoutes } from "./routes/finance";
-import { marketplaceRoutes } from "./routes/marketplace";
-import { db } from "./db/index";
-import { users, businesses as businessesTable } from "./db/schema";
-import { eq } from "drizzle-orm";
 import { getSession } from "./middleware/session";
-
 import { requestLogger } from "./middleware/security";
+import { renderStream } from "./core/ssr"; // 🏔️ Zenith SSR Engine
+import { apiApp } from "./core/api"; // 🛰️ API Registry
 
 const app = koda();
 
+// 1. Foundation & Diagnostics
 app.use("*", koda.cors());
 app.use("*", requestLogger);
 
-// Koda Security Posture (HSTS, CSP, Rate Limiting)
+// 2. Koda Security Posture (Institutional Hardening)
 app.use("/api/*", ...koda.security({
     rateLimit: { windowMs: 60 * 1000, limit: 100 },
     csp: {
@@ -43,188 +30,26 @@ app.use("/api/*", ...koda.security({
     }
 }));
 
-// --- GLOBAL ERROR HANDLING ---
-app.onError((err: Error, c: Context) => {
-    const message = err instanceof Error ? err.message : "Internal Server Error";
-    console.error(`[Global Error] ${message}`, err);
-    return c.json({ error: message }, 500);
-});
-
-app.notFound((c: Context) => {
-    // Only return 404 for API routes. 
-    // For other routes, let the downstream handler (Vite) decide.
-    if (c.req.path.startsWith("/api")) {
-        return c.json({ error: "Endpoint not found" }, 404);
-    }
-    // Returning undefined/calling nothing might work depending on adapter,
-    // but returning a 404 text is standard Hono. 
-    // If Vite overrides this, great. If not, at least it's not JSON.
-    return c.text("Not Found", 404);
-});
-
-// --- RPC Routes ---
-// The .basePath() method creates a new Hono instance with the prefix
-const apiApp = new Hono()
-    .basePath("/api")
-    .get("/health", (c: Context) => c.json({ status: "ok", runtime: "bun" }))
-    .route("/auth", authRoutes)
-    .route("/businesses", businessesRoutes)
-    .route("/projects", projectsRoutes)
-    .route("/finance", financeRoutes)
-    .route("/marketplace", marketplaceRoutes)
-    .route("/configs", configsRoutes)
-    .route("/admin", adminRoutes)
-    .route("/midtrans", paymentsRoutes);
-
-// Mount the API app to the main app root
+// 3. API Bridge
 app.route("/", apiApp);
 
-// Export only the API part for RPC Client to infer types from
-export const api = apiApp;
+// 4. Zenith Orchestration (The Synthesis)
+// This single middleware handles Static Assets, SEO, Auth redirection, and SSR.
+console.log("[DEBUG] Bun availability:", !!(globalThis as any).Bun);
+app.use("*", koda.zenith({
+    seo: {
+        title: "Margin Pro - Intelligence Pricing System",
+        description: "Hitung profit margin, simulasi harga, dan atur keuangan bisnis kuliner & retail anda.",
+        baseUrl: "https://marginspro.com", // Fallback, will be overridden by request context
+        defaultOGImage: "https://placehold.co/1200x630/4f46e5/white?text=Margin+Pro"
+    },
+    auth: {
+        protectedPaths: ["/app", "/system"],
+        redirectPath: "/auth",
+        getSession
+    },
+    ssr: renderStream
+}));
 
-// --- SEO & Auth Replacement Logic ---
-
-// Middleware to inject SEO tags & Handle Auth Replacements
-app.get("*", async (c: Context, next: Next) => {
-    const url = new URL(c.req.url);
-
-    // Skip API routes
-    if (url.pathname.startsWith("/api")) {
-        return next();
-    }
-
-    // Only serve HTML for requests that explicitly accept valid HTML 
-    // AND are not API/static/koda internal paths.
-    // This allows Vite to handle .tsx imports correctly (which accept application/javascript or */*)
-    const accept = c.req.header("accept") || "";
-    if (!accept.includes("text/html")) {
-        return next();
-    }
-
-    // Double safety: Skip explicit static extensions if Accept header is ambiguous
-    if (url.pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js|jsx|ts|tsx|json|wasm|map)$/)) {
-        return next();
-    }
-
-    // Auth redirection logic
-    const session = await getSession(c);
-    const isProtectedPath = url.pathname.startsWith("/app") || url.pathname.startsWith("/system");
-
-    if (isProtectedPath && !session) {
-        return c.redirect("/auth");
-    }
-
-    if (url.pathname === "/auth" && session) {
-        return c.redirect("/app");
-    }
-
-    if (url.pathname.startsWith("/system") && session?.role !== "admin" && session?.role !== "super_admin") {
-        return c.redirect("/app");
-    }
-
-    // Default SEO tags
-    const title = "Margin Pro - Intelligence Pricing System";
-    const description = "Hitung profit margin, simulasi harga, dan atur keuangan bisnis kuliner & retail anda.";
-    const image = "https://placehold.co/1200x630/4f46e5/white?text=Margin+Pro";
-
-    let html = "";
-
-    // Deployment-Agnostic Asset Fetching logic
-    if (koda.env.runtime === 'edge') {
-        const baseUrl = new URL(c.req.url).origin;
-        try {
-            const res = await fetch(`${baseUrl}/index.html`);
-            if (res.ok) {
-                html = await res.text();
-            } else {
-                html = `<html><body><h1>Error loading app</h1><p>Edge runtime fetch error: ${res.status}</p></body></html>`;
-            }
-        } catch (e) {
-            html = `<html><body><h1>Edge Fetch Error</h1><p>${String(e)}</p></body></html>`;
-        }
-    } else {
-        // Bun/Node Local modes
-        const targetFile = koda.env.isDev ? "index.html" : "./dist/index.html";
-        const bun = (globalThis as unknown as { Bun?: { file: (p: string) => { text: () => Promise<string> } } }).Bun;
-
-        try {
-            if (bun) {
-                html = await bun.file(targetFile).text();
-            } else {
-                // Fallback for Node (if ever used)
-                const fs = await import('fs/promises');
-                html = await fs.readFile(targetFile, 'utf-8');
-            }
-        } catch (e) {
-            html = `<html><body style="background:red; color:white; padding:50px;"><h1>CRITICAL SERVER ERROR</h1><pre>${String(e)}</pre></body></html>`;
-        }
-
-        if (!html || html.length === 0) {
-            html = `<html><body style="background:blue; color:white; padding:50px;"><h1>SERVER ERROR: EMPTY HTML</h1><p>The server read the file but got 0 bytes.</p></body></html>`;
-        }
-
-        if (koda.env.isDev) {
-            // Inject Vite Client & React Preamble
-            html = html.replace(
-                "<head>",
-                `<head>
-    <script type="module">
-      import RefreshRuntime from "/@react-refresh"
-      RefreshRuntime.injectIntoGlobalHook(window)
-      window.$RefreshReg$ = () => {}
-      window.$RefreshSig$ = () => (type) => type
-      window.__vite_plugin_react_preamble_installed__ = true
-    </script>
-    <script type="module" src="/@vite/client"></script>`
-            );
-        }
-    }
-
-    // Inject SEO Tags
-    html = html.replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
-        .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="${description}">`)
-        .replace(/<meta property="og:title" content=".*?">/g, `<meta property="og:title" content="${title}">`)
-        .replace(/<meta property="og:description" content=".*?">/g, `<meta property="og:description" content="${description}">`)
-        .replace(/<meta property="og:image" content=".*?">/g, `<meta property="og:image" content="${image}">`)
-        .replace(/<meta property="twitter:title" content=".*?">/g, `<meta property="twitter:title" content="${title}">`)
-        .replace(/<meta property="twitter:description" content=".*?">/g, `<meta property="twitter:description" content="${description}">`)
-        .replace(/<meta property="twitter:image" content=".*?">/g, `<meta property="twitter:image" content="${image}">`);
-
-    // --- SSR HYDRATION DATA ---
-    const hydrationData: Record<string, unknown> = {};
-
-    if (session) {
-        // Prefetch basic user info
-        const user = await db.query.users.findFirst({
-            where: eq(users.id, session.id),
-            columns: { id: true, name: true, email: true, role: true, permissions: true }
-        });
-        if (user) {
-            hydrationData['["auth","me"]'] = { user };
-
-            // Prefetch businesses
-            const userBusinesses = await db.select().from(businessesTable).where(eq(businessesTable.userId, session.id));
-            hydrationData['["businesses","list"]'] = userBusinesses.map((b): BusinessProfile => ({
-                id: b.id,
-                name: b.name,
-                type: b.type as BusinessType,
-                initialCapital: b.initialCapital || 0,
-                currentAssetValue: b.currentAssetValue || 0,
-                cashOnHand: b.cashOnHand || 0,
-                themeColor: b.themeColor || undefined,
-                avatarUrl: b.avatarUrl || undefined,
-                establishedDate: b.data?.establishedDate || 0,
-                ...(b.data || {})
-            }));
-        }
-    }
-
-    // Inject Hydration Script
-    const hydrationScript = `<script id="__QUERY_HYDRATION_DATA__" type="application/json">${JSON.stringify(hydrationData)}</script>`;
-    html = html.replace("</body>", `${hydrationScript}\n</body>`);
-
-    return c.html(html);
-});
-
-export type AppType = typeof apiApp;
+export type { AppType } from "./core/api";
 export default koda.serve(app);

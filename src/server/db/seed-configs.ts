@@ -1,6 +1,6 @@
 import { db } from "./index";
 import { platforms, systemSettings, translations } from "./schema";
-import { PLATFORM_DATA, TERMINOLOGY } from "../../shared/constants";
+import { PLATFORM_DATA, TERMINOLOGY } from "@shared/constants";
 
 export async function seedConfigs() {
     console.log("🌱 Seeding configurations...");

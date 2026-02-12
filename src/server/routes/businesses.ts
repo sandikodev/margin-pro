@@ -5,8 +5,8 @@ import { koda } from "@framework";
 import { eq, and } from "drizzle-orm";
 import { db } from "../db/index";
 import { businesses } from "../db/schema";
-import { BusinessType } from "../../shared/types";
-import { businessSchema } from "../../shared/schemas";
+import { BusinessType } from "@shared/types";
+import { insertBusinessSchema, updateBusinessSchema } from '@shared/schemas';
 import { getSession } from "../middleware/session";
 
 export const businessesRoutes = koda.router()
@@ -55,7 +55,7 @@ export const businessesRoutes = koda.router()
 
         return c.json(flatList);
     })
-    .post("/", koda.validator("json", businessSchema), async (c) => {
+    .post("/", koda.validator("json", insertBusinessSchema), async (c) => {
         const session = await getSession(c);
         if (!session) return c.json({ error: "Unauthorized" }, 401);
 
@@ -83,7 +83,7 @@ export const businessesRoutes = koda.router()
 
         return c.json({ success: true, id });
     })
-    .put("/:id", koda.validator("json", businessSchema), async (c) => {
+    .put("/:id", koda.validator("json", insertBusinessSchema), async (c) => {
         const session = await getSession(c);
         if (!session) return c.json({ error: "Unauthorized" }, 401);
 
