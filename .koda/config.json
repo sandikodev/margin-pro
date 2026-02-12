@@ -1,6 +1,12 @@
 {
   "server": {
     "entry": "src/server/index.ts",
-    "bundler": "tsdown"
+    "bundler": "tsdown",
+    "exclude": [
+      "/packages/**"
+    ]
+  },
+  "ui": {
+    "rigidity": "strict"
   }
 }
