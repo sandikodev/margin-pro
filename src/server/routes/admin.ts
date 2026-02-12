@@ -1,7 +1,7 @@
+import { zValidator } from "@hono/zod-validator";
 
 import { Hono } from "hono";
 import { z } from "zod";
-import { zValidator } from "@hono/zod-validator";
 import { db } from "../db/index";
 import { systemSettings, platforms, translations, users, invoices } from "../db/schema";
 import { eq, desc } from "drizzle-orm";

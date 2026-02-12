@@ -1,7 +1,7 @@
 import { hash, compare } from "bcrypt-ts";
 import { Hono } from "hono";
-import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
 import { setCookie, deleteCookie } from "hono/cookie";
 import { sign } from "hono/jwt";
 import { db } from "../db/index";
