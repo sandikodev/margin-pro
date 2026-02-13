@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 export function useWebVitals() {
   useEffect(() => {
-    if (typeof window === 'undefined' || process.env.NODE_ENV !== 'production') return;
+    if (typeof window === 'undefined' || import.meta.env.PROD === false) return;
 
     import('web-vitals').then(({ onCLS, onFID, onFCP, onLCP, onTTFB }) => {
       const sendToAnalytics = (metric: { name: string; value: number; rating: string }) => {

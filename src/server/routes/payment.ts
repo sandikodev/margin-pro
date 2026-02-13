@@ -1,3 +1,4 @@
+import { env } from '../lib/runtime';
 import { zValidator } from "@hono/zod-validator";
 
 import { Hono } from "hono";
@@ -7,8 +8,8 @@ import { invoices, transactions } from "../db/schema";
 import { eq } from "drizzle-orm";
 
 // --- CONFIG ---
-const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY || "";
-const MIDTRANS_APP_URL = process.env.NODE_ENV === 'production'
+const MIDTRANS_SERVER_KEY = env.get('MIDTRANS_SERVER_KEY') || "";
+const MIDTRANS_APP_URL = env.isProd
     ? "https://app.midtrans.com/snap/v1/transactions"
     : "https://app.sandbox.midtrans.com/snap/v1/transactions"; // Sandbox
 

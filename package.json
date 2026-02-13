@@ -10,11 +10,11 @@
     "dev": "bun --bun vite",
     "build": "bun run build:client && (test -z \"$VERCEL\" && bun run build:server || echo 'Skipping server build on Vercel')",
     "build:client": "vite build",
-    "build:server": "tsdown src/server/index.ts --format esm --out-dir dist/server --clean --platform node",
+    "build:server": "tsdown src/server/index.ts --format esm --out-dir dist/server --clean --platform neutral",
     "lint": "eslint .",
     "validate": "bun run lint && bun x tsc --noEmit && bun run build",
     "test": "npx playwright test",
-    "preview": "NODE_ENV=production bun dist/server/index.mjs"
+    "preview": "bun dist/server/index.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

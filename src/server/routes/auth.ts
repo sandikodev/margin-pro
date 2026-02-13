@@ -9,9 +9,10 @@ import { users } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { sessionMiddleware, getSession } from "../middleware/session";
 import { authLimiter } from "../middleware/security";
+import { env } from "../lib/runtime";
 
-const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_for_dev_only_change_in_prod";
-if (JWT_SECRET === "fallback_secret_for_dev_only_change_in_prod" && process.env.NODE_ENV === "production") {
+const JWT_SECRET = env.get("JWT_SECRET") || "fallback_secret_for_dev_only_change_in_prod";
+if (JWT_SECRET === "fallback_secret_for_dev_only_change_in_prod" && env.isProd) {
     throw new Error("FATAL: You are using the default insecure JWT_SECRET in production. Change it immediately.");
 }
 
@@ -47,7 +48,7 @@ export const authRoutes = new Hono()
         // Set Cookie
         setCookie(c, "auth_token", token, {
             path: "/",
-            secure: process.env.NODE_ENV === "production",
+            secure: env.isProd,
             httpOnly: true,
             maxAge: 60 * 60 * 24 * 7,
             sameSite: "Strict",
@@ -112,7 +113,7 @@ export const authRoutes = new Hono()
 
         setCookie(c, "auth_token", token, {
             path: "/",
-            secure: process.env.NODE_ENV === "production",
+            secure: env.isProd,
             httpOnly: true,
             maxAge: 60 * 60 * 24 * 7,
             sameSite: "Strict",
@@ -179,7 +180,7 @@ export const authRoutes = new Hono()
 
         setCookie(c, "auth_token", token, {
             path: "/",
-            secure: process.env.NODE_ENV === "production",
+            secure: env.isProd,
             httpOnly: true,
             maxAge: 60 * 60 * 2, // 2 Hours
             sameSite: "Strict",
