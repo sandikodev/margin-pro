@@ -180,4 +180,29 @@ app.delete("/cashflow/:id", async (c) => {
     return c.json({ success: true });
 });
 
+// Mark liability as paid
+app.put("/liabilities/:id/pay", async (c) => {
+    const session = await getSession(c);
+    if (!session) return c.json({ error: "Unauthorized" }, 401);
+    
+    const id = c.req.param("id");
+    
+    const existing = await db.query.liabilities.findFirst({ where: (l, { eq }) => eq(l.id, id) });
+    if (!existing) return c.json({ error: "Not found" }, 404);
+    
+    const business = await db.query.businesses.findFirst({
+        where: (b, { eq, and }) => and(eq(b.id, existing.businessId), eq(b.userId, session.id))
+    });
+    if (!business) return c.json({ error: "Access denied" }, 403);
+    
+    await db.update(liabilities)
+        .set({ 
+            isPaidThisMonth: true,
+            remainingTenure: existing.remainingTenure ? existing.remainingTenure - 1 : 0
+        })
+        .where(eq(liabilities.id, id));
+    
+    return c.json({ success: true });
+});
+
 export { app as financeRoutes };

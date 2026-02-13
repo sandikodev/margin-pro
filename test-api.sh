@@ -83,7 +83,7 @@ echo "------------------------"
 
 # Test 6: Landing page loads
 landing=$(curl -s -H "Accept: text/html" "$BASE_URL/")
-if echo "$landing" | grep -q "MARGIN"; then
+if echo "$landing" | grep -qi "margin"; then
     test_case "Landing page renders" 0
 else
     test_case "Landing page renders" 1

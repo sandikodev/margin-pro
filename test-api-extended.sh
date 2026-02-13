@@ -149,9 +149,7 @@ echo -e "${BLUE}3. Business Operations${NC}"
 echo "----------------------"
 
 # Create new business
-NEW_BIZ_ID="biz-$(date +%s)"
-BIZ_DATA='{
-  "id": "'$NEW_BIZ_ID'",
+NEW_BIZ_DATA='{
   "name": "Warung Makan Test",
   "type": "fnb_offline",
   "initialCapital": 10000000,
@@ -162,8 +160,11 @@ BIZ_DATA='{
   "establishedDate": '$(date +%s000)'
 }'
 
+CREATE_RESPONSE=$(curl -s -X POST $API_URL/businesses -H 'Content-Type: application/json' -d "$NEW_BIZ_DATA" -b $COOKIE_FILE)
+NEW_BIZ_ID=$(echo "$CREATE_RESPONSE" | jq -r '.id')
+
 test "Create new business" \
-    "curl -s -X POST $API_URL/businesses -H 'Content-Type: application/json' -d '$BIZ_DATA' -b $COOKIE_FILE | jq -r '.success'" \
+    "echo '$CREATE_RESPONSE' | jq -r '.success'" \
     "true"
 
 test "List businesses includes new one" \
@@ -172,7 +173,6 @@ test "List businesses includes new one" \
 
 # Update business
 UPDATE_BIZ='{
-  "id": "'$NEW_BIZ_ID'",
   "name": "Warung Makan Updated",
   "type": "fnb_offline",
   "initialCapital": 10000000,
@@ -286,13 +286,13 @@ echo ""
 echo -e "${BLUE}6. Admin Endpoints${NC}"
 echo "------------------"
 
-test "List all users (admin only)" \
-    "curl -s $API_URL/admin/users -b $COOKIE_FILE | jq -r 'type'" \
-    "array\|error"
+test "List all users (requires admin - should deny)" \
+    "curl -s $API_URL/admin/users -b $COOKIE_FILE | jq -r '.error // \"no-error\"'" \
+    "Forbidden"
 
 test "Get system settings" \
     "curl -s $API_URL/configs/settings -b $COOKIE_FILE | jq -r 'type'" \
-    "object\|array"
+    "object"
 
 echo ""
 

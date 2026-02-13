@@ -7,6 +7,43 @@ import { getSession } from "../middleware/session";
 import { eq, desc } from "drizzle-orm";
 
 export const marketplaceRoutes = new Hono()
+    .get("/items", async (c) => {
+        const session = await getSession(c);
+        if (!session) return c.json({ error: "Unauthorized" }, 401);
+
+        // Mock marketplace items for now
+        const items = [
+            {
+                id: "template-1",
+                name: "Nasi Goreng Template",
+                description: "Template lengkap untuk bisnis nasi goreng",
+                price: 50,
+                downloads: 120,
+                rating: 4.5,
+                category: "fnb"
+            },
+            {
+                id: "template-2",
+                name: "Coffee Shop Template",
+                description: "Template untuk kedai kopi",
+                price: 75,
+                downloads: 85,
+                rating: 4.8,
+                category: "fnb"
+            },
+            {
+                id: "template-3",
+                name: "Retail Fashion Template",
+                description: "Template untuk bisnis fashion retail",
+                price: 60,
+                downloads: 95,
+                rating: 4.6,
+                category: "retail"
+            }
+        ];
+
+        return c.json(items);
+    })
     .get("/balance", async (c) => {
         const session = await getSession(c);
         if (!session) return c.json({ error: "Unauthorized" }, 401);
