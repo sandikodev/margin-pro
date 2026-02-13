@@ -17,13 +17,13 @@
     "preview": "NODE_ENV=production bun dist/server/index.mjs"
   },
   "dependencies": {
-    "@koda/core": "workspace:*",
-    "@koda/ui": "workspace:*",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@google/genai": "^1.35.0",
     "@hono/zod-validator": "^0.7.6",
+    "@koda/core": "workspace:*",
+    "@koda/ui": "workspace:*",
     "@libsql/client": "^0.17.0",
     "@playwright/test": "^1.57.0",
     "@tanstack/query-sync-storage-persister": "^5.90.21",
@@ -50,6 +50,7 @@
     "remark-math": "^6.0.0",
     "tailwind-merge": "^3.4.0",
     "tiny-invariant": "^1.3.3",
+    "web-vitals": "^5.1.0",
     "zod": "^4.3.5",
     "zustand": "^5.0.10"
   },
