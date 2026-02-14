@@ -116,16 +116,14 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@root': path.resolve(__dirname, './src'),
         '@': path.resolve(__dirname, './src'),
-
-        '@client': path.resolve(__dirname, './src'),
-        '@legacy': path.resolve(__dirname, './src/_legacy'),
-        '@components': path.resolve(__dirname, './src/components'),
-        '@hooks': path.resolve(__dirname, './src/hooks'),
-        '@context': path.resolve(__dirname, './src/context'),
-        '@lib': path.resolve(__dirname, './src/lib'),
-
-        '@server': path.resolve(__dirname, './src/server'),
+        '@core': path.resolve(__dirname, './src/core'),
         '@shared': path.resolve(__dirname, './src/shared'),
+        '@legacy': path.resolve(__dirname, './src/_legacy'),
+        '@components': path.resolve(__dirname, './src/core/ui'),
+        '@hooks': path.resolve(__dirname, './src/core/hooks'),
+        '@context': path.resolve(__dirname, './src/core/context'),
+        '@server': path.resolve(__dirname, './src/server'),
+
         '@framework/dx': path.resolve(__dirname, './packages/koda/packages/core/src/dx'),
         '@framework': path.resolve(__dirname, './packages/koda/packages/server/src/index.ts'),
         '@koda/core': path.resolve(__dirname, './packages/koda/packages/core/src/index.ts'),

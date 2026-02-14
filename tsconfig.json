@@ -27,26 +27,26 @@
       "@root/*": [
         "./src/*"
       ],
-      "@lib/*": [
-        "./src/lib/*"
+      "@core/*": [
+        "./src/core/*"
+      ],
+      "@shared/*": [
+        "./src/shared/*"
       ],
       "@components/*": [
-        "./src/components/*"
+        "./src/core/ui/*"
       ],
       "@hooks/*": [
-        "./src/hooks/*"
+        "./src/core/hooks/*"
       ],
       "@context/*": [
-        "./src/context/*"
+        "./src/core/context/*"
       ],
       "@legacy/*": [
         "./src/_legacy/*"
       ],
       "@server/*": [
         "./src/server/*"
-      ],
-      "@shared/*": [
-        "./src/shared/*"
       ],
       "@framework/dx": [
         "./packages/koda/packages/core/src/dx/index.ts"
