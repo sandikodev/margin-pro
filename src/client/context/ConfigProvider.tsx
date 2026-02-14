@@ -3,7 +3,7 @@ import { api } from '@/lib/client';
 import { PlatformConfig, Platform } from '@shared/types';
 import { ConfigContext } from './ConfigContext';
 
-export function ConfigProvider({ children }: { children: React.ReactNode }) {
+export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [settings, setSettings] = useState<Record<string, string>>({});
     const [platforms, setPlatforms] = useState<Record<Platform, PlatformConfig>>({} as Record<Platform, PlatformConfig>);
     const [translations, setTranslations] = useState<Record<string, { umkm: string; pro: string }>>({});
@@ -29,10 +29,9 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
                 };
             });
             setPlatforms(platformRecord);
-
             setTranslations(data.translations);
         } catch (error) {
-            console.error('Failed to fetch configs', error);
+            console.error("Failed to fetch configs", error);
         } finally {
             setIsLoading(false);
         }
@@ -42,9 +41,13 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
         fetchConfigs();
     }, []);
 
+    // Non-blocking provider (Public pages render instantly)
+    // Consumers must check `isLoading` if they depend on strict config
+    // if (isLoading) { return <Loading /> } <--- Removed for Performance
+
     return (
-        <ConfigContext.Provider value={{ settings, platforms, translations, isLoading }}>
+        <ConfigContext.Provider value={{ settings, platforms, translations, isLoading, refreshConfigs: fetchConfigs }}>
             {children}
         </ConfigContext.Provider>
     );
-}
+};
