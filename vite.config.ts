@@ -115,9 +115,15 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@root': path.resolve(__dirname, './src'),
-        '@': path.resolve(__dirname, './src/client'),
+        '@': path.resolve(__dirname, './src'),
 
-        '@client': path.resolve(__dirname, './src/client'),
+        '@client': path.resolve(__dirname, './src'),
+        '@legacy': path.resolve(__dirname, './src/_legacy'),
+        '@components': path.resolve(__dirname, './src/components'),
+        '@hooks': path.resolve(__dirname, './src/hooks'),
+        '@context': path.resolve(__dirname, './src/context'),
+        '@lib': path.resolve(__dirname, './src/lib'),
+
         '@server': path.resolve(__dirname, './src/server'),
         '@shared': path.resolve(__dirname, './src/shared'),
         '@framework/dx': path.resolve(__dirname, './packages/koda/packages/core/src/dx'),
@@ -125,6 +131,7 @@ export default defineConfig(({ mode }) => {
         '@koda/core': path.resolve(__dirname, './packages/koda/packages/core/src/index.ts'),
         '@koda/ui': path.resolve(__dirname, './packages/koda/packages/ui/src/index.ts'),
       }
+
     }
   };
 });

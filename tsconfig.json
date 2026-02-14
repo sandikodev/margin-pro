@@ -21,14 +21,26 @@
     "allowJs": true,
     "jsx": "react-jsx",
     "paths": {
+      "@/*": [
+        "./src/*"
+      ],
       "@root/*": [
         "./src/*"
       ],
-      "@/*": [
-        "./src/client/*"
+      "@lib/*": [
+        "./src/lib/*"
       ],
-      "@client/*": [
-        "./src/client/*"
+      "@components/*": [
+        "./src/components/*"
+      ],
+      "@hooks/*": [
+        "./src/hooks/*"
+      ],
+      "@context/*": [
+        "./src/context/*"
+      ],
+      "@legacy/*": [
+        "./src/_legacy/*"
       ],
       "@server/*": [
         "./src/server/*"
