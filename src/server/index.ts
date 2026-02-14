@@ -38,18 +38,18 @@ app.use("*", requestLogger);
 
 // --- DX & Monitoring Endpoints (Dev Only) ---
 if (env.isDev) {
-    const { kodaDX } = await import("../lib/koda-zenith/dx");
-    const { kodaContext } = await import("../lib/koda-zenith/context");
-    
     apiApp.get("/dx/diagnostics", async (c) => {
+        const { kodaDX } = await import("../lib/koda-zenith/dx");
         return c.json(kodaDX.getDiagnostics());
     });
     
     apiApp.get("/dx/history", async (c) => {
+        const { kodaContext } = await import("../lib/koda-zenith/context");
         return c.json(kodaContext.getHistory());
     });
     
     apiApp.get("/dx/performance", async (c) => {
+        const { kodaContext } = await import("../lib/koda-zenith/context");
         const metrics = kodaContext.getMetrics();
         return c.json(metrics);
     });
