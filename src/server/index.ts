@@ -1,72 +1,52 @@
-import "./env";
-import { Hono, type Context, type Next } from "hono";
-import { koda, env } from "../lib/koda-zenith";
+import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { BusinessProfile, BusinessType } from "@shared/types";
+import { logger } from "hono/logger";
+import { serveStatic } from "hono/serve-static";
+import type { Context, Next } from "hono";
+
+// Import API routes
 import { authRoutes } from "./routes/auth";
-import { businessesRoutes } from "./routes/businesses";
-import { projectsRoutes } from "./routes/projects";
-import { configsRoutes } from "./routes/configs";
-import { adminRoutes } from "./routes/admin";
-import { paymentsRoutes } from "./routes/payment";
-import { financeRoutes } from "./routes/finance";
-import { marketplaceRoutes } from "./routes/marketplace";
-import { db } from "./db/index";
-import { users, businesses as businessesTable } from "./db/schema";
-import { eq } from "drizzle-orm";
-import { getSession } from "./middleware/session";
-import { requestLogger } from "./middleware/security";
+import { projectRoutes } from "./routes/projects";
+import { paymentRoutes } from "./routes/payment";
+import { getSession } from "./auth";
 
-// Use enhanced setup based on environment
-const app = env.isDev 
-  ? koda.setup.development()
-  : koda.setup.production({
-      rateLimit: { windowMs: 60 * 1000, limit: 100 },
-      csp: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://*.google.com", "https://*.gstatic.com", "https://app.midtrans.com"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        imgSrc: ["'self'", "data:", "https:", "blob:"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
-        connectSrc: ["'self'", "https://*.googleapis.com", "https://*.turso.io", "https://app.midtrans.com", "https://api.midtrans.com", "https://api.sandbox.midtrans.com"],
-      }
+// Create the main app
+const app = new Hono();
+
+// Create API app
+const apiApp = new Hono();
+
+// Middleware
+app.use("*", cors({
+    origin: ["http://localhost:5173", "https://marginpro.vercel.app"],
+    credentials: true,
+}));
+
+app.use("*", logger());
+
+// Serve static files in development
+if (process.env.NODE_ENV !== "production") {
+    app.use("/assets/*", serveStatic({ root: "./dist" }));
+    app.use("/favicon.ico", serveStatic({ path: "./dist/favicon.ico" }));
+}
+
+// API Routes
+apiApp.route("/auth", authRoutes);
+apiApp.route("/projects", projectRoutes);
+apiApp.route("/payment", paymentRoutes);
+
+// Health check
+apiApp.get("/health", (c) => {
+    return c.json({ 
+        status: "ok", 
+        timestamp: new Date().toISOString(),
+        runtime: "edge"
     });
-
-app.use("*", cors());
-app.use("*", requestLogger);
-
-// --- GLOBAL ERROR HANDLING ---
-app.onError((err: Error, c: Context) => {
-    const message = err instanceof Error ? err.message : "Internal Server Error";
-    console.error(`[Global Error] ${message}`, err);
-    return c.json({ error: message }, 500);
 });
 
-app.notFound((c: Context) => {
-    return c.json({ error: "Endpoint not found" }, 404);
-});
-
-// --- RPC Routes ---
-const apiApp = new Hono()
-    .basePath("/api")
-    .get("/health", (c: Context) => c.json({ status: "ok", runtime: env.runtime }))
-    .route("/auth", authRoutes)
-    .route("/businesses", businessesRoutes)
-    .route("/projects", projectsRoutes)
-    .route("/finance", financeRoutes)
-    .route("/marketplace", marketplaceRoutes)
-    .route("/configs", configsRoutes)
-    .route("/admin", adminRoutes)
-    .route("/midtrans", paymentsRoutes);
-
-// --- DX & Monitoring Endpoints (Dev Only) ---
-if (env.isDev) {
-    apiApp.get("/dx/diagnostics", async (c) => {
-        const { kodaDX } = await import("../lib/koda-zenith/dx");
-        return c.json(kodaDX.getDiagnostics());
-    });
-    
-    apiApp.get("/dx/history", async (c) => {
+// Development routes
+if (process.env.NODE_ENV === "development") {
+    apiApp.get("/dx/context", async (c) => {
         const { kodaContext } = await import("../lib/koda-zenith/context");
         return c.json(kodaContext.getHistory());
     });
@@ -109,12 +89,28 @@ app.get("*", async (c: Context, next: Next) => {
         const session = await getSession(c);
         const user = session || null;
 
-        // Read the built HTML file
-        let html: string;
+        // Meta injection for SEO
+        const url = new URL(c.req.url);
+        const path = url.pathname;
         
-        try {
-            // In Edge Runtime, we can't read files - use fallback HTML
-            html = `<!DOCTYPE html>
+        let title = "Margins Pro - Intelligence Pricing System untuk UMKM Kuliner";
+        let description = "Platform SaaS profesional yang membangun pengusaha kuliner menghitung HPP, mensimulasikan profit margin, dan mencegah kerugian akibat salah penetapan harga.";
+        let ogImage = "https://marginpro.vercel.app/og-image.png";
+        
+        // Dynamic meta based on route
+        if (path.startsWith('/app/dashboard')) {
+            title = "Dashboard - Margins Pro";
+            description = "Monitor performa bisnis kuliner Anda dengan dashboard analytics yang komprehensif.";
+        } else if (path.startsWith('/app/calculator')) {
+            title = "Kalkulator HPP - Margins Pro";
+            description = "Hitung Harga Pokok Penjualan (HPP) dengan akurat menggunakan kalkulator profesional kami.";
+        } else if (path.startsWith('/app/finance')) {
+            title = "Manajemen Keuangan - Margins Pro";
+            description = "Kelola keuangan bisnis kuliner dengan fitur pencatatan yang terintegrasi.";
+        }
+
+        // Edge-compatible HTML template
+        const html = `<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -151,47 +147,32 @@ app.get("*", async (c: Context, next: Next) => {
     <script type="module" src="/src/client/index.tsx"></script>
 </body>
 </html>`;
-        } catch (error) {
-            console.error('Failed to generate HTML:', error);
-            return c.text('Internal Server Error', 500);
-        }
 
-        // SEO Meta Injection
-        const url = new URL(c.req.url);
-        const path = url.pathname;
-        
-        let title = "Margins Pro - Intelligence Pricing System untuk UMKM Kuliner";
-        let description = "Platform SaaS profesional yang membangun pengusaha kuliner menghitung HPP, mensimulasikan profit margin, dan mencegah kerugian akibat salah penetapan harga.";
-        let ogImage = "https://marginpro.vercel.app/og-image.png";
+        // Inject user session if available
+        const finalHtml = user 
+            ? html.replace('</head>', `<script>window.__INITIAL_SESSION__ = ${JSON.stringify(user)};</script></head>`)
+            : html;
 
-        // Dynamic meta based on route
-        if (path.startsWith('/app/dashboard')) {
-            title = "Dashboard - Margins Pro";
-            description = "Monitor performa bisnis kuliner Anda dengan dashboard analytics yang komprehensif.";
-        } else if (path.startsWith('/app/calculator')) {
-            title = "Kalkulator HPP - Margins Pro";
-            description = "Hitung Harga Pokok Penjualan (HPP) dengan akurat menggunakan kalkulator profesional kami.";
-        } else if (path.startsWith('/app/finance')) {
-            title = "Manajemen Keuangan - Margins Pro";
-            description = "Kelola keuangan bisnis kuliner dengan fitur pencatatan yang terintegrasi.";
-        }
+        return c.html(finalHtml);
 
-        // Inject meta tags (already in template above)
-        
-        // Auth State Injection
-        if (user) {
-            const authScript = `
-        <script>
-            window.__INITIAL_AUTH_STATE__ = ${JSON.stringify({ user })};
-        </script>`;
-            html = html.replace('</head>', `${authScript}\n</head>`);
-        }
-
-        return c.html(html);
     } catch (error) {
-        console.error('SSR Error:', error);
-        // Fallback to static file
-        await next();
+        console.error("SSR Error:", error);
+        
+        // Fallback HTML on error
+        const fallbackHtml = `<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Margins Pro</title>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="/src/client/index.tsx"></script>
+</body>
+</html>`;
+        
+        return c.html(fallbackHtml);
     }
 });
 
