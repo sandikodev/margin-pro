@@ -52,6 +52,9 @@ export function createFileSystemRouter(globResults: Record<string, unknown>, bas
         // Hapus ekstensi
         cleanPath = cleanPath.replace(/\.(ts|tsx|js|jsx)$/, '');
 
+        // Hapus Route Groups (folder dengan kurung)
+        cleanPath = cleanPath.replace(/\/\([^)]+\)/g, '');
+
         // Hapus 'index' di akhir (karena /users/index -> /users)
         cleanPath = cleanPath.replace(/\/index$/, '');
 

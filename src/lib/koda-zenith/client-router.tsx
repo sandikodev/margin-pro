@@ -36,6 +36,7 @@ export function createClientRoutes(
             .replace(/^\/src\/apex/, '')
             .replace(/^\.\.\/routes/, '')
             .replace(/^\/src\/routes/, '')
+            .replace(/\/\([^)]+\)/g, '') // Support Route Groups: (auth) -> ""
             .replace(/\.(tsx|jsx)$/, '')
             .replace(/\/index$/, '')
             .replace(/\/layout$/, '') // Layout path cleaning
