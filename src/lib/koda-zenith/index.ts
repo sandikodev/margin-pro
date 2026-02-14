@@ -25,6 +25,10 @@ export { createRoutes, createLoaderMiddleware, createActionMiddleware, renderWit
 export { Actor, Supervisor, supervisor, useActor, actorToHono } from './actors';
 export { Spatial } from './spatial';
 
+// Re-export entry system
+export { discoverEntries, serverUtils, clientUtils } from './entries';
+export type { KodaServerEntry, ZenClientEntry } from './entries';
+
 // Re-export types
 export type { SecurityConfig } from './security';
 export type { KodaContext } from './context';

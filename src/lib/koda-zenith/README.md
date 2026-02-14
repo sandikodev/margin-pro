@@ -40,12 +40,43 @@ export default function Dashboard() {
 
 #### ⚡ Qwik-style Performance Optimizations
 ```typescript
-// Critical CSS extraction (Qwik approach)
-const { html, criticalCSS } = await renderWithCriticalCSS(
-  html,
-  extractUsedClasses,
-  generateCriticalCSS
-);
+// entry-server.koda.ts - Server entry (middleware proxy)
+export default {
+  async middleware(request: Request) {
+    // Next.js middleware.ts equivalent
+    if (url.pathname.includes('admin') && !isAuthenticated(request)) {
+      return new Response('Unauthorized', { status: 401 });
+    }
+    return request;
+  },
+  
+  extractCriticalCSS(html: string) {
+    // Qwik approach - extract only used classes
+    const usedClasses = extractUsedClasses(html);
+    const criticalCSS = generateCriticalCSS(usedClasses);
+    return { usedClasses, criticalCSS };
+  }
+};
+```
+
+```typescript
+// entry-client.zen.tsx - Client entry (maximum freedom)
+export default {
+  hydrate(element: HTMLElement, data?: any) {
+    // Progressive hydration with developer freedom
+    const islands = element.querySelectorAll('[data-koda-island]');
+    islands.forEach(island => {
+      this.loadComponent(componentName, props)
+        .then(Component => hydrateRoot(island, <Component />));
+    });
+  },
+  
+  enhance() {
+    // Zen philosophy - enhance anything you want
+    clientUtils.enhance('form[data-enhance]', handleFormEnhancement);
+    clientUtils.enhance('[data-zen-interactive]', handleInteractivity);
+  }
+};
 ```
 
 #### 🏢 Enterprise Patterns (NestJS/Spring-style)
@@ -112,7 +143,26 @@ class PriceEntity extends Spatial.Entity {
 - ✅ Type-safe throughout
 - ✅ Zero external dependencies
 
-### Bundle Size Analysis
+### Entry Point Conventions
+
+**Koda Zenith follows specific naming conventions for entry points:**
+
+#### Server Entry: `entry-server.koda.ts`
+- Server-side middleware proxy (like Next.js `middleware.ts`)
+- Critical CSS extraction (Qwik-style performance)
+- SSR rendering with optimization
+- Global server-side data loading
+
+#### Client Entry: `entry-client.zen.tsx`  
+- Client-side hydration with maximum freedom
+- Progressive enhancement (Zen philosophy)
+- Flexible state management
+- Developer has complete control
+
+#### Future DSL Support:
+- `entry-server.koda` - When Koda DSL is ready
+- `entry-client.zen` - When Zen DSL is ready
+- Full LSP support for both formats
 **Original:** 49.61 kB (11.27 kB gzipped) - Inline implementation
 **Enhanced:** 57.25 kB (14.2 kB gzipped) - Modular with code splitting
 **Hybrid:** 65.86 kB (16.2 kB gzipped) - Full multi-paradigm architecture
