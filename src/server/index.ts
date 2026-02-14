@@ -15,7 +15,6 @@ import { db } from "./db/index";
 import { users, businesses as businessesTable } from "./db/schema";
 import { eq } from "drizzle-orm";
 import { getSession } from "./middleware/session";
-
 import { requestLogger } from "./middleware/security";
 
 // Use enhanced setup based on environment
@@ -36,24 +35,7 @@ const app = env.isDev
 app.use("*", cors());
 app.use("*", requestLogger);
 
-// --- DX & Monitoring Endpoints (Dev Only) ---
-if (env.isDev) {
-    apiApp.get("/dx/diagnostics", async (c) => {
-        const { kodaDX } = await import("../lib/koda-zenith/dx");
-        return c.json(kodaDX.getDiagnostics());
-    });
-    
-    apiApp.get("/dx/history", async (c) => {
-        const { kodaContext } = await import("../lib/koda-zenith/context");
-        return c.json(kodaContext.getHistory());
-    });
-    
-    apiApp.get("/dx/performance", async (c) => {
-        const { kodaContext } = await import("../lib/koda-zenith/context");
-        const metrics = kodaContext.getMetrics();
-        return c.json(metrics);
-    });
-}
+// --- GLOBAL ERROR HANDLING ---
 app.onError((err: Error, c: Context) => {
     const message = err instanceof Error ? err.message : "Internal Server Error";
     console.error(`[Global Error] ${message}`, err);
@@ -65,7 +47,6 @@ app.notFound((c: Context) => {
 });
 
 // --- RPC Routes ---
-// The .basePath() method creates a new Hono instance with the prefix
 const apiApp = new Hono()
     .basePath("/api")
     .get("/health", (c: Context) => c.json({ status: "ok", runtime: env.runtime }))
@@ -104,133 +85,108 @@ app.route("/", apiApp);
 export const api = apiApp;
 
 // --- SEO & Auth Replacement Logic ---
-
-// Middleware to inject SEO tags & Handle Auth Replacements
 app.get("*", async (c: Context, next: Next) => {
-    const url = new URL(c.req.url);
-
-    // Skip API routes
-    if (url.pathname.startsWith("/api")) {
-        return next();
+    const acceptHeader = c.req.header("accept") || "";
+    
+    // Skip SSR for API routes and static assets
+    if (c.req.url.includes("/api/") || 
+        c.req.url.includes("/assets/") ||
+        c.req.url.includes("/favicon.ico") ||
+        c.req.url.includes("/robots.txt") ||
+        c.req.url.includes("/manifest.json")) {
+        await next();
+        return;
     }
 
-    // Only serve HTML for requests that explicitly accept valid HTML 
-    // AND are not API/static/koda internal paths.
-    // This allows Vite to handle .tsx imports correctly (which accept application/javascript or */*)
-    const accept = c.req.header("accept") || "";
-    if (!accept.includes("text/html")) {
-        return next();
+    // Only do SSR for HTML requests
+    if (!acceptHeader.includes("text/html")) {
+        await next();
+        return;
     }
 
-    // Double safety: Skip explicit static extensions if Accept header is ambiguous
-    if (url.pathname.match(/\.(ico|png|jpg|jpeg|svg|css|js|jsx|ts|tsx|json|wasm|map)$/)) {
-        return next();
-    }
+    try {
+        // Get user session for SSR
+        const session = await getSession(c);
+        const user = session?.user || null;
 
-    // Auth redirection logic
-    const session = await getSession(c);
-    const isProtectedPath = url.pathname.startsWith("/app") || url.pathname.startsWith("/system");
-
-    if (isProtectedPath && !session) {
-        return c.redirect("/auth");
-    }
-
-    if (url.pathname === "/auth" && session) {
-        return c.redirect("/app");
-    }
-
-    if (url.pathname.startsWith("/system") && session?.role !== "admin" && session?.role !== "super_admin") {
-        return c.redirect("/app");
-    }
-
-    // Default SEO tags
-    const title = "Margin Pro - Intelligence Pricing System";
-    const description = "Hitung profit margin, simulasi harga, dan atur keuangan bisnis kuliner & retail anda.";
-    const image = "https://placehold.co/1200x630/4f46e5/white?text=Margin+Pro";
-
-    let html = "";
-
-    // Deployment-Agnostic Asset Fetching logic
-    if (koda.env.runtime === 'edge') {
-        const baseUrl = new URL(c.req.url).origin;
+        // Read the built HTML file
+        const htmlPath = "./dist/index.html";
+        let html: string;
+        
         try {
-            const res = await fetch(`${baseUrl}/index.html`);
-            if (res.ok) {
-                html = await res.text();
+            // Try Bun.file first (if available)
+            if (typeof Bun !== 'undefined') {
+                html = await Bun.file(htmlPath).text();
             } else {
-                html = `<html><body><h1>Error loading app</h1><p>Edge runtime fetch error: ${res.status}</p></body></html>`;
+                // Fallback for other runtimes
+                const fs = await import('fs/promises');
+                html = await fs.readFile(htmlPath, 'utf-8');
             }
-        } catch (e) {
-            html = `<html><body><h1>Edge Fetch Error</h1><p>${String(e)}</p></body></html>`;
+        } catch (error) {
+            console.error('Failed to read HTML file:', error);
+            return c.text('Internal Server Error', 500);
         }
-    } else {
-        // Bun/Node Local modes
-        const targetFile = koda.env.isDev ? "index.html" : "./dist/index.html";
-        const bun = (globalThis as unknown as { Bun?: { file: (p: string) => { text: () => Promise<string> } } }).Bun;
-        html = bun ? await bun.file(targetFile).text() : "";
 
-        if (koda.env.isDev) {
-            // Inject Vite Client & React Preamble
-            html = html.replace(
-                "<head>",
-                `<head>
-        <script type="module">
-          import RefreshRuntime from "/@react-refresh"
-          RefreshRuntime.injectIntoGlobalHook(window)
-          window.$RefreshReg$ = () => {}
-          window.$RefreshSig$ = () => (type) => type
-          window.__vite_plugin_react_preamble_installed__ = true
-        </script>
-        <script type="module" src="/@vite/client"></script>`
-            );
+        // SEO Meta Injection
+        const url = new URL(c.req.url);
+        const path = url.pathname;
+        
+        let title = "Margins Pro - Intelligence Pricing System untuk UMKM Kuliner";
+        let description = "Platform SaaS profesional yang membangun pengusaha kuliner menghitung HPP, mensimulasikan profit margin, dan mencegah kerugian akibat salah penetapan harga.";
+        let ogImage = "https://marginpro.vercel.app/og-image.png";
+
+        // Dynamic meta based on route
+        if (path.startsWith('/app/dashboard')) {
+            title = "Dashboard - Margins Pro";
+            description = "Monitor performa bisnis kuliner Anda dengan dashboard analytics yang komprehensif.";
+        } else if (path.startsWith('/app/calculator')) {
+            title = "Kalkulator HPP - Margins Pro";
+            description = "Hitung Harga Pokok Penjualan (HPP) dengan akurat menggunakan kalkulator profesional kami.";
+        } else if (path.startsWith('/app/finance')) {
+            title = "Manajemen Keuangan - Margins Pro";
+            description = "Kelola keuangan bisnis kuliner dengan fitur pencatatan yang terintegrasi.";
         }
-    }
 
-    // Inject SEO Tags
-    html = html.replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
-        .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="${description}">`)
-        .replace(/<meta property="og:title" content=".*?">/g, `<meta property="og:title" content="${title}">`)
-        .replace(/<meta property="og:description" content=".*?">/g, `<meta property="og:description" content="${description}">`)
-        .replace(/<meta property="og:image" content=".*?">/g, `<meta property="og:image" content="${image}">`)
-        .replace(/<meta property="twitter:title" content=".*?">/g, `<meta property="twitter:title" content="${title}">`)
-        .replace(/<meta property="twitter:description" content=".*?">/g, `<meta property="twitter:description" content="${description}">`)
-        .replace(/<meta property="twitter:image" content=".*?">/g, `<meta property="twitter:image" content="${image}">`);
+        // Inject meta tags
+        html = html.replace(
+            '<title>Margins Pro</title>',
+            `<title>${title}</title>`
+        );
 
-    // --- SSR HYDRATION DATA ---
-    const hydrationData: Record<string, unknown> = {};
+        html = html.replace(
+            '<meta name="description" content="Margins Pro - Intelligence Pricing System untuk UMKM Kuliner">',
+            `<meta name="description" content="${description}">`
+        );
 
-    if (session) {
-        // Prefetch basic user info
-        const user = await db.query.users.findFirst({
-            where: eq(users.id, session.id),
-            columns: { id: true, name: true, email: true, role: true, permissions: true }
-        });
+        // Add Open Graph tags
+        const ogTags = `
+    <meta property="og:title" content="${title}">
+    <meta property="og:description" content="${description}">
+    <meta property="og:image" content="${ogImage}">
+    <meta property="og:url" content="${c.req.url}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${title}">
+    <meta name="twitter:description" content="${description}">
+    <meta name="twitter:image" content="${ogImage}">`;
+
+        html = html.replace('</head>', `${ogTags}\n</head>`);
+
+        // Auth State Injection
         if (user) {
-            hydrationData['["auth","me"]'] = { user };
-
-            // Prefetch businesses
-            const userBusinesses = await db.select().from(businessesTable).where(eq(businessesTable.userId, session.id));
-            hydrationData['["businesses","list"]'] = userBusinesses.map((b): BusinessProfile => ({
-                id: b.id,
-                name: b.name,
-                type: b.type as BusinessType,
-                initialCapital: b.initialCapital || 0,
-                currentAssetValue: b.currentAssetValue || 0,
-                cashOnHand: b.cashOnHand || 0,
-                themeColor: b.themeColor || undefined,
-                avatarUrl: b.avatarUrl || undefined,
-                establishedDate: b.data?.establishedDate || 0,
-                ...(b.data || {})
-            }));
+            const authScript = `
+        <script>
+            window.__INITIAL_AUTH_STATE__ = ${JSON.stringify({ user })};
+        </script>`;
+            html = html.replace('</head>', `${authScript}\n</head>`);
         }
+
+        return c.html(html);
+    } catch (error) {
+        console.error('SSR Error:', error);
+        // Fallback to static file
+        await next();
     }
-
-    // Inject Hydration Script
-    const hydrationScript = `<script id="__QUERY_HYDRATION_DATA__" type="application/json">${JSON.stringify(hydrationData)}</script>`;
-    html = html.replace("</body>", `${hydrationScript}\n</body>`);
-
-    return c.html(html);
 });
 
-export type AppType = typeof apiApp;
 export default app;

@@ -14,26 +14,29 @@
 import { Hono } from 'hono';
 import type { MiddlewareHandler, Env, Schema } from 'hono';
 
-// Re-export core modules
-export { env } from './env';
-export { kodaContext } from './context';
-export { createSecurityMiddleware, performanceMiddleware } from './security';
-export { kodaDX, KodaError } from './dx';
+// Import all modules
+import { env } from './env';
+import { kodaContext } from './context';
+import { createSecurityMiddleware, performanceMiddleware } from './security';
+import { kodaDX, KodaError } from './dx';
+import { createRoutes, createLoaderMiddleware, createActionMiddleware, renderWithCriticalCSS } from './routing';
+import { Actor, Supervisor, supervisor, useActor, actorToHono } from './actors';
+import { Spatial } from './spatial';
+import { discoverEntries, serverUtils, clientUtils } from './entries';
 
-// Re-export advanced modules
-export { createRoutes, createLoaderMiddleware, createActionMiddleware, renderWithCriticalCSS } from './routing';
-export { Actor, Supervisor, supervisor, useActor, actorToHono } from './actors';
-export { Spatial } from './spatial';
-
-// Re-export entry system
-export { discoverEntries, serverUtils, clientUtils } from './entries';
-export type { KodaServerEntry, ZenClientEntry } from './entries';
+// Re-export everything
+export { env, kodaContext, createSecurityMiddleware, performanceMiddleware, kodaDX, KodaError };
+export { createRoutes, createLoaderMiddleware, createActionMiddleware, renderWithCriticalCSS };
+export { Actor, Supervisor, supervisor, useActor, actorToHono };
+export { Spatial };
+export { discoverEntries, serverUtils, clientUtils };
 
 // Re-export types
 export type { SecurityConfig } from './security';
 export type { KodaContext } from './context';
 export type { KodaEnv, KodaRuntime } from './env';
 export type { RouteModule, KodaRoute } from './routing';
+export type { KodaServerEntry, ZenClientEntry } from './entries';
 
 // --- MAIN FRAMEWORK ---
 export interface KodaApp<T extends Env = any, S extends Schema = any, BasePath extends string = "/"> extends Hono<T, S, BasePath> {}
