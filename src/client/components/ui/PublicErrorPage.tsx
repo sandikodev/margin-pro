@@ -1,10 +1,11 @@
 import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useRouteError } from 'react-router-dom';
 import { Home, ArrowLeft, Terminal, Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useErrorDX } from '@framework/dx';
 
 export const PublicErrorPage: React.FC = () => {
+    const routeError = useRouteError();
     const {
         statusCode,
         errorMessage,
@@ -14,7 +15,7 @@ export const PublicErrorPage: React.FC = () => {
         handleCopy,
         openInEditor,
         showDevTools
-    } = useErrorDX();
+    } = useErrorDX(routeError);
 
     const navigate = useNavigate();
 

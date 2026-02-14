@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useRouteError } from 'react-router-dom';
 import { RefreshCw, Home, Github, Terminal, Copy, Check, Wifi, WifiOff, Cpu, Activity, Globe } from 'lucide-react';
 import { useErrorDX } from '@framework/dx';
 
 export const AppErrorPage: React.FC = () => {
+    const routeError = useRouteError();
     const {
         errorName,
         errorMessage,
@@ -12,7 +13,7 @@ export const AppErrorPage: React.FC = () => {
         copied,
         handleCopy,
         openInEditor
-    } = useErrorDX();
+    } = useErrorDX(routeError);
 
     const navigate = useNavigate();
     const [networkStatus, setNetworkStatus] = useState(navigator.onLine ? 'Online' : 'Offline');
