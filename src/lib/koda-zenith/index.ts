@@ -39,7 +39,7 @@ export type { RouteModule, KodaRoute } from './routing';
 export type { KodaServerEntry, ZenClientEntry } from './entries';
 
 // --- MAIN FRAMEWORK ---
-export interface KodaApp<T extends Env = any, S extends Schema = any, BasePath extends string = "/"> extends Hono<T, S, BasePath> {}
+export interface KodaApp<T extends Env = any, S extends Schema = any, BasePath extends string = "/"> extends Hono<T, S, BasePath> { }
 
 function createKoda<T extends Env = any, S extends Schema = any, BasePath extends string = "/">(): KodaApp<T, S, BasePath> {
   const app = new Hono<T, S, BasePath>();
@@ -48,13 +48,13 @@ function createKoda<T extends Env = any, S extends Schema = any, BasePath extend
   app.use("*", async (c, next) => {
     const requestId = crypto.randomUUID();
     const startTime = Date.now();
-    
+
     return await kodaContext.run({ requestId, startTime }, async () => {
       // Set request metadata
       kodaContext.set('method', c.req.method);
       kodaContext.set('path', new URL(c.req.url).pathname);
       kodaContext.set('userAgent', c.req.header('user-agent'));
-      
+
       await next();
     });
   });
@@ -66,10 +66,10 @@ function createKoda<T extends Env = any, S extends Schema = any, BasePath extend
 export const koda = Object.assign(createKoda, {
   // Security middleware factory
   security: createSecurityMiddleware,
-  
+
   // Performance monitoring
   performance: performanceMiddleware,
-  
+
   // File-based routing (Next.js/SvelteKit style)
   routing: {
     createRoutes,
@@ -77,7 +77,7 @@ export const koda = Object.assign(createKoda, {
     createActionMiddleware,
     renderWithCriticalCSS
   },
-  
+
   // Actor system (Elixir/OTP style)
   actors: {
     Actor,
@@ -86,80 +86,85 @@ export const koda = Object.assign(createKoda, {
     useActor,
     actorToHono
   },
-  
+
   // Spatial computing (Vision Pro/BCI ready)
   spatial: Spatial,
-  
+
   // Environment utilities
   env: () => import('./env').then(m => m.env),
-  
+
   // Context utilities
   context: () => import('./context').then(m => m.kodaContext),
-  
+
   // Development utilities
   dx: () => import('./dx').then(m => m.kodaDX),
-  
+
   // Quick setup for common patterns
   setup: {
     /**
      * Production-ready setup with security and performance
      */
-    production: (config?: { 
+    production: (config?: {
       rateLimit?: { windowMs: number; limit: number };
       csp?: Record<string, string[]>;
       routes?: Record<string, any>;
     }) => {
       const app = createKoda();
-      
+
       // Add performance monitoring
       app.use('*', performanceMiddleware());
-      
+
       // Add security middleware
       app.use('*', ...createSecurityMiddleware({
         rateLimit: config?.rateLimit || { windowMs: 60000, limit: 100 },
         csp: config?.csp,
         sanitize: true
       }));
-      
+
       // Add file-based routing if provided
       if (config?.routes) {
         const routes = createRoutes(config.routes as any);
         app.use('*', createLoaderMiddleware(routes));
         app.use('*', createActionMiddleware(routes));
       }
-      
+
       return app;
     },
-    
+
     /**
      * Development setup with enhanced debugging
      */
     development: (config?: {
       routes?: Record<string, any>;
       enableSpatial?: boolean;
+      csp?: Record<string, string[]>;
     }) => {
       const app = createKoda();
-      
+
       // Add performance monitoring
       app.use('*', performanceMiddleware());
-      
+
       // Add basic security (no rate limiting in dev)
       app.use('*', ...createSecurityMiddleware({
         sanitize: true,
-        csp: {
-          defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-          styleSrc: ["'self'", "'unsafe-inline'"]
+        csp: config?.csp || {
+          defaultSrc: ["'self'", "data:", "blob:", "https:", "http:", "ws:", "wss:"], // Relaxed for Dev
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https:", "http:"],
+          styleSrc: ["'self'", "'unsafe-inline'", "https:", "http:"],
+          imgSrc: ["'self'", "data:", "blob:", "https:", "http:"],
+          fontSrc: ["'self'", "data:", "https:", "http:"],
+          connectSrc: ["'self'", "ws:", "wss:", "http:", "https:"]
         }
       }));
-      
+
+
       // Add file-based routing if provided
       if (config?.routes) {
         const routes = createRoutes(config.routes as any);
         app.use('*', createLoaderMiddleware(routes));
         app.use('*', createActionMiddleware(routes));
       }
-      
+
       // Enable spatial computing dev tools
       if (config?.enableSpatial) {
         app.get('/api/spatial/simulate/:type', async (c) => {
@@ -172,24 +177,24 @@ export const koda = Object.assign(createKoda, {
           return c.json({ simulated: type });
         });
       }
-      
+
       return app;
     },
-    
+
     /**
      * Next.js-style app with file-based routing
      */
     nextjs: (routeModules: Record<string, any>) => {
       const app = createKoda();
       const routes = createRoutes(routeModules);
-      
+
       app.use('*', performanceMiddleware());
       app.use('*', createLoaderMiddleware(routes));
       app.use('*', createActionMiddleware(routes));
-      
+
       return app;
     },
-    
+
     /**
      * Enterprise setup with actor system
      */
@@ -198,7 +203,7 @@ export const koda = Object.assign(createKoda, {
       rateLimit?: { windowMs: number; limit: number };
     }) => {
       const app = createKoda();
-      
+
       // Start supervised actors
       if (config?.actors) {
         const { supervisor } = await import('./actors');
@@ -206,27 +211,27 @@ export const koda = Object.assign(createKoda, {
           supervisor.startActor(id, ActorClass, args, 'permanent');
         }
       }
-      
+
       // Add enterprise middleware
       app.use('*', performanceMiddleware());
       app.use('*', ...createSecurityMiddleware({
         rateLimit: config?.rateLimit || { windowMs: 60000, limit: 1000 },
         sanitize: true
       }));
-      
+
       // Actor API endpoints
       app.post('/api/actors/:id', async (c) => {
         const actorId = c.req.param('id');
         const { supervisor, actorToHono } = await import('./actors');
         const actor = supervisor.getActor(actorId);
-        
+
         if (!actor) {
           return c.json({ error: 'Actor not found' }, 404);
         }
-        
+
         return actorToHono(actor).post(c);
       });
-      
+
       return app;
     }
   }

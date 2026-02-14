@@ -223,8 +223,9 @@ export const FinanceManager: React.FC<ExtendedFinanceManagerProps> = ({
                </div>
 
                {/* Mini Chart */}
-               <div className="h-24 w-full -mx-2">
-                  <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+               <div className="h-24 w-full -mx-2 min-h-[96px]">
+                  <ResponsiveContainer width="99%" height="100%">
+
                      <AreaChart data={chartData}>
                         <defs>
                            <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
