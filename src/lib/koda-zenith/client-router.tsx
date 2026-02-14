@@ -46,16 +46,26 @@ export function createClientRoutes(
         if (path.includes('/api/')) return;
 
         const urlPath = normalizePath(path);
-        const LazyComponent = React.lazy(globPages[path] as () => Promise<{ default: React.ComponentType }>);
+
+        // Lazy load module sembari mempertahankan kemampuan React Router data loading
+        const routeModule = globPages[path] as () => Promise<any>;
 
         const route: RouteObject = {
             path: urlPath === '' ? '/' : urlPath,
-            element: (
-                <Suspense fallback={<div className="p-4">Loading route...</div>}>
-                    <LazyComponent />
-                </Suspense>
-            ),
-            // Error Boundary bisa ditambahkan di sini jika module export ErrorBoundary
+
+            // Lazy Element Wrapper
+            async lazy() {
+                const mod = await routeModule();
+                return {
+                    Component: mod.default,
+                    loader: mod.loader,     // Support export const loader
+                    action: mod.action,     // Support export const action
+                    ErrorBoundary: mod.ErrorBoundary || mod.CatchBoundary, // Support Custom Error Boundary
+                };
+            },
+
+            // Fallback Element sementara lazy load berjalan (opsional, tapi bagus untuk UX)
+            // element: <div className="animate-pulse bg-slate-100 dark:bg-slate-800 w-full h-full min-h-[50vh]" />
         };
 
         routes.push(route);
