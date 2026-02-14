@@ -6,9 +6,9 @@ import type { Context, Next } from "hono";
 
 // Import API routes
 import { authRoutes } from "./routes/auth";
-import { projectRoutes } from "./routes/projects";
-import { paymentRoutes } from "./routes/payment";
-import { getSession } from "./auth";
+import { projectsRoutes } from "./routes/projects";
+import { paymentsRoutes } from "./routes/payment";
+import { getSession } from "./db/auth";
 
 // Create the main app
 const app = new Hono();
@@ -26,14 +26,13 @@ app.use("*", logger());
 
 // Serve static files in development
 if (process.env.NODE_ENV !== "production") {
-    app.use("/assets/*", serveStatic({ root: "./dist" }));
-    app.use("/favicon.ico", serveStatic({ path: "./dist/favicon.ico" }));
+    // Remove static file serving for Edge Runtime compatibility
 }
 
 // API Routes
 apiApp.route("/auth", authRoutes);
-apiApp.route("/projects", projectRoutes);
-apiApp.route("/payment", paymentRoutes);
+apiApp.route("/projects", projectsRoutes);
+apiApp.route("/payment", paymentsRoutes);
 
 // Health check
 apiApp.get("/health", (c) => {
