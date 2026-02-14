@@ -110,20 +110,49 @@ app.get("*", async (c: Context, next: Next) => {
         const user = session || null;
 
         // Read the built HTML file
-        const htmlPath = "./dist/index.html";
         let html: string;
         
         try {
-            // Try Bun.file first (if available)
-            if (typeof Bun !== 'undefined') {
-                html = await Bun.file(htmlPath).text();
-            } else {
-                // Fallback for other runtimes
-                const fs = await import('fs/promises');
-                html = await fs.readFile(htmlPath, 'utf-8');
-            }
+            // In Edge Runtime, we can't read files - use fallback HTML
+            html = `<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4f46e5">
+    <title>${title}</title>
+    <meta name="description" content="${description}">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="${title}">
+    <meta property="og:description" content="${description}">
+    <meta property="og:image" content="${ogImage}">
+    <meta property="og:url" content="${c.req.url}">
+    <meta property="og:type" content="website">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${title}">
+    <meta name="twitter:description" content="${description}">
+    <meta name="twitter:image" content="${ogImage}">
+    
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        html, body { margin: 0; padding: 0; width: 100%; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        #root { width: 100%; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <div id="root"></div>
+    <script type="module" src="/src/client/index.tsx"></script>
+</body>
+</html>`;
         } catch (error) {
-            console.error('Failed to read HTML file:', error);
+            console.error('Failed to generate HTML:', error);
             return c.text('Internal Server Error', 500);
         }
 
@@ -147,31 +176,8 @@ app.get("*", async (c: Context, next: Next) => {
             description = "Kelola keuangan bisnis kuliner dengan fitur pencatatan yang terintegrasi.";
         }
 
-        // Inject meta tags
-        html = html.replace(
-            '<title>Margins Pro</title>',
-            `<title>${title}</title>`
-        );
-
-        html = html.replace(
-            '<meta name="description" content="Margins Pro - Intelligence Pricing System untuk UMKM Kuliner">',
-            `<meta name="description" content="${description}">`
-        );
-
-        // Add Open Graph tags
-        const ogTags = `
-    <meta property="og:title" content="${title}">
-    <meta property="og:description" content="${description}">
-    <meta property="og:image" content="${ogImage}">
-    <meta property="og:url" content="${c.req.url}">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${title}">
-    <meta name="twitter:description" content="${description}">
-    <meta name="twitter:image" content="${ogImage}">`;
-
-        html = html.replace('</head>', `${ogTags}\n</head>`);
-
+        // Inject meta tags (already in template above)
+        
         // Auth State Injection
         if (user) {
             const authScript = `
