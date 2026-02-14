@@ -96,8 +96,11 @@ export const paymentsRoutes = new Hono()
 
         // 0. Verify Signature
         // Formula: SHA512(order_id + status_code + gross_amount + ServerKey)
-        const crypto = await import('node:crypto');
-        const localSignature = crypto.createHash('sha512').update(order_id + status_code + gross_amount + MIDTRANS_SERVER_KEY).digest('hex');
+        const encoder = new TextEncoder();
+        const data = encoder.encode(order_id + status_code + gross_amount + MIDTRANS_SERVER_KEY);
+        const hashBuffer = await crypto.subtle.digest('SHA-512', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const localSignature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
         if (signature_key !== localSignature) {
             console.error(`[Security Warning] Invalid Midtrans Signature for order ${order_id}`);

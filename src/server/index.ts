@@ -1,6 +1,5 @@
 import "./env";
 import { Hono, type Context, type Next } from "hono";
-import { koda } from "@framework";
 import { cors } from "hono/cors";
 import { BusinessProfile, BusinessType } from "@shared/types";
 import { authRoutes } from "./routes/auth";
@@ -18,23 +17,19 @@ import { getSession } from "./middleware/session";
 
 import { requestLogger } from "./middleware/security";
 
-const app = koda();
+const app = new Hono();
 
 app.use("*", cors());
 app.use("*", requestLogger);
 
-// Koda Security Posture (HSTS, CSP, Rate Limiting)
-app.use("/api/*", ...koda.security({
-    rateLimit: { windowMs: 60 * 1000, limit: 100 },
-    csp: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://*.google.com", "https://*.gstatic.com", "https://app.midtrans.com"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-        imgSrc: ["'self'", "data:", "https:", "blob:"],
-        fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
-        connectSrc: ["'self'", "https://*.googleapis.com", "https://*.turso.io", "https://app.midtrans.com", "https://api.midtrans.com", "https://api.sandbox.midtrans.com"],
-    }
-}));
+// Security middleware (manual implementation for edge compatibility)
+app.use("/api/*", async (c: Context, next: Next) => {
+    // HSTS
+    c.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    // CSP
+    c.header("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://app.midtrans.com https://api.midtrans.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://app.midtrans.com https://api.midtrans.com;");
+    await next();
+});
 
 // --- GLOBAL ERROR HANDLING ---
 app.onError((err: Error, c: Context) => {
