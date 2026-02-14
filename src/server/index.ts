@@ -144,11 +144,19 @@ app.get("*", async (c: Context, next: Next) => {
     <style>
         html, body { margin: 0; padding: 0; width: 100%; }
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        #root { width: 100%; }
+        #root { width: 100%; min-height: 100vh; }
+        .loading { display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; gap: 1rem; }
+        .spinner { width: 50px; height: 50px; border: 4px solid #e2e8f0; border-top-color: #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
-    <div id="root"></div>
+    <div id="root">
+        <div class="loading">
+            <div class="spinner"></div>
+            <p style="color: #64748b; font-size: 14px;">Loading Margins Pro...</p>
+        </div>
+    </div>
     <script type="module" src="/src/client/index.tsx"></script>
 </body>
 </html>`;
