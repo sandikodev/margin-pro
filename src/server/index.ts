@@ -11,6 +11,9 @@ import { paymentsRoutes } from "./routes/payment";
 import { configsRoutes } from "./routes/configs";
 import { marketplaceRoutes } from "./routes/marketplace";
 import { financeRoutes } from "./routes/finance";
+import { businessesRoutes } from "./routes/businesses";
+import { adminRoutes } from "./routes/admin";
+import { collaborationRoutes } from "./routes/collaboration";
 import { getSession } from "./middleware/session";
 
 // Create the main app
@@ -39,11 +42,14 @@ apiApp.route("/payment", paymentsRoutes);
 apiApp.route("/configs", configsRoutes);
 apiApp.route("/marketplace", marketplaceRoutes);
 apiApp.route("/finance", financeRoutes);
+apiApp.route("/businesses", businessesRoutes);
+apiApp.route("/admin", adminRoutes);
+apiApp.route("/collaboration", collaborationRoutes);
 
 // Health check
 apiApp.get("/health", (c) => {
-    return c.json({ 
-        status: "ok", 
+    return c.json({
+        status: "ok",
         timestamp: new Date().toISOString(),
         runtime: "edge"
     });
@@ -55,7 +61,7 @@ if (process.env.NODE_ENV === "development") {
         const { kodaContext } = await import("../lib/koda-zenith/context");
         return c.json(kodaContext.getHistory());
     });
-    
+
     apiApp.get("/dx/performance", async (c) => {
         const { kodaContext } = await import("../lib/koda-zenith/context");
         const metrics = kodaContext.getMetrics();
@@ -72,9 +78,9 @@ export const api = apiApp;
 // --- SEO & Auth Replacement Logic ---
 app.get("*", async (c: Context, next: Next) => {
     const acceptHeader = c.req.header("accept") || "";
-    
+
     // Skip SSR for API routes and static assets
-    if (c.req.url.includes("/api/") || 
+    if (c.req.url.includes("/api/") ||
         c.req.url.includes("/assets/") ||
         c.req.url.includes("/favicon.ico") ||
         c.req.url.includes("/robots.txt") ||
@@ -97,11 +103,11 @@ app.get("*", async (c: Context, next: Next) => {
         // Meta injection for SEO
         const url = new URL(c.req.url);
         const path = url.pathname;
-        
+
         let title = "Margins Pro - Intelligence Pricing System untuk UMKM Kuliner";
         let description = "Platform SaaS profesional yang membangun pengusaha kuliner menghitung HPP, mensimulasikan profit margin, dan mencegah kerugian akibat salah penetapan harga.";
         let ogImage = "https://marginpro.vercel.app/og-image.png";
-        
+
         // Dynamic meta based on route
         if (path.startsWith('/app/dashboard')) {
             title = "Dashboard - Margins Pro";
@@ -113,6 +119,8 @@ app.get("*", async (c: Context, next: Next) => {
             title = "Manajemen Keuangan - Margins Pro";
             description = "Kelola keuangan bisnis kuliner dengan fitur pencatatan yang terintegrasi.";
         }
+
+        const isDev = process.env.NODE_ENV === 'development';
 
         // Edge-compatible HTML template
         const html = `<!DOCTYPE html>
@@ -141,28 +149,28 @@ app.get("*", async (c: Context, next: Next) => {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    ${isDev ? `
+    <script type="module">
+        import { injectIntoGlobalHook } from "/@react-refresh"
+        injectIntoGlobalHook(window)
+        window.$RefreshReg$ = () => {}
+        window.$RefreshSig$ = () => (type) => type
+        window.__vite_plugin_react_preamble_installed__ = true
+    </script>` : ''}
     <style>
         html, body { margin: 0; padding: 0; width: 100%; }
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
         #root { width: 100%; min-height: 100vh; }
-        .loading { display: flex; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; gap: 1rem; }
-        .spinner { width: 50px; height: 50px; border: 4px solid #e2e8f0; border-top-color: #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
-    <div id="root">
-        <div class="loading">
-            <div class="spinner"></div>
-            <p style="color: #64748b; font-size: 14px;">Loading Margins Pro...</p>
-        </div>
-    </div>
+    <div id="root"></div>
     <script type="module" src="/src/client/index.tsx"></script>
 </body>
 </html>`;
 
         // Inject user session if available
-        const finalHtml = user 
+        const finalHtml = user
             ? html.replace('</head>', `<script>window.__INITIAL_SESSION__ = ${JSON.stringify(user)};</script></head>`)
             : html;
 
@@ -170,7 +178,7 @@ app.get("*", async (c: Context, next: Next) => {
 
     } catch (error) {
         console.error("SSR Error:", error);
-        
+
         // Fallback HTML on error
         const fallbackHtml = `<!DOCTYPE html>
 <html lang="id">
@@ -184,7 +192,7 @@ app.get("*", async (c: Context, next: Next) => {
     <script type="module" src="/src/client/index.tsx"></script>
 </body>
 </html>`;
-        
+
         return c.html(fallbackHtml);
     }
 });

@@ -10,13 +10,15 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 5173,
       host: '0.0.0.0',
-      proxy: {}, // No proxy needed, using @hono/vite-dev-server
+      proxy: {},
       hmr: {
         overlay: false
       }
     },
     plugins: [
-      react(),
+      react({
+        jsxRuntime: 'automatic',
+      }),
       tailwindcss(),
       devServer({
         entry: 'src/server/index.ts',
