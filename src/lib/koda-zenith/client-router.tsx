@@ -20,59 +20,74 @@ export function createClientRoutes(
     globLayouts: Record<string, () => Promise<unknown>>
 ): RouteObject[] {
     const routes: RouteObject[] = [];
-    const layoutMap = new Map<string, RouteObject>();
 
-    // Helper untuk normalisasi path (Supports 'apex' or 'routes')
+    // 1. Identifikasi Root Layout (src/apex/layout.tsx atau src/routes/layout.tsx)
+    // Sederhana: Kita cari layout di root direktori scan
+    let rootLayoutPath = Object.keys(globLayouts).find(path =>
+        path.match(/\/apex\/layout\.tsx$/) || path.match(/\/routes\/layout\.tsx$/)
+    );
+
+    const childRoutes: RouteObject[] = [];
+
+    // 2. Helper Normalisasi
     const normalizePath = (path: string) => {
         return path
-            .replace(/^\.\.\/apex/, '')     // Support Koda Zenith APEX Structure
+            .replace(/^\.\.\/apex/, '')
             .replace(/^\/src\/apex/, '')
-            .replace(/^\.\.\/routes/, '')   // Legacy
+            .replace(/^\.\.\/routes/, '')
             .replace(/^\/src\/routes/, '')
             .replace(/\.(tsx|jsx)$/, '')
             .replace(/\/index$/, '')
-            .replace(/\[\.{3}(.*?)\]/g, '*') // Catch-all
-            .replace(/\[(.*?)\]/g, ':$1');   // Params
+            .replace(/\/layout$/, '') // Layout path cleaning
+            .replace(/\[\.{3}(.*?)\]/g, '*')
+            .replace(/\[(.*?)\]/g, ':$1');
     };
 
-    // 1. Proses Layouts Terlebih Dahulu
-    // (Untuk membangun hierarki parent-child)
-    // TODO: Implementasi Nested Layout yang kompleks butuh rekuesif.
-    // Untuk MVP, kita akan buat flat routes dulu atau 1 level nesting.
-
-    // 2. Proses Pages
+    // 3. Proses Pages
     Object.keys(globPages).forEach((path) => {
-        // Abaikan route API
         if (path.includes('/api/')) return;
 
         const urlPath = normalizePath(path);
-
-        // Lazy load module sembari mempertahankan kemampuan React Router data loading
         const routeModule = globPages[path] as () => Promise<any>;
 
         const route: RouteObject = {
             path: urlPath === '' ? '/' : urlPath,
-
-            // Lazy Element Wrapper
             async lazy() {
                 const mod = await routeModule();
                 return {
                     Component: mod.default,
-                    loader: mod.loader,     // Support export const loader
-                    action: mod.action,     // Support export const action
-                    ErrorBoundary: mod.ErrorBoundary || mod.CatchBoundary, // Support Custom Error Boundary
+                    loader: mod.loader,
+                    action: mod.action,
+                    ErrorBoundary: mod.ErrorBoundary || mod.CatchBoundary,
                 };
-            },
-
-            // Fallback Element sementara lazy load berjalan (opsional, tapi bagus untuk UX)
-            // element: <div className="animate-pulse bg-slate-100 dark:bg-slate-800 w-full h-full min-h-[50vh]" />
+            }
         };
 
-        routes.push(route);
+        childRoutes.push(route);
     });
 
-    // Sorting: Root '/' terakhir agar tidak memakan route lain (tergantung algoritma RR)
-    // React Router v6 cukup pintar menilai specificity.
+    // 4. Bungkus dengan Root Layout jika ada
+    if (rootLayoutPath) {
+        const layoutModule = globLayouts[rootLayoutPath] as () => Promise<any>;
+
+        console.log(`[Koda Zenith] Root Layout found: ${rootLayoutPath}`);
+
+        routes.push({
+            path: "/", // Root Path
+            async lazy() {
+                const mod = await layoutModule();
+                return {
+                    Component: mod.default, // Layout Component (must render <Outlet />)
+                    loader: mod.loader,
+                    ErrorBoundary: mod.ErrorBoundary
+                };
+            },
+            children: childRoutes
+        });
+    } else {
+        // Jika tidak ada layout, langsung push semua page
+        routes.push(...childRoutes);
+    }
 
     return routes;
 }
