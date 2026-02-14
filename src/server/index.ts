@@ -8,6 +8,9 @@ import type { Context, Next } from "hono";
 import { authRoutes } from "./routes/auth";
 import { projectsRoutes } from "./routes/projects";
 import { paymentsRoutes } from "./routes/payment";
+import { configsRoutes } from "./routes/configs";
+import { marketplaceRoutes } from "./routes/marketplace";
+import { financeRoutes } from "./routes/finance";
 import { getSession } from "./middleware/session";
 
 // Create the main app
@@ -33,6 +36,9 @@ if (process.env.NODE_ENV !== "production") {
 apiApp.route("/auth", authRoutes);
 apiApp.route("/projects", projectsRoutes);
 apiApp.route("/payment", paymentsRoutes);
+apiApp.route("/configs", configsRoutes);
+apiApp.route("/marketplace", marketplaceRoutes);
+apiApp.route("/finance", financeRoutes);
 
 // Health check
 apiApp.get("/health", (c) => {
