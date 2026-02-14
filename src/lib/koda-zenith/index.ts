@@ -107,7 +107,7 @@ export const koda = Object.assign(createKoda, {
     production: (config?: { 
       rateLimit?: { windowMs: number; limit: number };
       csp?: Record<string, string[]>;
-      routes?: RouteModule[];
+      routes?: Record<string, any>;
     }) => {
       const app = createKoda();
       
@@ -135,7 +135,7 @@ export const koda = Object.assign(createKoda, {
      * Development setup with enhanced debugging
      */
     development: (config?: {
-      routes?: RouteModule[];
+      routes?: Record<string, any>;
       enableSpatial?: boolean;
     }) => {
       const app = createKoda();
@@ -179,7 +179,7 @@ export const koda = Object.assign(createKoda, {
     /**
      * Next.js-style app with file-based routing
      */
-    nextjs: (routeModules: Record<string, RouteModule>) => {
+    nextjs: (routeModules: Record<string, any>) => {
       const app = createKoda();
       const routes = createRoutes(routeModules);
       

@@ -107,7 +107,7 @@ app.get("*", async (c: Context, next: Next) => {
     try {
         // Get user session for SSR
         const session = await getSession(c);
-        const user = session?.user || null;
+        const user = session || null;
 
         // Read the built HTML file
         const htmlPath = "./dist/index.html";
