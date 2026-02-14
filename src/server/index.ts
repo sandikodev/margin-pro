@@ -64,7 +64,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 // Mount the API app to the main app root
-app.route("/", apiApp);
+app.route("/api", apiApp);
 
 // Export only the API part for RPC Client to infer types from
 export const api = apiApp;
