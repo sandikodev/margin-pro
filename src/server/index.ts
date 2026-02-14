@@ -1,6 +1,6 @@
 import "./env";
 import { Hono, type Context, type Next } from "hono";
-import { koda } from "@framework";
+import { koda } from "@koda/server";
 import { cors } from "hono/cors";
 import { BusinessProfile, BusinessType } from "@shared/types";
 import { authRoutes } from "./routes/auth";
