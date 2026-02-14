@@ -11,6 +11,14 @@ export async function loader() {
     };
 }
 
+// Meta Tags (SEO / Client-Side Title)
+export const meta = () => {
+    return [
+        { title: "Zenith | Koda Framework" },
+        { name: "description", content: "Demonstrasi fitur Koda Zenith: File-System Routing, Loaders, dan Meta Tags." }
+    ];
+};
+
 export default function ZenithPage() {
     const data = useLoaderData() as { message: string, timestamp: string };
 

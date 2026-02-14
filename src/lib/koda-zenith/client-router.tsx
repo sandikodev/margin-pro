@@ -60,9 +60,13 @@ export function createClientRoutes(
                     loader: mod.loader,
                     action: mod.action,
                     ErrorBoundary: mod.ErrorBoundary || mod.CatchBoundary,
+                    handle: {
+                        meta: mod.meta // Support export const meta = () => { title: "..." }
+                    }
                 };
             }
         };
+
 
         childRoutes.push(route);
     });
