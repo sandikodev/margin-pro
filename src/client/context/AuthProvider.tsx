@@ -5,12 +5,18 @@ import { AuthContext } from './auth-context';
 import { queryClient } from '@/lib/query-client';
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(true);
+  // SSR Hydration
+  const initialSession = (typeof window !== 'undefined' && (window as any).__INITIAL_SESSION__)
+    ? (window as any).__INITIAL_SESSION__
+    : null;
 
-  // Check Session on Mount (Server Cookie Only)
+  const [user, setUser] = useState<User | null>(initialSession);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!initialSession);
+  const [isLoading, setIsLoading] = useState(!initialSession); // Skip loading UI if hydrated
+
+  // Check Session on Mount (Revalidate but don't block if hydrated)
   useEffect(() => {
+
     const checkSession = async () => {
       try {
         const res = await api.auth.me.$get();

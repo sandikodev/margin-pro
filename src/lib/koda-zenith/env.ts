@@ -23,18 +23,36 @@ function detectRuntime(): KodaRuntime {
   return 'unknown';
 }
 
+const getEnvValue = (key: string): string | undefined => {
+  // 1. Try Vite/Bun import.meta.env (Client & Modern Server)
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    if (key in import.meta.env) {
+      return import.meta.env[key];
+    }
+  }
+  // 2. Fallback to process.env (Node/Legacy Server)
+  if (typeof process !== 'undefined' && process.env) {
+    return process.env[key];
+  }
+  return undefined;
+};
+
 export const env: KodaEnv = {
-  runtime: detectRuntime(),
-  isDev: typeof process !== 'undefined' ? process.env.NODE_ENV === 'development' : false,
-  
-  get isProd() { 
-    return !this.isDev; 
+  get runtime() { return detectRuntime(); }, // Dynamic getter
+  get isDev() {
+    // Check import.meta.env.DEV first (Vite standard)
+    if (typeof import.meta !== 'undefined' && import.meta.env) return import.meta.env.DEV;
+    return typeof process !== 'undefined' ? process.env.NODE_ENV === 'development' : false;
   },
-  
+
+  get isProd() {
+    return !this.isDev;
+  },
+
   get(key: string): string | undefined {
-    return typeof process !== 'undefined' ? process.env[key] : undefined;
+    return getEnvValue(key);
   },
-  
+
   require(key: string): string {
     const value = this.get(key);
     if (!value) {
@@ -42,7 +60,7 @@ export const env: KodaEnv = {
     }
     return value;
   },
-  
+
   getNumber(key: string, defaultValue?: number): number {
     const value = this.get(key);
     if (!value) {
@@ -55,16 +73,17 @@ export const env: KodaEnv = {
     }
     return num;
   },
-  
+
   getBoolean(key: string, defaultValue?: boolean): boolean {
     const value = this.get(key);
     if (!value) {
       if (defaultValue !== undefined) return defaultValue;
       throw new Error(`Environment variable ${key} is required but not set`);
     }
-    return value.toLowerCase() === 'true' || value === '1';
+    return String(value).toLowerCase() === 'true' || value === '1';
   }
 };
+
 
 // Global declarations
 declare global {

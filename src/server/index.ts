@@ -107,21 +107,28 @@ const apiApp = new Hono();
 const fsRoutes = import.meta.glob('./routes/**/*.ts', { eager: true });
 const fileSystemRouter = createFileSystemRouter(fsRoutes, '/'); // Base path relative to API
 
-apiApp.route("/", fileSystemRouter);
+// Route Chaining for Type Inference (Critical for Hono RPC)
+// Static routes first to ensure types are preserved
+const routes = apiApp
+    .route("/auth", authRoutes) // Critical: Auth Routes Manual Mount
+    .route("/businesses", businessesRoutes)
+    .route("/projects", projectsRoutes)
+    .route("/finance", financeRoutes)
+    .route("/marketplace", marketplaceRoutes)
+    .route("/configs", configsRoutes)
+    .route("/admin", adminRoutes)
+    .route("/payment", paymentsRoutes)
+    .route("/collaboration", collaborationRoutes)
+    .route("/", fileSystemRouter); // Dynamic routes last
 
-
-apiApp.route("/businesses", businessesRoutes);
-apiApp.route("/projects", projectsRoutes);
-apiApp.route("/finance", financeRoutes);
-apiApp.route("/marketplace", marketplaceRoutes);
-apiApp.route("/configs", configsRoutes);
-apiApp.route("/admin", adminRoutes);
-apiApp.route("/payment", paymentsRoutes);
-apiApp.route("/collaboration", collaborationRoutes);
 
 // Mount API
 app.route("/api", apiApp);
-export const api = apiApp;
+
+// Export for RPC Client
+export const api = routes;
+export type AppType = typeof routes;
+
 
 // --- SEO & SMART SSR ---
 app.get("*", async (c: Context, next: Next) => {
