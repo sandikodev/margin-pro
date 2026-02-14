@@ -3,6 +3,8 @@
  * Vision Pro, BCI, Gesture Recognition ready
  */
 
+import React from 'react';
+
 export namespace Spatial {
   export interface SpatialGesture {
     type: 'pinch' | 'swipe_left' | 'swipe_right' | 'air_tap' | 'grab' | 'release' | 'point';

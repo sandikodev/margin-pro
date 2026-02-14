@@ -186,6 +186,8 @@ export const supervisor = new Supervisor();
 /**
  * React hook for actor integration
  */
+import React from 'react';
+
 export function useActor<T extends Actor, R = any>(
   actor: T,
   messageType: string,

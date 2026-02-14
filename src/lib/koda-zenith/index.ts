@@ -190,7 +190,7 @@ export const koda = Object.assign(createKoda, {
     /**
      * Enterprise setup with actor system
      */
-    enterprise: (config?: {
+    enterprise: async (config?: {
       actors?: Array<{ id: string; actor: new (...args: any[]) => Actor; args?: any[] }>;
       rateLimit?: { windowMs: number; limit: number };
     }) => {
@@ -198,6 +198,7 @@ export const koda = Object.assign(createKoda, {
       
       // Start supervised actors
       if (config?.actors) {
+        const { supervisor } = await import('./actors');
         for (const { id, actor: ActorClass, args = [] } of config.actors) {
           supervisor.startActor(id, ActorClass, args, 'permanent');
         }
@@ -213,6 +214,7 @@ export const koda = Object.assign(createKoda, {
       // Actor API endpoints
       app.post('/api/actors/:id', async (c) => {
         const actorId = c.req.param('id');
+        const { supervisor, actorToHono } = await import('./actors');
         const actor = supervisor.getActor(actorId);
         
         if (!actor) {
