@@ -10,23 +10,23 @@ export const BlogIndex = () => {
 
     useEffect(() => {
         const fetchPosts = async () => {
-             const posts = await getAllPosts();
-             setAllPosts(posts);
-             setLoading(false);
+            const posts = await getAllPosts();
+            setAllPosts(posts);
+            setLoading(false);
         };
         fetchPosts();
     }, []);
 
     const [searchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('All');
-    
+
     // Get unique categories
     const categories = ['All', ...Array.from(new Set(allPosts.map(post => post.category)))];
 
     // Filter posts
     const filteredPosts = allPosts.filter(post => {
-        const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
         return matchesSearch && matchesCategory;
     });
@@ -35,11 +35,7 @@ export const BlogIndex = () => {
     const featuredPost = filteredPosts.length > 0 ? filteredPosts[0] : null;
     const gridPosts = filteredPosts.slice(1);
 
-    if (loading) return (
-        <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-            <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
-        </div>
-    );
+
 
     return (
         <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-indigo-500/30">
@@ -52,8 +48,8 @@ export const BlogIndex = () => {
                         </div>
                         <span className="font-bold tracking-tight text-white hidden md:block">Margin Intelligence</span>
                     </div>
-                    <button 
-                        onClick={() => navigate('/')} 
+                    <button
+                        onClick={() => navigate('/')}
                         className="text-sm font-medium text-slate-400 hover:text-white transition-colors flex items-center gap-2"
                     >
                         <ArrowLeft className="w-4 h-4" />
@@ -69,8 +65,8 @@ export const BlogIndex = () => {
                             onClick={() => setSelectedCategory(category)}
                             className={`
                                 whitespace-nowrap px-4 py-2 rounded-full text-xs font-bold tracking-wide transition-all snap-start
-                                ${selectedCategory === category 
-                                    ? 'bg-white text-slate-950 shadow-md' 
+                                ${selectedCategory === category
+                                    ? 'bg-white text-slate-950 shadow-md'
                                     : 'bg-slate-900 border border-slate-800 text-slate-400'}
                             `}
                         >
@@ -80,7 +76,7 @@ export const BlogIndex = () => {
                 </div>
             </div>
 
-            <div className="max-w-6xl mx-auto px-4 md:px-6 pt-32 md:pt-40 pb-20">
+            <div className="max-w-6xl mx-auto px-4 md:px-6 pt-24 md:pt-32 pb-20">
                 {/* Desktop: Title & Search */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12 md:mb-16">
                     <div>
@@ -100,8 +96,8 @@ export const BlogIndex = () => {
                                 onClick={() => setSelectedCategory(category)}
                                 className={`
                                     px-5 py-2.5 rounded-full text-sm font-bold transition-all hover:-translate-y-0.5
-                                    ${selectedCategory === category 
-                                        ? 'bg-white text-slate-950 shadow-lg shadow-white/10' 
+                                    ${selectedCategory === category
+                                        ? 'bg-white text-slate-950 shadow-lg shadow-white/10'
                                         : 'bg-slate-900/50 border border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white'}
                                 `}
                             >
@@ -115,22 +111,22 @@ export const BlogIndex = () => {
                 {selectedCategory === 'All' && !searchQuery && featuredPost && (
                     <div className="hidden md:block mb-16 group cursor-pointer" onClick={() => navigate(`/blog/${featuredPost.slug}`)}>
                         <div className="relative h-[500px] w-full rounded-3xl overflow-hidden border border-slate-800">
-                             {/* Image */}
-                             {featuredPost.image ? (
-                                <img 
-                                    src={featuredPost.image} 
+                            {/* Image */}
+                            {featuredPost.image ? (
+                                <img
+                                    src={featuredPost.image}
                                     alt={featuredPost.title}
                                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                 />
-                             ) : (
+                            ) : (
                                 <div className="absolute inset-0 bg-slate-900" />
-                             )}
-                             
-                             {/* Gradient Overlay */}
-                             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-                             
-                             {/* Content */}
-                             <div className="absolute bottom-0 left-0 w-full p-12">
+                            )}
+
+                            {/* Gradient Overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+
+                            {/* Content */}
+                            <div className="absolute bottom-0 left-0 w-full p-12">
                                 <span className="inline-block px-3 py-1 mb-4 rounded-full bg-indigo-500 text-white text-xs font-black uppercase tracking-widest shadow-lg">
                                     Featured
                                 </span>
@@ -145,7 +141,7 @@ export const BlogIndex = () => {
                                     <span className="w-1 h-1 rounded-full bg-slate-600" />
                                     <span>{featuredPost.readTime}</span>
                                 </div>
-                             </div>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -154,7 +150,7 @@ export const BlogIndex = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-y-12">
                     {/* On Desktop, we slice(1) if showing featured. On filtered views or mobile, we show all. */}
                     {(selectedCategory === 'All' && !searchQuery ? gridPosts : filteredPosts).map((post) => (
-                        <div 
+                        <div
                             key={post.slug}
                             onClick={() => navigate(`/blog/${post.slug}`)}
                             className="group cursor-pointer flex flex-col gap-4"
@@ -162,16 +158,16 @@ export const BlogIndex = () => {
                             {/* Card Image */}
                             <div className="relative aspect-[4/3] md:aspect-[16/10] overflow-hidden rounded-2xl bg-slate-900 border border-slate-800">
                                 {post.image && (
-                                    <img 
-                                        src={post.image} 
-                                        alt={post.title} 
+                                    <img
+                                        src={post.image}
+                                        alt={post.title}
                                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                     />
                                 )}
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-                                
+
                                 <div className="absolute top-4 left-4">
-                                     <span className="px-3 py-1 rounded-lg bg-black/40 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold uppercase tracking-wider">
+                                    <span className="px-3 py-1 rounded-lg bg-black/40 backdrop-blur-md border border-white/10 text-white text-[10px] font-bold uppercase tracking-wider">
                                         {post.category}
                                     </span>
                                 </div>
