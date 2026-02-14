@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '@/lib/client';
 import { PlatformConfig, Platform } from '@shared/types';
 import { ConfigContext } from './ConfigContext';
 
-export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
     const [settings, setSettings] = useState<Record<string, string>>({});
     const [platforms, setPlatforms] = useState<Record<Platform, PlatformConfig>>({} as Record<Platform, PlatformConfig>);
     const [translations, setTranslations] = useState<Record<string, { umkm: string; pro: string }>>({});
