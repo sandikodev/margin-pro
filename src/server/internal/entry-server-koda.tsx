@@ -4,10 +4,13 @@
  * Qwik-style performance optimizations
  */
 
-import type { KodaServerEntry } from '../lib/koda-zenith/entries';
-import { serverUtils } from '../lib/koda-zenith/entries';
+import type { KodaServerEntry } from '../../lib/koda-zenith/entries';
+import { serverUtils } from '../../lib/koda-zenith/entries';
+
+
 import { renderToString } from 'react-dom/server';
-import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'react-router';
+import { createStaticHandler, createStaticRouter, StaticRouterProvider } from 'react-router-dom/server';
+
 
 // Server entry implementation
 const serverEntry: KodaServerEntry = {
@@ -16,19 +19,19 @@ const serverEntry: KodaServerEntry = {
    */
   async middleware(request: Request): Promise<Request | Response> {
     const url = new URL(request.url);
-    
+
     // Security middleware
     if (url.pathname.includes('admin') && !isAuthenticated(request)) {
       return new Response('Unauthorized', { status: 401 });
     }
-    
+
     // Rewrite rules
     if (url.pathname.startsWith('/old-path')) {
       const newUrl = new URL(request.url);
       newUrl.pathname = url.pathname.replace('/old-path', '/new-path');
       return Response.redirect(newUrl.toString(), 301);
     }
-    
+
     // Continue to next middleware
     return request;
   },
@@ -39,7 +42,7 @@ const serverEntry: KodaServerEntry = {
   extractCriticalCSS(html: string) {
     const usedClasses = serverUtils.extractUsedClasses(html);
     const criticalCSS = serverUtils.generateCriticalCSS(usedClasses);
-    
+
     return { usedClasses, criticalCSS };
   },
 
@@ -49,7 +52,7 @@ const serverEntry: KodaServerEntry = {
   async render(request: Request) {
     try {
       // Create router (would be auto-generated from file-based routes)
-      const routes = []; // Auto-discovered routes
+      const routes: any[] = []; // Auto-discovered routes
       const { query, dataRoutes } = createStaticHandler(routes);
       const context = await query(request);
 
@@ -64,9 +67,10 @@ const serverEntry: KodaServerEntry = {
         <StaticRouterProvider router={router} context={context} />
       );
 
+
       // Extract critical CSS from rendered HTML
       const { usedClasses, criticalCSS } = this.extractCriticalCSS!(html);
-      
+
       // Inject critical CSS
       const finalHtml = serverUtils.injectCriticalCSS(html, criticalCSS);
 
@@ -92,7 +96,7 @@ const serverEntry: KodaServerEntry = {
    */
   async loader(request: Request) {
     const url = new URL(request.url);
-    
+
     // Global data loading (like Next.js getServerSideProps)
     const globalData = {
       timestamp: Date.now(),

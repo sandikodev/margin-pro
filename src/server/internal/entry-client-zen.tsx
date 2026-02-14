@@ -4,10 +4,10 @@
  * Zen philosophy: Minimal constraints, maximum freedom
  */
 
-import type { ZenClientEntry } from '../lib/koda-zenith/entries';
-import { clientUtils } from '../lib/koda-zenith/entries';
+import type { ZenClientEntry } from '../../lib/koda-zenith/entries';
+import { clientUtils } from '../../lib/koda-zenith/entries';
 import { hydrateRoot } from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 // Client entry implementation with Zen philosophy
 const clientEntry: ZenClientEntry = {
@@ -17,14 +17,14 @@ const clientEntry: ZenClientEntry = {
   hydrate(element: HTMLElement, data?: any) {
     // Progressive hydration approach
     const islandElements = element.querySelectorAll('[data-koda-island]');
-    
+
     islandElements.forEach(island => {
       const componentName = island.getAttribute('data-koda-island');
       const props = island.getAttribute('data-koda-props');
-      
+
       // Developer can implement their own component loading strategy
-      this.loadComponent(componentName!, JSON.parse(props || '{}'))
-        .then(Component => {
+      this.loadComponent?.(componentName!, JSON.parse(props || '{}'))
+        ?.then(Component => {
           hydrateRoot(island, <Component {...JSON.parse(props || '{}')} />);
         });
     });
@@ -39,7 +39,7 @@ const clientEntry: ZenClientEntry = {
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(form as HTMLFormElement);
-        
+
         // Developer freedom: implement their own form handling
         await this.handleFormSubmission?.(formData, form);
       });
@@ -56,16 +56,16 @@ const clientEntry: ZenClientEntry = {
     // Enhance interactive elements
     clientUtils.enhance('[data-zen-interactive]', (element) => {
       const interaction = element.getAttribute('data-zen-interactive');
-      
+
       switch (interaction) {
         case 'lazy-load':
-          this.setupLazyLoading(element);
+          this.setupLazyLoading?.(element);
           break;
         case 'infinite-scroll':
-          this.setupInfiniteScroll(element);
+          this.setupInfiniteScroll?.(element);
           break;
         case 'real-time':
-          this.setupRealTimeUpdates(element);
+          this.setupRealTimeUpdates?.(element);
           break;
       }
     });
@@ -89,15 +89,15 @@ const clientEntry: ZenClientEntry = {
       set(target: any, key: string, value: any) {
         target[key] = value;
         // Notify subscribers
-        this.notify?.(key, value);
+        clientEntry.store.notify?.(key, value);
         return true;
       }
     }),
-    
+
     subscribe(key: string, callback: (value: any) => void) {
       // Developer can implement their own subscription system
     },
-    
+
     notify(key: string, value: any) {
       // Broadcast state changes
       document.dispatchEvent(new CustomEvent(`zen:state:${key}`, { detail: value }));
@@ -109,26 +109,26 @@ const clientEntry: ZenClientEntry = {
    */
   init() {
     console.log('🧘 Zen Client initialized - You have complete freedom');
-    
+
     // Auto-enhance the page
     this.enhance?.();
-    
+
     // Setup global error handling
     window.addEventListener('error', (e) => {
       console.error('Zen Error:', e.error);
       // Developer can implement their own error handling
     });
-    
+
     // Setup performance monitoring
     if ('performance' in window) {
-      this.setupPerformanceMonitoring();
+      this.setupPerformanceMonitoring?.();
     }
-    
+
     // Setup service worker (if available)
     if ('serviceWorker' in navigator) {
-      this.setupServiceWorker();
+      this.setupServiceWorker?.();
     }
-    
+
     // Developer freedom: Add any custom initialization
     this.customInit?.();
   },
@@ -137,7 +137,7 @@ const clientEntry: ZenClientEntry = {
   async loadComponent(name: string, props: any) {
     // Dynamic component loading - developer implements their strategy
     try {
-      const module = await import(`./components/${name}`);
+      const module = await import(`../../client/components/${name}`);
       return module.default;
     } catch (error) {
       console.warn(`Component ${name} not found, using fallback`);
@@ -148,13 +148,13 @@ const clientEntry: ZenClientEntry = {
   async handleFormSubmission(formData: FormData, form: Element) {
     // Developer implements their form handling logic
     const action = form.getAttribute('action') || '/api/form';
-    
+
     try {
       const response = await fetch(action, {
         method: 'POST',
         body: formData
       });
-      
+
       if (response.ok) {
         // Success feedback
         form.classList.add('zen-success');
@@ -179,7 +179,7 @@ const clientEntry: ZenClientEntry = {
         }
       });
     });
-    
+
     observer.observe(element);
   },
 
@@ -195,7 +195,7 @@ const clientEntry: ZenClientEntry = {
         }
       });
     });
-    
+
     observer.observe(element);
   },
 
@@ -219,7 +219,7 @@ const clientEntry: ZenClientEntry = {
           console.log('Performance:', entry.name, entry.duration);
         });
       });
-      
+
       observer.observe({ entryTypes: ['navigation', 'paint', 'largest-contentful-paint'] });
     }
   },

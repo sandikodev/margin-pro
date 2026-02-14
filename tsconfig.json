@@ -21,17 +21,42 @@
     "allowJs": true,
     "jsx": "react-jsx",
     "paths": {
-      "@/*": ["./src/client/*"],
-      "@client/*": ["./src/client/*"],
-      "@server/*": ["./src/server/*"],
-      "@shared/*": ["./src/shared/*"],
-      "@framework/dx": ["./packages/koda/packages/core/src/dx/index.ts"],
-      "@framework": ["./packages/koda/packages/server/src/index.ts"],
-      "@framework/*": ["./packages/koda/packages/server/src/*"],
-      "@koda/core": ["./packages/koda/packages/core/src/index.ts"],
-      "@koda/core/*": ["./packages/koda/packages/core/src/*"],
-      "@koda/ui": ["./packages/koda/packages/ui/src/index.ts"],
-      "@koda/ui/*": ["./packages/koda/packages/ui/src/*"]
+      "@root/*": [
+        "./src/*"
+      ],
+      "@/*": [
+        "./src/client/*"
+      ],
+      "@client/*": [
+        "./src/client/*"
+      ],
+      "@server/*": [
+        "./src/server/*"
+      ],
+      "@shared/*": [
+        "./src/shared/*"
+      ],
+      "@framework/dx": [
+        "./packages/koda/packages/core/src/dx/index.ts"
+      ],
+      "@framework": [
+        "./packages/koda/packages/server/src/index.ts"
+      ],
+      "@framework/*": [
+        "./packages/koda/packages/server/src/*"
+      ],
+      "@koda/core": [
+        "./packages/koda/packages/core/src/index.ts"
+      ],
+      "@koda/core/*": [
+        "./packages/koda/packages/core/src/*"
+      ],
+      "@koda/ui": [
+        "./packages/koda/packages/ui/src/index.ts"
+      ],
+      "@koda/ui/*": [
+        "./packages/koda/packages/ui/src/*"
+      ]
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
