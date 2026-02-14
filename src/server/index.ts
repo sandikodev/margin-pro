@@ -1,199 +1,218 @@
-import { Hono } from "hono";
+
+import { Hono, type Context, type Next } from "hono";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
-import { serveStatic } from "hono/serve-static";
-import type { Context, Next } from "hono";
+import { koda, env } from "../lib/koda-zenith";
+import { registerEntries, type KodaServerEntry, type ZenClientEntry, serverUtils } from "../lib/koda-zenith/entries";
 
-// Import API routes
+// API routes
 import { authRoutes } from "./routes/auth";
-import { projectsRoutes } from "./routes/projects";
-import { paymentsRoutes } from "./routes/payment";
-import { configsRoutes } from "./routes/configs";
-import { marketplaceRoutes } from "./routes/marketplace";
-import { financeRoutes } from "./routes/finance";
 import { businessesRoutes } from "./routes/businesses";
+import { projectsRoutes } from "./routes/projects";
+import { configsRoutes } from "./routes/configs";
 import { adminRoutes } from "./routes/admin";
+import { paymentsRoutes } from "./routes/payment";
+import { financeRoutes } from "./routes/finance";
+import { marketplaceRoutes } from "./routes/marketplace";
 import { collaborationRoutes } from "./routes/collaboration";
+
+// Database & Middleware
+import { db } from "./db/index";
+import { users, businesses as businessesTable } from "./db/schema";
+import { eq } from "drizzle-orm";
 import { getSession } from "./middleware/session";
+import { requestLogger } from "./middleware/security";
 
-// Create the main app
-const app = new Hono();
+// SSR Dependencies REMOVED for Edge Compatibility
+// Pure Shell Rendering Strategy
 
-// Create API app
-const apiApp = new Hono();
+// --- INLINED SERVER ENTRY For Edge Compatibility ---
+const serverEntry: KodaServerEntry = {
+    async middleware(request: Request): Promise<Request | Response> {
+        const url = new URL(request.url);
+        if (url.pathname.includes('admin') && !isAuthenticated(request)) {
+            return new Response('Unauthorized', { status: 401 });
+        }
+        if (url.pathname.startsWith('/old-path')) {
+            const newUrl = new URL(request.url);
+            newUrl.pathname = url.pathname.replace('/old-path', '/new-path');
+            return Response.redirect(newUrl.toString(), 301);
+        }
+        return request;
+    },
 
-// Middleware
-app.use("*", cors({
-    origin: ["http://localhost:5173", "https://marginpro.vercel.app"],
-    credentials: true,
-}));
+    // Critical CSS not needed for Shell Rendering
+    extractCriticalCSS(html: string) { return { usedClasses: [], criticalCSS: '' }; },
 
-app.use("*", logger());
+    async render(request: Request) {
+        // Shell Rendering: We serve the empty shell and let client hydrate
+        // This is incredibly fast on Edge and 100% compatible
+        return { html: '', context: null, criticalCSS: '' };
+    },
 
-// Serve static files in development
-if (process.env.NODE_ENV !== "production") {
-    // Remove static file serving for Edge Runtime compatibility
+    async loader(request: Request) {
+        const url = new URL(request.url);
+        return {
+            timestamp: Date.now(),
+            path: url.pathname,
+            userAgent: request.headers.get('user-agent'),
+        };
+    }
+};
+
+function isAuthenticated(request: Request): boolean {
+    const cookie = request.headers.get('cookie');
+    return cookie?.includes('auth-token') || false;
 }
 
-// API Routes
-apiApp.route("/auth", authRoutes);
-apiApp.route("/projects", projectsRoutes);
-apiApp.route("/payment", paymentsRoutes);
-apiApp.route("/configs", configsRoutes);
-apiApp.route("/marketplace", marketplaceRoutes);
-apiApp.route("/finance", financeRoutes);
-apiApp.route("/businesses", businessesRoutes);
-apiApp.route("/admin", adminRoutes);
-apiApp.route("/collaboration", collaborationRoutes);
+// --- DUMMY CLIENT ENTRY (Server doesn't need browser logic) ---
+const clientEntry: Partial<ZenClientEntry> = {
+    init: () => console.log('Client entry placeholder on server'),
+};
 
-// Health check
-apiApp.get("/health", (c) => {
-    return c.json({
-        status: "ok",
-        timestamp: new Date().toISOString(),
-        runtime: "edge"
-    });
+// Register framework entries
+registerEntries({
+    server: serverEntry,
+    client: clientEntry as any
 });
 
-// Development routes
-if (process.env.NODE_ENV === "development") {
-    apiApp.get("/dx/context", async (c) => {
-        const { kodaContext } = await import("../lib/koda-zenith/context");
-        return c.json(kodaContext.getHistory());
+// Setup App with Koda Zenith Intelligence
+const app = env.isDev
+    ? koda.setup.development()
+    : koda.setup.production({
+        rateLimit: { windowMs: 60 * 1000, limit: 120 },
+        csp: {
+            defaultSrc: ["'self'", "https://*.transparenttextures.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://*.google.com", "https://*.gstatic.com", "https://app.midtrans.com"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://*.transparenttextures.com"],
+            imgSrc: ["'self'", "data:", "https:", "blob:", "https://*.transparenttextures.com"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+            connectSrc: ["'self'", "https://*.googleapis.com", "https://*.turso.io", "https://app.midtrans.com", "https://api.midtrans.com", "https://api.sandbox.midtrans.com", "ws://localhost:*", "http://localhost:*"],
+        }
+
     });
 
-    apiApp.get("/dx/performance", async (c) => {
-        const { kodaContext } = await import("../lib/koda-zenith/context");
-        const metrics = kodaContext.getMetrics();
-        return c.json(metrics);
-    });
-}
+app.use("*", cors({
+    origin: ["http://localhost:5173", "https://marginpro.vercel.app", "https://margins-pro-legacy-check.vercel.app"],
+    credentials: true,
+}));
+app.use("*", requestLogger);
 
-// Mount the API app to the main app root
+import { createFileSystemRouter } from "../lib/koda-zenith/fs-router";
+
+// --- API Sub-App ---
+const apiApp = new Hono();
+
+// Koda Zenith v2 - File System Routing
+// Automatically scans ./routes/**/*.ts (Server Routes) and mounts them
+const fsRoutes = import.meta.glob('./routes/**/*.ts', { eager: true });
+const fileSystemRouter = createFileSystemRouter(fsRoutes, '/'); // Base path relative to API
+
+apiApp.route("/", fileSystemRouter);
+
+
+apiApp.route("/businesses", businessesRoutes);
+apiApp.route("/projects", projectsRoutes);
+apiApp.route("/finance", financeRoutes);
+apiApp.route("/marketplace", marketplaceRoutes);
+apiApp.route("/configs", configsRoutes);
+apiApp.route("/admin", adminRoutes);
+apiApp.route("/payment", paymentsRoutes);
+apiApp.route("/collaboration", collaborationRoutes);
+
+// Mount API
 app.route("/api", apiApp);
-
-// Export only the API part for RPC Client to infer types from
 export const api = apiApp;
 
-// --- SEO & Auth Replacement Logic ---
+// --- SEO & SMART SSR ---
 app.get("*", async (c: Context, next: Next) => {
-    const acceptHeader = c.req.header("accept") || "";
+    const url = new URL(c.req.url);
+    const accept = c.req.header("accept") || "";
 
-    // Skip SSR for API routes and static assets
-    if (c.req.url.includes("/api/") ||
-        c.req.url.includes("/assets/") ||
-        c.req.url.includes("/favicon.ico") ||
-        c.req.url.includes("/robots.txt") ||
-        c.req.url.includes("/manifest.json")) {
-        await next();
-        return;
+    // Optimization: Skip SSR for assets/API
+    if (url.pathname.startsWith("/api") ||
+        url.pathname.startsWith("/assets") ||
+        url.pathname.match(/\.(ico|png|jpg|svg|css|js|json)$/)) {
+        return next();
     }
 
-    // Only do SSR for HTML requests
-    if (!acceptHeader.includes("text/html")) {
-        await next();
-        return;
+    if (!accept.includes("text/html")) {
+        return next();
     }
 
     try {
-        // Get user session for SSR
         const session = await getSession(c);
-        const user = session || null;
 
-        // Meta injection for SEO
-        const url = new URL(c.req.url);
-        const path = url.pathname;
+        // Intelligent Redirection Logic
+        const isProtected = url.pathname.startsWith("/app") || url.pathname.startsWith("/system");
+        if (isProtected && !session) return c.redirect("/auth");
+        if (url.pathname === "/auth" && session) return c.redirect("/app/dashboard");
 
-        let title = "Margins Pro - Intelligence Pricing System untuk UMKM Kuliner";
-        let description = "Platform SaaS profesional yang membangun pengusaha kuliner menghitung HPP, mensimulasikan profit margin, dan mencegah kerugian akibat salah penetapan harga.";
-        let ogImage = "https://marginpro.vercel.app/og-image.png";
+        // Metadata Intelligence
+        let title = "Margins Pro - Intelligence Pricing System";
+        let description = "Solusi HPP dan kalkulasi profit cerdas untuk UMKM.";
 
-        // Dynamic meta based on route
-        if (path.startsWith('/app/dashboard')) {
+        if (url.pathname.includes("/blog")) {
+            title = "Blog Intelligence - Margins Pro";
+        } else if (url.pathname.includes("/app/dashboard")) {
             title = "Dashboard - Margins Pro";
-            description = "Monitor performa bisnis kuliner Anda dengan dashboard analytics yang komprehensif.";
-        } else if (path.startsWith('/app/calculator')) {
-            title = "Kalkulator HPP - Margins Pro";
-            description = "Hitung Harga Pokok Penjualan (HPP) dengan akurat menggunakan kalkulator profesional kami.";
-        } else if (path.startsWith('/app/finance')) {
-            title = "Manajemen Keuangan - Margins Pro";
-            description = "Kelola keuangan bisnis kuliner dengan fitur pencatatan yang terintegrasi.";
         }
 
-        const isDev = process.env.NODE_ENV === 'development';
+        // Fetch Base HTML (Edge Portable)
+        let html = "";
+        const isDev = env.isDev;
 
-        // Edge-compatible HTML template
-        const html = `<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#4f46e5">
-    <title>${title}</title>
-    <meta name="description" content="${description}">
-    
-    <!-- Open Graph -->
-    <meta property="og:title" content="${title}">
-    <meta property="og:description" content="${description}">
-    <meta property="og:image" content="${ogImage}">
-    <meta property="og:url" content="${c.req.url}">
-    <meta property="og:type" content="website">
-    
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${title}">
-    <meta name="twitter:description" content="${description}">
-    <meta name="twitter:image" content="${ogImage}">
-    
-    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    ${isDev ? `
-    <script type="module">
-        import { injectIntoGlobalHook } from "/@react-refresh"
-        injectIntoGlobalHook(window)
-        window.$RefreshReg$ = () => {}
-        window.$RefreshSig$ = () => (type) => type
-        window.__vite_plugin_react_preamble_installed__ = true
-    </script>` : ''}
-    <style>
-        html, body { margin: 0; padding: 0; width: 100%; }
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        #root { width: 100%; min-height: 100vh; }
-    </style>
-</head>
-<body class="bg-slate-50 text-slate-900">
-    <div id="root"></div>
-    <script type="module" src="/src/client/index.tsx"></script>
-</body>
-</html>`;
+        if (env.runtime === 'edge') {
+            const baseUrl = new URL(c.req.url).origin;
+            const res = await fetch(`${baseUrl}/index.html`);
+            html = res.ok ? await res.text() : "<html><body>Loading...</body></html>";
+        } else {
+            // Local fallback (Bun)
+            try {
+                const path = isDev ? "index.html" : "./dist/index.html";
+                // @ts-ignore - Bun global
+                html = await Bun.file(path).text();
+            } catch {
+                html = "<html><body>Local build not found. Run build first.</body></html>";
+            }
+        }
 
-        // Inject user session if available
-        const finalHtml = user
-            ? html.replace('</head>', `<script>window.__INITIAL_SESSION__ = ${JSON.stringify(user)};</script></head>`)
-            : html;
+        // Development Preamble
+        if (isDev) {
+            html = html.replace("<head>", `
+            <head>
+                <script type="module">
+                    import { injectIntoGlobalHook } from "/@react-refresh"
+                    injectIntoGlobalHook(window)
+                    window.$RefreshReg$ = () => {}
+                    window.$RefreshSig$ = () => (type) => type
+                    window.__vite_plugin_react_preamble_installed__ = true
+                </script>
+                <script type="module" src="/@vite/client"></script>`);
+        }
 
-        return c.html(finalHtml);
+        // SEO Injection
+        html = html.replace(/<title>.*?<\/title>/, `<title>${title}</title>`)
+            .replace(/<meta name="description" content=".*?">/, `<meta name="description" content="${description}">`);
 
-    } catch (error) {
-        console.error("SSR Error:", error);
+        // Hydration Data
+        const hydrationData: Record<string, any> = {};
+        if (session) {
+            const user = await db.query.users.findFirst({
+                where: eq(users.id, session.id),
+                columns: { id: true, name: true, role: true, permissions: true }
+            });
+            if (user) {
+                hydrationData['["auth","me"]'] = { user };
+                html = html.replace('</head>', `<script>window.__INITIAL_SESSION__ = ${JSON.stringify(user)};</script></head>`);
+            }
+        }
 
-        // Fallback HTML on error
-        const fallbackHtml = `<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Margins Pro</title>
-</head>
-<body>
-    <div id="root"></div>
-    <script type="module" src="/src/client/index.tsx"></script>
-</body>
-</html>`;
+        const hydrationScript = `<script id="__QUERY_HYDRATION_DATA__" type="application/json">${JSON.stringify(hydrationData)}</script>`;
+        return c.html(html.replace("</body>", `${hydrationScript}\n</body>`));
 
-        return c.html(fallbackHtml);
+    } catch (e) {
+        console.error("Critical SSR Error:", e);
+        return c.html("<html><body><h1>Critical System Error</h1><p>Please try again later.</p></body></html>", 500);
     }
 });
 

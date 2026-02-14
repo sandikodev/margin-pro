@@ -37,6 +37,16 @@ const AppErrorTestPage = React.lazy(() => import('./routes/app/AppErrorTest').th
 const AppErrorTestTrigger = React.lazy(() => import('./routes/app/AppErrorTest').then(module => ({ default: module.AppErrorTestTrigger })));
 const AppDXTestPage = React.lazy(() => import('./routes/app/AppDXTest').then(module => ({ default: module.AppDXTestPage })));
 
+// --- FILE SYSTEM ROUTES (Koda Zenith Apex) ---
+import { createClientRoutes } from '../lib/koda-zenith/client-router';
+
+// Scan src/apex/**/*.tsx for pages/views
+const autoRoutes = createClientRoutes(
+    import.meta.glob('../apex/**/*.tsx'),
+    import.meta.glob('../apex/**/layout.tsx') // Support layouts in apex
+);
+
+
 // --- ROUTER ---
 
 export const router = createBrowserRouter([
@@ -118,6 +128,10 @@ export const router = createBrowserRouter([
             { index: true, element: <LaboratoryPageConnect /> }
         ]
     },
+
+    // Inject Koda Zenith Auto-Routes here
+    ...autoRoutes,
+
     { path: "*", element: <Navigate to="/" replace /> }
 ], {
     future: {
@@ -129,3 +143,4 @@ export const router = createBrowserRouter([
         v7_skipActionErrorRevalidation: true,
     }
 });
+
