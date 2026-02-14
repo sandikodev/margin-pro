@@ -4,8 +4,8 @@
  * Qwik-style performance optimizations
  */
 
-import type { KodaServerEntry } from '../../lib/koda-zenith/entries';
-import { serverUtils } from '../../lib/koda-zenith/entries';
+import type { KodaServerEntry } from '../../core/framework/entries';
+import { serverUtils } from '../../core/framework/entries';
 
 
 import { renderToString } from 'react-dom/server';

@@ -2,14 +2,14 @@ import React, { Suspense } from 'react';
 import { RouterProvider } from 'react-router-dom';
 
 // Context Providers
-import { AuthProvider } from './context/AuthProvider';
-import { ToastProvider } from './context/ToastContext';
+import { AuthProvider } from '@/core/context/AuthProvider';
+import { ToastProvider } from '@/core/context/ToastProvider';
 
 // Modular Router
 import { router } from './router';
 
 // Global UI Components
-import { FullPageLoader } from './components/ui/design-system/Loading';
+import { FullPageLoader } from '@/core/ui/design-system/Loading';
 
 /**
  * App Component

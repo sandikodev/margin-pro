@@ -1,6 +1,6 @@
 
 import { type Context } from "hono";
-import { env } from "../../lib/koda-zenith";
+import { env } from "../../core/framework";
 
 export const GET = (c: Context) => {
     return c.json({

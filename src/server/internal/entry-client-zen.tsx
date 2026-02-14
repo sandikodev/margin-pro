@@ -4,8 +4,8 @@
  * Zen philosophy: Minimal constraints, maximum freedom
  */
 
-import type { ZenClientEntry } from '../../lib/koda-zenith/entries';
-import { clientUtils } from '../../lib/koda-zenith/entries';
+import type { ZenClientEntry } from '../../core/framework/entries';
+import { clientUtils } from '../../core/framework/entries';
 import { hydrateRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 

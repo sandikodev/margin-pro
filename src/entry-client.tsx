@@ -2,8 +2,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { queryClient, persister } from './lib/client/query-client';
-import { ConfigProvider } from './context/ConfigProvider';
+import { queryClient, persister } from '@/core/api/query-client';
+import { ConfigProvider } from '@/core/context/ConfigProvider';
 
 import './index.css';
 import App from './App';

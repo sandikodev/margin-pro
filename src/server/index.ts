@@ -1,8 +1,8 @@
 
 import { Hono, type Context, type Next } from "hono";
 import { cors } from "hono/cors";
-import { koda, env } from "../lib/koda-zenith";
-import { registerEntries, type KodaServerEntry, type ZenClientEntry, serverUtils } from "../lib/koda-zenith/entries";
+import { koda, env } from "../core/framework";
+import { registerEntries, type KodaServerEntry, type ZenClientEntry, serverUtils } from "../core/framework/entries";
 
 // API routes
 import { authRoutes } from "./routes/auth";
@@ -97,7 +97,7 @@ app.use("*", cors({
 }));
 app.use("*", requestLogger);
 
-import { createFileSystemRouter } from "../lib/koda-zenith/fs-router";
+import { createFileSystemRouter } from "../core/framework/fs-router";
 
 // --- API Sub-App ---
 const apiApp = new Hono();
