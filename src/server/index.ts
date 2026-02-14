@@ -1,6 +1,6 @@
 import "./env";
 import { Hono, type Context, type Next } from "hono";
-import { koda } from "../lib/koda-zenith";
+import { koda, env } from "../lib/koda-zenith";
 import { cors } from "hono/cors";
 import { BusinessProfile, BusinessType } from "@shared/types";
 import { authRoutes } from "./routes/auth";
@@ -18,24 +18,42 @@ import { getSession } from "./middleware/session";
 
 import { requestLogger } from "./middleware/security";
 
-const app = koda();
-
-app.use("*", cors());
-app.use("*", requestLogger);
-
-// Koda Security Posture (HSTS, CSP) - Edge Compatible
-app.use("/api/*", ...koda.security({
-    csp: {
+// Use enhanced setup based on environment
+const app = env.isDev 
+  ? koda.setup.development()
+  : koda.setup.production({
+      rateLimit: { windowMs: 60 * 1000, limit: 100 },
+      csp: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://*.google.com", "https://*.gstatic.com", "https://app.midtrans.com"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         imgSrc: ["'self'", "data:", "https:", "blob:"],
         fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
         connectSrc: ["'self'", "https://*.googleapis.com", "https://*.turso.io", "https://app.midtrans.com", "https://api.midtrans.com", "https://api.sandbox.midtrans.com"],
-    }
-}));
+      }
+    });
 
-// --- GLOBAL ERROR HANDLING ---
+app.use("*", cors());
+app.use("*", requestLogger);
+
+// --- DX & Monitoring Endpoints (Dev Only) ---
+if (env.isDev) {
+    const { kodaDX } = await import("../lib/koda-zenith/dx");
+    const { kodaContext } = await import("../lib/koda-zenith/context");
+    
+    apiApp.get("/dx/diagnostics", async (c) => {
+        return c.json(kodaDX.getDiagnostics());
+    });
+    
+    apiApp.get("/dx/history", async (c) => {
+        return c.json(kodaContext.getHistory());
+    });
+    
+    apiApp.get("/dx/performance", async (c) => {
+        const metrics = kodaContext.getMetrics();
+        return c.json(metrics);
+    });
+}
 app.onError((err: Error, c: Context) => {
     const message = err instanceof Error ? err.message : "Internal Server Error";
     console.error(`[Global Error] ${message}`, err);
@@ -50,7 +68,7 @@ app.notFound((c: Context) => {
 // The .basePath() method creates a new Hono instance with the prefix
 const apiApp = new Hono()
     .basePath("/api")
-    .get("/health", (c: Context) => c.json({ status: "ok", runtime: "bun" }))
+    .get("/health", (c: Context) => c.json({ status: "ok", runtime: env.runtime }))
     .route("/auth", authRoutes)
     .route("/businesses", businessesRoutes)
     .route("/projects", projectsRoutes)
@@ -59,6 +77,25 @@ const apiApp = new Hono()
     .route("/configs", configsRoutes)
     .route("/admin", adminRoutes)
     .route("/midtrans", paymentsRoutes);
+
+// --- DX & Monitoring Endpoints (Dev Only) ---
+if (env.isDev) {
+    apiApp.get("/dx/diagnostics", async (c) => {
+        const { kodaDX } = await import("../lib/koda-zenith/dx");
+        return c.json(kodaDX.getDiagnostics());
+    });
+    
+    apiApp.get("/dx/history", async (c) => {
+        const { kodaContext } = await import("../lib/koda-zenith/context");
+        return c.json(kodaContext.getHistory());
+    });
+    
+    apiApp.get("/dx/performance", async (c) => {
+        const { kodaContext } = await import("../lib/koda-zenith/context");
+        const metrics = kodaContext.getMetrics();
+        return c.json(metrics);
+    });
+}
 
 // Mount the API app to the main app root
 app.route("/", apiApp);

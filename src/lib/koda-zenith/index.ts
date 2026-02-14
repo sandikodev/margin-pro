@@ -1,113 +1,107 @@
 /**
- * Koda Zenith Framework - Minimum Viable Framework
- * Edge Runtime Compatible | Zero Dependencies | Production Ready
+ * Koda Zenith Framework - Enhanced Production Framework
+ * Edge Runtime Compatible | Zero Dependencies | Enterprise Ready
  */
 
 import { Hono } from 'hono';
 import type { MiddlewareHandler, Env, Schema } from 'hono';
-import { secureHeaders } from 'hono/secure-headers';
 
-// --- TYPES ---
+// Re-export modules
+export { env } from './env';
+export { kodaContext } from './context';
+export { createSecurityMiddleware, performanceMiddleware } from './security';
+export { kodaDX, KodaError } from './dx';
+export type { SecurityConfig } from './security';
+export type { KodaContext } from './context';
+export type { KodaEnv, KodaRuntime } from './env';
+
+// --- MAIN FRAMEWORK ---
 export interface KodaApp<T extends Env = any, S extends Schema = any, BasePath extends string = "/"> extends Hono<T, S, BasePath> {}
 
-export interface SecurityConfig {
-  csp?: Record<string, string[]>;
-  sanitize?: boolean;
-}
-
-export interface KodaEnv {
-  runtime: 'bun' | 'edge' | 'node' | 'deno' | 'unknown';
-  isDev: boolean;
-  get(key: string): string | undefined;
-  isProd: boolean;
-}
-
-// --- RUNTIME DETECTION ---
-function detectRuntime(): KodaEnv['runtime'] {
-  if (typeof Deno !== 'undefined') return 'deno';
-  if (typeof Bun !== 'undefined') return 'bun';
-  if (typeof EdgeRuntime !== 'undefined') return 'edge';
-  if (typeof process !== 'undefined' && process?.versions?.node) return 'node';
-  return 'unknown';
-}
-
-// --- ENV UTILS ---
-const env: KodaEnv = {
-  runtime: detectRuntime(),
-  isDev: typeof process !== 'undefined' ? process.env.NODE_ENV === 'development' : false,
-  get: (key: string) => typeof process !== 'undefined' ? process.env[key] : undefined,
-  get isProd() { return !this.isDev; }
-};
-
-// --- CONTEXT STORAGE ---
-const contextMap = new Map<string, any>();
-let currentRequestId: string | undefined;
-
-export const kodaContext = {
-  run<T>(ctx: { requestId: string }, fn: () => T): T {
-    contextMap.set(ctx.requestId, ctx);
-    currentRequestId = ctx.requestId;
-    try {
-      return fn();
-    } finally {
-      contextMap.delete(ctx.requestId);
-      currentRequestId = undefined;
-    }
-  },
-  current() {
-    return currentRequestId ? contextMap.get(currentRequestId) : undefined;
-  }
-};
-
-// --- SECURITY MIDDLEWARE ---
-function createSecurityMiddleware(config: SecurityConfig = {}): MiddlewareHandler[] {
-  const middleware: MiddlewareHandler[] = [];
-
-  // Basic sanitization
-  if (config.sanitize !== false) {
-    middleware.push(async (c, next) => {
-      // Basic XSS protection
-      const userAgent = c.req.header('user-agent') || '';
-      if (userAgent.includes('<script>') || userAgent.includes('javascript:')) {
-        return c.text('Blocked', 400);
-      }
-      await next();
-    });
-  }
-
-  // Security headers
-  middleware.push(secureHeaders({
-    contentSecurityPolicy: config.csp as any
-  }));
-
-  return middleware;
-}
-
-// --- MAIN FACTORY ---
 function createKoda<T extends Env = any, S extends Schema = any, BasePath extends string = "/">(): KodaApp<T, S, BasePath> {
   const app = new Hono<T, S, BasePath>();
 
-  // Request tracing
+  // Request context tracing
   app.use("*", async (c, next) => {
     const requestId = crypto.randomUUID();
-    return await kodaContext.run({ requestId }, next);
+    const startTime = Date.now();
+    
+    return await kodaContext.run({ requestId, startTime }, async () => {
+      // Set request metadata
+      kodaContext.set('method', c.req.method);
+      kodaContext.set('path', new URL(c.req.url).pathname);
+      kodaContext.set('userAgent', c.req.header('user-agent'));
+      
+      await next();
+    });
   });
 
   return app as KodaApp<T, S, BasePath>;
 }
 
-// --- EXPORTS ---
+// --- ENHANCED API ---
 export const koda = Object.assign(createKoda, {
+  // Security middleware factory
   security: createSecurityMiddleware,
-  env,
-  context: kodaContext
+  
+  // Performance monitoring
+  performance: performanceMiddleware,
+  
+  // Environment utilities
+  env: () => import('./env').then(m => m.env),
+  
+  // Context utilities
+  context: () => import('./context').then(m => m.kodaContext),
+  
+  // Development utilities
+  dx: () => import('./dx').then(m => m.kodaDX),
+  
+  // Quick setup for common patterns
+  setup: {
+    /**
+     * Production-ready setup with security and performance
+     */
+    production: (config?: { 
+      rateLimit?: { windowMs: number; limit: number };
+      csp?: Record<string, string[]>;
+    }) => {
+      const app = createKoda();
+      
+      // Add performance monitoring
+      app.use('*', performanceMiddleware());
+      
+      // Add security middleware
+      app.use('*', ...createSecurityMiddleware({
+        rateLimit: config?.rateLimit || { windowMs: 60000, limit: 100 },
+        csp: config?.csp,
+        sanitize: true
+      }));
+      
+      return app;
+    },
+    
+    /**
+     * Development setup with enhanced debugging
+     */
+    development: () => {
+      const app = createKoda();
+      
+      // Add performance monitoring
+      app.use('*', performanceMiddleware());
+      
+      // Add basic security (no rate limiting in dev)
+      app.use('*', ...createSecurityMiddleware({
+        sanitize: true,
+        csp: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+          styleSrc: ["'self'", "'unsafe-inline'"]
+        }
+      }));
+      
+      return app;
+    }
+  }
 });
 
 export type { MiddlewareHandler };
-
-// Global declarations
-declare global {
-  var Bun: any;
-  var Deno: any;
-  var EdgeRuntime: any;
-}
