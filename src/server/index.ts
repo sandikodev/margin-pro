@@ -8,7 +8,7 @@ import type { Context, Next } from "hono";
 import { authRoutes } from "./routes/auth";
 import { projectsRoutes } from "./routes/projects";
 import { paymentsRoutes } from "./routes/payment";
-import { getSession } from "./db/auth";
+import { getSession } from "./middleware/session";
 
 // Create the main app
 const app = new Hono();
